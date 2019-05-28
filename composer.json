@@ -1,0 +1,74 @@
+{
+    "name": "laravel/cashier-mollie",
+    "description": "Laravel Cashier provides an expressive, fluent interface to Mollie's subscription billing services.",
+    "keywords": [
+        "mollie",
+        "laravel",
+        "subscriptions",
+        "recurring",
+        "billing",
+        "SEPA",
+        "Apple Pay",
+        "credit card",
+        "debit card",
+        "Europe"
+    ],
+    "homepage": "https://github.com/mollie/laravel-cashier",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mollie.com",
+            "email": "support@mollie.com",
+            "homepage": "https://www.mollie.com",
+            "role": "Owner"
+        },
+        {
+            "name": "Sander van Hooft",
+            "email": "info@sandervanhooft.com",
+            "homepage": "https://www.sandervanhooft.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=7.2",
+        "ext-json": "*",
+        "ext-intl": "*",
+        "dompdf/dompdf": "^0.8.0",
+        "illuminate/database": "~5.5.0|~5.6.0|~5.7.0|~5.8.0",
+        "illuminate/support": "~5.5.0|~5.6.0|~5.7.0|~5.8.0",
+        "mollie/laravel-mollie": "^2.5",
+        "moneyphp/money": "^3.2",
+        "nesbot/carbon": "^1.33 || ^2.0"
+    },
+    "require-dev": {
+        "mockery/mockery": "^1.0",
+        "orchestra/testbench": "~3.0",
+        "phpunit/phpunit": "^6.5|^7.5",
+        "vlucas/phpdotenv": "^2.0|^3.3"
+    },
+    "autoload": {
+        "files": [
+            "src/Helpers/helpers.php"
+        ],
+        "psr-4": {
+            "Laravel\\Cashier\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Laravel\\Cashier\\Tests\\": "tests"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Laravel\\Cashier\\CashierServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

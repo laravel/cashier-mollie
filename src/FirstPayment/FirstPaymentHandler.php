@@ -1,0 +1,133 @@
+<?php
+
+namespace Laravel\Cashier\FirstPayment;
+
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Laravel\Cashier\FirstPayment\Actions\BaseAction;
+use Laravel\Cashier\Order\Order;
+use Laravel\Cashier\Order\OrderItem;
+use Laravel\Cashier\Order\OrderItemCollection;
+use Mollie\Api\Resources\Payment;
+
+class FirstPaymentHandler
+{
+    /**
+     * @var \Illuminate\Database\Eloquent\Model
+     */
+    protected $owner;
+
+    /**
+     * @var \Mollie\Api\Resources\Payment
+     */
+    protected $payment;
+
+    /**
+     * @var \Illuminate\Support\Collection
+     */
+    protected $actions;
+
+    /**
+     * FirstPaymentHandler constructor.
+     *
+     * @param \Mollie\Api\Resources\Payment $payment
+     */
+    public function __construct(Payment $payment)
+    {
+        $this->payment = $payment;
+        $this->owner = $this->extractOwner();
+        $this->actions = $this->extractActions();
+    }
+
+    /**
+     * Execute all actions for the mandate payment and return the created Order.
+     *
+     * @return \Laravel\Cashier\Order\Order
+     */
+    public function execute()
+    {
+        return DB::transaction(function () {
+            $this->owner->update([
+                'mollie_mandate_id' => $this->payment->mandateId
+            ]);
+            $orderItems = $this->executeActions();
+
+            return Order::createProcessedFromItems($orderItems);
+        });
+    }
+
+    /**
+     * Fetch the owner model using the mandate payment metadata.
+     *
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    protected function extractOwner()
+    {
+        $ownerType = $this->payment->metadata->owner->type;
+        $ownerID = $this->payment->metadata->owner->id;
+
+        return $ownerType::findOrFail($ownerID);
+    }
+
+    /**
+     * Build the action objects from the payment metadata.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    protected function extractActions()
+    {
+        $actions = new Collection((array) $this->payment->metadata->actions);
+
+        return $actions->map(function ($actionMeta) {
+            return $actionMeta->handler::createFromPayload(
+                object_to_array_recursive($actionMeta),
+                $this->owner
+            );
+        });
+    }
+
+    /**
+     * Execute the Actions and return a collection of the resulting OrderItems.
+     * These OrderItems are already paid for using the mandate payment.
+     *
+     * @return \Laravel\Cashier\Order\OrderItemCollection
+     */
+    protected function executeActions()
+    {
+        $orderItems = new OrderItemCollection();
+
+        $this->actions->each(function (BaseAction $action) use (&$orderItems) {
+            $actionResult = $action->execute();
+
+            if(!empty($actionResult)) {
+                if(is_a($actionResult, OrderItem::class)) {
+                    $orderItems->push($actionResult);
+                } elseif (is_a($actionResult, OrderItemCollection::class)) {
+                    $orderItems->concat($actionResult);
+                }
+            }
+        });
+
+        return $orderItems;
+    }
+
+    /**
+     * Retrieve the owner object.
+     *
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    public function getOwner()
+    {
+        return $this->owner;
+    }
+
+    /**
+     * Retrieve all Action objects.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function getActions()
+    {
+        return $this->actions;
+    }
+}
