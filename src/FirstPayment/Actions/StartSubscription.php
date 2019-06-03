@@ -4,7 +4,6 @@ namespace Laravel\Cashier\FirstPayment\Actions;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Arr;
 use Laravel\Cashier\Coupon\Contracts\CouponRepository;
 use Laravel\Cashier\Coupon\RedeemedCoupon;
 use Laravel\Cashier\Order\OrderItem;
@@ -72,7 +71,10 @@ class StartSubscription extends BaseAction
     public static function createFromPayload(array $payload, Model $owner)
     {
         $action = new static($owner, $payload['name'], $payload['plan']);
-        $action->withTaxPercentage($payload['taxPercentage']);
+
+        if(isset($payload['taxPercentage'])) {
+            $action->withTaxPercentage($payload['taxPercentage']);
+        }
 
         if(isset($payload['trialUntil'])) {
             $action->trialUntil(Carbon::parse($payload['trialUntil']));

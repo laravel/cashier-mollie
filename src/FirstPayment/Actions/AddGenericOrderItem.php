@@ -30,11 +30,13 @@ class AddGenericOrderItem extends BaseAction
      */
     public static function createFromPayload(array $payload, Model $owner)
     {
+        $taxPercentage = isset($payload['taxPercentage']) ? $payload['taxPercentage'] : 0;
+
         return (new static(
             $owner,
             mollie_array_to_money($payload['subtotal']),
             $payload['description']
-        ))->withTaxPercentage($payload['taxPercentage']);
+        ))->withTaxPercentage($taxPercentage);
     }
 
     /**
