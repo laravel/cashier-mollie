@@ -12,19 +12,13 @@ use Mollie\Api\Resources\Payment;
 
 class FirstPaymentHandler
 {
-    /**
-     * @var \Illuminate\Database\Eloquent\Model
-     */
+    /** @var \Illuminate\Database\Eloquent\Model */
     protected $owner;
 
-    /**
-     * @var \Mollie\Api\Resources\Payment
-     */
+    /** @var \Mollie\Api\Resources\Payment */
     protected $payment;
 
-    /**
-     * @var \Illuminate\Support\Collection
-     */
+    /** @var \Illuminate\Support\Collection */
     protected $actions;
 
     /**
@@ -47,12 +41,15 @@ class FirstPaymentHandler
     public function execute()
     {
         return DB::transaction(function () {
-            $this->owner->update([
-                'mollie_mandate_id' => $this->payment->mandateId
-            ]);
+            $this->owner->mollie_mandate_id = $this->payment->mandateId;
+            $this->owner->save();
+
             $orderItems = $this->executeActions();
 
-            return Order::createProcessedFromItems($orderItems);
+            return Order::createProcessedFromItems($orderItems, [
+                'mollie_payment_id' => $this->payment->id,
+                'mollie_payment_status' => $this->payment->status,
+            ]);
         });
     }
 
