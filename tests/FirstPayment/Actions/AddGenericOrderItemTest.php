@@ -53,6 +53,24 @@ class AddGenericOrderItemTest extends BaseTestCase
     }
 
     /** @test */
+    public function canCreateFromPayloadWithoutTaxPercentage()
+    {
+        $action = AddGenericOrderItem::createFromPayload([
+            'subtotal' => [
+                'value' => '0.05',
+                'currency' => 'EUR',
+            ],
+            'description' => 'Adding a test order item',
+        ], factory(User::class)->make(['taxPercentage' => 0]));
+
+        $this->assertInstanceOf(AddGenericOrderItem::class, $action);
+        $this->assertMoneyEURCents(5, $action->getSubtotal());
+        $this->assertMoneyEURCents(5, $action->getTotal());
+        $this->assertMoneyEURCents(0, $action->getTax());
+        $this->assertEquals(0, $action->getTaxPercentage());
+    }
+
+    /** @test */
     public function canExecute()
     {
         $this->withPackageMigrations();
