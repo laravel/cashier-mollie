@@ -16,7 +16,7 @@ abstract class BaseAction
     protected $subtotal;
 
     /** var float */
-    protected $taxPercentage;
+    protected $taxPercentage = 0;
 
     /** @var \Money\Money */
     protected $discount;

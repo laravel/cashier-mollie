@@ -190,6 +190,21 @@ class StartSubscriptionTest extends BaseTestCase
     }
 
     /** @test */
+    public function canCreateFromPayloadWithoutTaxPercentage()
+    {
+        $this->withMockedCouponRepository();
+        $this->assertFromPayloadToPayload([
+            'coupon' => 'test-coupon',
+            'trialDays' => 5,
+            'subtotal' => [
+                'value' => '0.00',
+                'currency' => 'EUR',
+            ],
+            'taxPercentage' => 0,
+        ]);
+    }
+
+    /** @test */
     public function canStartDefaultSubscription()
     {
         $user = $this->getMandatedUser();
@@ -421,7 +436,7 @@ class StartSubscriptionTest extends BaseTestCase
      */
     protected function assertFromPayloadToPayload($overrides = [])
     {
-        $payload = array_merge([
+        $payload = array_filter(array_merge([
             'handler' => StartSubscription::class,
             'description' => 'Monthly payment',
             'subtotal' => [
@@ -432,7 +447,7 @@ class StartSubscriptionTest extends BaseTestCase
             'plan' => 'monthly-10-1',
             'name' => 'default',
             'quantity' => 1,
-        ], $overrides);
+        ], $overrides));
 
         $action = StartSubscription::createFromPayload(
             $payload,
