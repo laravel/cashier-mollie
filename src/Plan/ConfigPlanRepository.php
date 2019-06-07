@@ -48,7 +48,7 @@ class ConfigPlanRepository implements PlanRepository
     /**
      * @return \Laravel\Cashier\Plan\PlanCollection
      */
-    protected static function all()
+    public static function all()
     {
         $result = [];
         $defaults = config('cashier_plans.defaults');
