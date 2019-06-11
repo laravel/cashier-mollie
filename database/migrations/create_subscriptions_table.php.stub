@@ -18,7 +18,7 @@ class CreateSubscriptionsTable extends Migration
             $table->string('name');
             $table->string('plan');
             $table->string('owner_type');
-            $table->unsignedInteger('owner_id');
+            $table->unsignedBigInteger('owner_id');
             $table->string('next_plan')->nullable();
             $table->unsignedInteger('quantity')->default(1);
             $table->decimal('tax_percentage', 6, 4)->default(0);
@@ -26,7 +26,7 @@ class CreateSubscriptionsTable extends Migration
             $table->datetime('trial_ends_at')->nullable();
             $table->datetime('cycle_started_at');
             $table->datetime('cycle_ends_at')->nullable();
-            $table->unsignedInteger('scheduled_order_item_id')->nullable();
+            $table->unsignedBigInteger('scheduled_order_item_id')->nullable();
             $table->timestamps();
         });
     }
