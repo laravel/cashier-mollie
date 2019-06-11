@@ -21,7 +21,7 @@ class CreateOrderItemsTable extends Migration
             $table->string('owner_type');
             $table->unsignedInteger('owner_id');
             $table->string('description');
-            $table->json('description_extra_lines')->nullable();
+            $table->text('description_extra_lines')->nullable();
             $table->string('currency', 3);
             $table->unsignedInteger('quantity')->default(1);
             $table->integer('unit_price');
