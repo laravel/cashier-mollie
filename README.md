@@ -156,12 +156,13 @@ Here's a basic controller example for creating the subscription:
         public function __invoke(string $plan)
         {
             $user = Auth::user();
-    
-            if(!$user->subscribed($plan)) {
-    
-                $name = ucfirst($plan) . ' membership';
+
+            $name = ucfirst($plan) . ' membership';
+
+            if(!$user->subscribed($name, $plan)) {
+
                 $result = $user->newSubscription($name, $plan)->create();
-    
+
                 if(is_a($result, RedirectResponse::class)) {
                     return $result; // Redirect to Mollie checkout
                 }
