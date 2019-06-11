@@ -14,7 +14,7 @@ class CreateOrderItemsTable extends Migration
     public function up()
     {
         Schema::create('order_items', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->increments('id');
             $table->dateTime('process_at');
             $table->string('orderable_type')->nullable();
             $table->unsignedInteger('orderable_id')->nullable();

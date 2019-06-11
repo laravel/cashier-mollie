@@ -14,7 +14,7 @@ class CreateAppliedCouponsTable extends Migration
     public function up()
     {
         Schema::create('applied_coupons', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->increments('id');
             $table->unsignedInteger('redeemed_coupon_id');
             $table->morphs('model');
             $table->timestamps();

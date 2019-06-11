@@ -14,7 +14,7 @@ class CreateRedeemedCouponsTable extends Migration
     public function up()
     {
         Schema::create('redeemed_coupons', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->increments('id');
             $table->string('name');
             $table->string('model_type');
             $table->unsignedInteger('model_id');
