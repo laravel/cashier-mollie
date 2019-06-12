@@ -2,6 +2,7 @@
 
 namespace Laravel\Cashier;
 
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Order\OrderItem;
@@ -11,6 +12,20 @@ use Money\Money;
 
 class Cashier
 {
+    /**
+     * The current currency.
+     *
+     * @var string
+     */
+    protected static $currency = 'eur';
+
+    /**
+     * The current currency symbol.
+     *
+     * @var string
+     */
+    protected static $currencySymbol = '€';
+
     /**
      * The custom currency formatter.
      *
@@ -32,6 +47,75 @@ class Cashier
         });
 
         return $orders;
+    }
+
+    /**
+     * Set the default currency for this merchant.
+     *
+     * @param  string  $currency
+     * @param  string|null  $symbol
+     * @return void
+     * @throws \Exception
+     */
+    public static function useCurrency($currency, $symbol = null)
+    {
+        static::$currency = $currency;
+
+        static::useCurrencySymbol($symbol ?: static::guessCurrencySymbol($currency));
+    }
+
+    /**
+     * Set the currency symbol to be used when formatting currency.
+     *
+     * @param  string  $symbol
+     * @return void
+     */
+    public static function useCurrencySymbol($symbol)
+    {
+        static::$currencySymbol = $symbol;
+    }
+
+    /**
+     * Guess the currency symbol for the given currency.
+     *
+     * @param  string  $currency
+     * @return string
+     * @throws \Exception
+     */
+    protected static function guessCurrencySymbol($currency)
+    {
+        switch (strtolower($currency)) {
+            case 'usd':
+            case 'aud':
+            case 'cad':
+                return '$';
+            case 'eur':
+                return '€';
+            case 'gbp':
+                return '£';
+            default:
+                throw new Exception('Unable to guess symbol for currency. Please explicitly specify it.');
+        }
+    }
+
+    /**
+     * Get the currency currently in use.
+     *
+     * @return string
+     */
+    public static function usesCurrency()
+    {
+        return static::$currency;
+    }
+    
+    /**
+     * Get the currency symbol currently in use.
+     *
+     * @return string
+     */
+    public static function usesCurrencySymbol()
+    {
+        return static::$currencySymbol;
     }
 
     /**
