@@ -14,12 +14,12 @@ class CreateRedeemedCouponsTable extends Migration
     public function up()
     {
         Schema::create('redeemed_coupons', function (Blueprint $table) {
-            $table->increments('id');
+            $table->bigIncrements('id');
             $table->string('name');
             $table->string('model_type');
-            $table->unsignedInteger('model_id');
+            $table->unsignedBigInteger('model_id');
             $table->string('owner_type');
-            $table->unsignedInteger('owner_id');
+            $table->unsignedBigInteger('owner_id');
             $table->unsignedInteger('times_left')->default(1);
             $table->timestamps();
         });
