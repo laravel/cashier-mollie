@@ -9,7 +9,7 @@ class MandatePaymentPaid
     /**
      * @var \Mollie\Api\Resources\Payment
      */
-    protected $payment;
+    public $payment;
 
     public function __construct(Payment $payment)
     {
