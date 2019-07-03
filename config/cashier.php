@@ -82,14 +82,4 @@ return [
         'description' => 'Welcome to ' . config('app.name'),
     ],
 
-    /**
-     * The default chain of subscription OrderItem preprocessors. These are called right before the Subscription's
-     * OrderItem is processed into an OrderItem. You can use this for calculating variable costs a.k.a. metered billing.
-     * Can be overridden per subscription plan. Make sure the preprocessors implement the PreprocessesOrderItems
-     * interface.
-     */
-    'order_item_preprocessors' => [ // TODO move to cashier_plans
-        //
-    ],
-
 ];
