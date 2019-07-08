@@ -73,7 +73,7 @@ class FirstPaymentSubscriptionBuilder implements Contract
     /**
      * Create a new subscription. Returns a redirect to Mollie's checkout screen.
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Laravel\Cashier\SubscriptionBuilder\RedirectToCheckoutResponse
      */
     public function create()
     {
@@ -89,7 +89,7 @@ class FirstPaymentSubscriptionBuilder implements Contract
 
         $payment = $this->mandatePaymentBuilder->inOrderTo($actions)->create();
 
-        return redirect($payment->getCheckoutUrl());
+        return RedirectToCheckoutResponse::forPayment($payment);
     }
 
     /**

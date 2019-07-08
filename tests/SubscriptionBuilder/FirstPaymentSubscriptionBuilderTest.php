@@ -9,7 +9,9 @@ use Laravel\Cashier\Events\OrderProcessed;
 use Laravel\Cashier\FirstPayment\Actions\AddGenericOrderItem;
 use Laravel\Cashier\FirstPayment\Actions\StartSubscription;
 use Laravel\Cashier\SubscriptionBuilder\FirstPaymentSubscriptionBuilder;
+use Laravel\Cashier\SubscriptionBuilder\RedirectToCheckoutResponse;
 use Laravel\Cashier\Tests\BaseTestCase;
+use Mollie\Api\Resources\Payment;
 
 class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
 {
@@ -36,6 +38,8 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
         $response = $builder->create();
 
         $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertInstanceOf(RedirectToCheckoutResponse::class, $response);
+        $this->assertInstanceOf(Payment::class, $response->payment());
 
         $payload = $builder->getMandatePaymentBuilder()->getMolliePayload();
 
@@ -86,8 +90,8 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
 
         // For creating a new paid first payment, use:
         // dd(
-        //     $builder->getMandatePaymentBuilder()->getMolliePayment()->getCheckoutUrl(), // visit this Mollie checkout url and set status to 'paid'
-        //     $builder->getMandatePaymentBuilder()->getMolliePayment()->id // store this in phpunit.xml: SUBSCRIPTION_MANDATE_PAYMENT_PAID_ID
+        //     $response->payment()->getCheckoutUrl(), // visit this Mollie checkout url and set status to 'paid'
+        //     $response->payment()->id // store this in phpunit.xml: SUBSCRIPTION_MANDATE_PAYMENT_PAID_ID
         // );
     }
 
