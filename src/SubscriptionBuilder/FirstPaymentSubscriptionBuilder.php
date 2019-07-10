@@ -87,9 +87,9 @@ class FirstPaymentSubscriptionBuilder implements Contract
             );
         }
 
-        $payment = $this->mandatePaymentBuilder->inOrderTo($actions)->create();
+        $this->mandatePaymentBuilder->inOrderTo($actions)->create();
 
-        return RedirectToCheckoutResponse::forPayment($payment);
+        return $this->redirectToCheckout();
     }
 
     /**
@@ -169,5 +169,13 @@ class FirstPaymentSubscriptionBuilder implements Contract
     public function getMandatePaymentBuilder()
     {
         return $this->mandatePaymentBuilder;
+    }
+
+    /**
+     * @return \Laravel\Cashier\SubscriptionBuilder\RedirectToCheckoutResponse
+     */
+    protected function redirectToCheckout()
+    {
+        return RedirectToCheckoutResponse::forFirstPaymentSubscriptionBuilder($this);
     }
 }
