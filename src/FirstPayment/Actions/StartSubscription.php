@@ -150,6 +150,8 @@ class StartSubscription extends BaseAction
             }
         }
 
+        $this->owner->cancelGenericTrial();
+
         return $paidItem;
     }
 

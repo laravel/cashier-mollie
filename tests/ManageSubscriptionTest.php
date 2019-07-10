@@ -26,15 +26,20 @@ class ManageSubscriptionTest extends BaseTestCase
      */
     public function canCreateDirectDebitSubscriptionForMandatedCustomer()
     {
-        $user = $this->getMandatedUser(true, ['tax_percentage' => 10]);
+        $user = $this->getMandatedUser(true, [
+            'tax_percentage' => 10,
+            'trial_ends_at' => now()->addWeek(),
+        ]);
 
         $this->assertEquals(0, $user->subscriptions()->count());
         $this->assertEquals(0, $user->orderItems()->count());
+        $this->assertTrue($user->onGenericTrial());
 
         $user->newSubscriptionForMandateId($this->getMandateId(), 'main', 'monthly-10-1')->create();
 
         $this->assertEquals(1, count($user->subscriptions));
         $this->assertNotNull($user->mollie_customer_id);
+        $this->assertFalse($user->onGenericTrial());
         $this->assertNotNull($user->subscription('main'));
         $this->assertTrue($user->subscribed('main'));
         $this->assertFalse($user->subscribed('invalid'));
