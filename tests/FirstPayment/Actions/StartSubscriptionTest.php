@@ -207,7 +207,9 @@ class StartSubscriptionTest extends BaseTestCase
     /** @test */
     public function canStartDefaultSubscription()
     {
-        $user = $this->getMandatedUser();
+        $user = $this->getMandatedUser(true, [
+            'trial_ends_at' => now()->addWeek(), // on generic trial
+        ]);
 
         $this->assertFalse($user->subscribed('default'));
 

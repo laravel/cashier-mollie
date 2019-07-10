@@ -192,6 +192,20 @@ trait Billable
     }
 
     /**
+     * Cancel the generic trial if active.
+     *
+     * @return $this
+     */
+    public function cancelGenericTrial()
+    {
+        if($this->onGenericTrial()) {
+            $this->update(['trial_ends_at' => now()]);
+        }
+
+        return $this;
+    }
+
+    /**
      * Determine if the billable model has a given subscription.
      *
      * @param  string  $subscription

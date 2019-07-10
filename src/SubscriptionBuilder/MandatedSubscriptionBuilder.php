@@ -112,6 +112,8 @@ class MandatedSubscriptionBuilder implements Contract
                 $this->coupon->redeemFor($subscription);
             }
 
+            $this->owner->cancelGenericTrial();
+
             return $subscription;
         });
     }
