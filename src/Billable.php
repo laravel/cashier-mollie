@@ -199,7 +199,7 @@ trait Billable
     public function cancelGenericTrial()
     {
         if($this->onGenericTrial()) {
-            $this->update(['trial_ends_at' => now()]);
+            $this->forceFill(['trial_ends_at' => now()])->save();
         }
 
         return $this;
