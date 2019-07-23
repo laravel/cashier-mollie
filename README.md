@@ -473,6 +473,9 @@ The first payment (used for obtaining a mandate) was successful.
 The `mollie_mandate_id` was cleared on the billable model. This happens when a payment has failed because of a invalid
 mandate.
 
+#### MandateUpdated
+The billable model's mandate was updated. This usually means a new payment card was registered.
+
 #### OrderCreated event
 An Order was created.
 

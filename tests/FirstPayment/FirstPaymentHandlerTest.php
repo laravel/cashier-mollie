@@ -2,6 +2,8 @@
 
 namespace Laravel\Cashier\Tests\FirstPayment;
 
+use Illuminate\Support\Facades\Event;
+use Laravel\Cashier\Events\MandateUpdated;
 use Laravel\Cashier\FirstPayment\Actions\AddBalance;
 use Laravel\Cashier\FirstPayment\FirstPaymentHandler;
 use Laravel\Cashier\Order\Order;
@@ -13,6 +15,7 @@ class FirstPaymentHandlerTest extends BaseTestCase
     public function handlesMolliePayments()
     {
         $this->withPackageMigrations();
+        Event::fake();
 
         $payment = $this->getMandatePayment();
 
@@ -52,9 +55,6 @@ class FirstPaymentHandlerTest extends BaseTestCase
         $credit = $owner->credit('EUR');
         $this->assertMoneyEURCents(1000,$credit->money());
 
-        $this->assertNotNull($owner->mollie_mandate_id);
-        $this->assertEquals($payment->mandateId, $owner->mollie_mandate_id);
-
         $this->assertEquals(2, $owner->orderItems()->count());
         $this->assertEquals(1, $owner->orders()->count());
 
@@ -62,5 +62,12 @@ class FirstPaymentHandlerTest extends BaseTestCase
         $this->assertTrue($order->isProcessed());
 
         $this->assertEquals(2, $order->items()->count());
+
+        $this->assertNotNull($owner->mollie_mandate_id);
+        $this->assertEquals($payment->mandateId, $owner->mollie_mandate_id);
+
+        Event::assertDispatched(MandateUpdated::class, function(MandateUpdated $e) use ($owner) {
+            return $e->owner->is($owner);
+        });
     }
 }

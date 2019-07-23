@@ -4,6 +4,7 @@ namespace Laravel\Cashier\FirstPayment;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Laravel\Cashier\Events\MandateUpdated;
 use Laravel\Cashier\FirstPayment\Actions\BaseAction;
 use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Order\OrderItem;
@@ -40,7 +41,7 @@ class FirstPaymentHandler
      */
     public function execute()
     {
-        return DB::transaction(function () {
+        $order = DB::transaction(function () {
             $this->owner->mollie_mandate_id = $this->payment->mandateId;
             $this->owner->save();
 
@@ -51,6 +52,10 @@ class FirstPaymentHandler
                 'mollie_payment_status' => $this->payment->status,
             ]);
         });
+
+        event(new MandateUpdated($this->owner));
+
+        return $order;
     }
 
     /**
