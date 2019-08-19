@@ -625,7 +625,7 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
      * @param bool $invoiceNow
      * @return mixed
      */
-    protected function restartCycleWithModifications(\Closure $applyNewSettings, ?Carbon $now = null, $invoiceNow = true)
+    public function restartCycleWithModifications(\Closure $applyNewSettings, ?Carbon $now = null, $invoiceNow = true)
     {
         $now = $now ?: now();
 
