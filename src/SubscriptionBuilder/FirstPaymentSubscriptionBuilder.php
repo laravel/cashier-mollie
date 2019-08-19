@@ -80,9 +80,15 @@ class FirstPaymentSubscriptionBuilder implements Contract
         $actions = [ $this->startSubscription ];
 
         if($this->isTrial) {
+            $taxPercentage = $this->owner->taxPercentage() * 0.01;
+            $total = $this->plan->firstPaymentAmount();
+
+            $vat = $total->divide(1 + $taxPercentage)->multiply($taxPercentage);
+            $subtotal = $total->subtract($vat);
+
             $actions[] = new AddGenericOrderItem(
                 $this->owner,
-                $this->plan->firstPaymentAmount(),
+                $subtotal,
                 $this->plan->firstPaymentDescription()
             );
         }

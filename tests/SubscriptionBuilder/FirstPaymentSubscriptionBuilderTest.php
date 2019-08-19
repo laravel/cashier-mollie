@@ -49,7 +49,7 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
             "customerId" => $this->user->mollie_customer_id,
             "description" => config('app.name'),
             "amount" => [
-                "value" => "0.06",
+                "value" => "0.05",
                 "currency" => "EUR",
             ],
             "webhookUrl" => config('cashier.first_payment.webhook_url'),
@@ -79,7 +79,7 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
                         "handler" => AddGenericOrderItem::class,
                         "description" => "Test mandate payment",
                         "subtotal" => [
-                            "value" => "0.05",
+                            "value" => "0.04",
                             "currency" => "EUR",
                         ],
                         "taxPercentage" => 20,
