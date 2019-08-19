@@ -521,24 +521,26 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
      * Increment the quantity of the subscription.
      *
      * @param int $count
+     * @param bool $invoiceNow
      * @return \Laravel\Cashier\Subscription
-     * @throws \Throwable|\LogicException
+     * @throws \Throwable
      */
-    public function incrementQuantity(int $count = 1)
+    public function incrementQuantity(int $count = 1, $invoiceNow = true)
     {
-        return $this->updateQuantity($this->quantity + $count);
+        return $this->updateQuantity($this->quantity + $count, $invoiceNow);
     }
 
     /**
      * Decrement the quantity of the subscription.
      *
      * @param int $count
+     * @param bool $invoiceNow
      * @return \Laravel\Cashier\Subscription
-     * @throws \Throwable|\LogicException
+     * @throws \Throwable
      */
-    public function decrementQuantity(int $count = 1)
+    public function decrementQuantity(int $count = 1, $invoiceNow = true)
     {
-        return $this->updateQuantity($this->quantity - $count);
+        return $this->updateQuantity($this->quantity - $count, $invoiceNow);
     }
 
     /**
