@@ -541,6 +541,20 @@ If required for your billable model, modify the cashier migrations for UUIDs:
     // By this:
     $table->uuid('owner_id');  
 
+### How is prorating handled?
+
+Cashier Mollie applies prorating by default. With prorating, customers are billed at the start of each billing cycle.
+
+This means that when the subscription quantity is updated or is switched to another plan: 
+
+1. the billing cycle is reset
+2. the customer is credited for unused time, meaning that the amount that was overpaid is added to the customer's balance.
+3. a new billing cycle is started with the new subscription settings. An Order (and payment) is generated to deal with
+all of the previous, including applying the credited balance to the Order.
+
+This does not apply to the `$subscription->swapNextCycle('other-plan')`, which simply waits for the next billing cycle
+to update the subscription plan. A common use case for this is downgrading the plan at the end of the billing cycle. 
+
 ## Testing
 
 Cashier Mollie is tested against Mollie's test API.
