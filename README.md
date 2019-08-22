@@ -31,7 +31,7 @@ tracker with your comments, suggestions, questions, problems etc..
 You can pull this package in using composer:
 
 ```bash
-composer require laravel/cashier-mollie "^0.1.0"
+composer require laravel/cashier-mollie "^0.1"
 ```
 
 ## Setup
