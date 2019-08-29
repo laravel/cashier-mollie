@@ -17,8 +17,7 @@ class CreateSubscriptionsTable extends Migration
             $table->bigIncrements('id');
             $table->string('name');
             $table->string('plan');
-            $table->string('owner_type');
-            $table->unsignedBigInteger('owner_id');
+            $table->morphs('owner');
             $table->string('next_plan')->nullable();
             $table->unsignedInteger('quantity')->default(1);
             $table->decimal('tax_percentage', 6, 4)->default(0);

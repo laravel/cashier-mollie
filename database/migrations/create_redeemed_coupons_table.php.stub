@@ -16,10 +16,8 @@ class CreateRedeemedCouponsTable extends Migration
         Schema::create('redeemed_coupons', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('name');
-            $table->string('model_type');
-            $table->unsignedBigInteger('model_id');
-            $table->string('owner_type');
-            $table->unsignedBigInteger('owner_id');
+            $table->morphs('model');
+            $table->morphs('owner');
             $table->unsignedInteger('times_left')->default(1);
             $table->timestamps();
         });

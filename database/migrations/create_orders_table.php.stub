@@ -15,16 +15,15 @@ class CreateOrdersTable extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('owner_type');
-            $table->unsignedBigInteger('owner_id');
+            $table->morphs('owner');
             $table->string('number');
             $table->string('currency', 3);
-            $table->integer('subtotal');
-            $table->integer('tax');
-            $table->integer('total');
-            $table->integer('balance_before')->default(0);
-            $table->integer('credit_used')->default(0);
-            $table->integer('total_due');
+            $table->bigInteger('subtotal');
+            $table->bigInteger('tax');
+            $table->bigInteger('total');
+            $table->bigInteger('balance_before')->default(0);
+            $table->bigInteger('credit_used')->default(0);
+            $table->bigInteger('total_due');
             $table->string('mollie_payment_id')->nullable();
             $table->string('mollie_payment_status', 16)->nullable();
             $table->datetime('processed_at')->nullable();

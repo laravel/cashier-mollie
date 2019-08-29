@@ -15,10 +15,9 @@ class CreateCreditsTable extends Migration
     {
         Schema::create('credits', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('owner_type');
-            $table->unsignedBigInteger('owner_id');
+            $table->morphs('owner');
             $table->string('currency', 3);
-            $table->integer('value');
+            $table->bigInteger('value');
             $table->timestamps();
         });
     }
