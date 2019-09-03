@@ -52,11 +52,10 @@ Once you have pulled in the package:
 
 3. Run the migrations: `php artisan migrate`
 
-4. Set the `MOLLIE_KEY` in your .env file. You can obtain an API key from the [Mollie.com](https://www.mollie.com)
-dashboard:
+4. Set the `MOLLIE_KEY` in your .env file. You can obtain an API key from the [Mollie dashboard](https://www.mollie.com/dashboard/developers/api-keys):
 
     ```dotenv
-       MOLLIE_KEY="test_xxxxxxxxxxx"
+   MOLLIE_KEY="test_xxxxxxxxxxx"
     ```
 
 5. Prepare the configuration files:
@@ -114,9 +113,9 @@ dashboard:
 7. Schedule a periodic job to execute `Cashier::run()`.
    
     ```php
-        $schedule->command('cashier:run')
-            ->daily() // run as often as you like (Daily, monthly, every minute, ...)
-            ->withoutOverlapping(); // make sure to include this
+    $schedule->command('cashier:run')
+        ->daily() // run as often as you like (Daily, monthly, every minute, ...)
+        ->withoutOverlapping(); // make sure to include this
     ```
    
 You can find more about scheduling jobs using Laravel [here](https://laravel.com/docs/scheduling).
@@ -131,9 +130,11 @@ To create a subscription, first retrieve an instance of your billable model, whi
 `App\User`. Once you have retrieved the model instance, you may use the `newSubscription` method to create the model's
 subscription:
 
-    $user = User::find(1);
-    // Make sure to configure the 'premium' plan in config/cashier.php
-    $result = $user->newSubscription('main', 'premium')->create();
+```php
+$user = User::find(1);
+// Make sure to configure the 'premium' plan in config/cashier.php
+$result = $user->newSubscription('main', 'premium')->create();
+```
 
 If the customer already has a valid Mollie mandate, the `$result` will be a `Subscription`.
 
@@ -141,38 +142,39 @@ If the customer has no valid Mollie mandate yet, the `$result` will be a `Redire
 the Mollie checkout to make the first payment. Once the payment has been received the subscription will start.
 
 Here's a basic controller example for creating the subscription:
+
 ```php
-    namespace App\Http\Controllers;
-    
-    use Illuminate\Http\RedirectResponse;
-    use Illuminate\Support\Facades\Auth;
-    
-    class CreateSubscriptionController extends Controller
+namespace App\Http\Controllers;
+
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
+
+class CreateSubscriptionController extends Controller
+{
+    /**
+     * @param string $plan
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function __invoke(string $plan)
     {
-        /**
-         * @param string $plan
-         * @return \Illuminate\Http\RedirectResponse
-         */
-        public function __invoke(string $plan)
-        {
-            $user = Auth::user();
+        $user = Auth::user();
 
-            $name = ucfirst($plan) . ' membership';
+        $name = ucfirst($plan) . ' membership';
 
-            if(!$user->subscribed($name, $plan)) {
+        if(!$user->subscribed($name, $plan)) {
 
-                $result = $user->newSubscription($name, $plan)->create();
+            $result = $user->newSubscription($name, $plan)->create();
 
-                if(is_a($result, RedirectResponse::class)) {
-                    return $result; // Redirect to Mollie checkout
-                }
-    
-                return back()->with('status', 'Welcome to the ' . $plan . ' plan');
+            if(is_a($result, RedirectResponse::class)) {
+                return $result; // Redirect to Mollie checkout
             }
-    
-            return back()->with('status', 'You are already on the ' . $plan . ' plan');
+
+            return back()->with('status', 'Welcome to the ' . $plan . ' plan');
         }
+
+        return back()->with('status', 'You are already on the ' . $plan . ' plan');
     }
+}
 ```
 
 In order to always enforce a redirect to the Mollie checkout page, use the `newSubscriptionViaMollieCheckout` method
@@ -195,59 +197,73 @@ Out of the box, a basic `FixedDiscountHandler` is provided.
 
 Once a user is subscribed to your application, you may easily check their subscription status using a variety of convenient methods. First, the `subscribed` method returns `true` if the user has an active subscription, even if the subscription is currently within its trial period:
 
-    if ($user->subscribed('main')) {
-        //
-    }
+```php
+if ($user->subscribed('main')) {
+    //
+}
+```
 
 The `subscribed` method also makes a great candidate for a [route middleware](https://www.laravel.com/docs/middleware), allowing you to filter access to routes and controllers based on the user's subscription status:
 
-    public function handle($request, Closure $next)
-    {
-        if ($request->user() && ! $request->user()->subscribed('main')) {
-            // This user is not a paying customer...
-            return redirect('billing');
-        }
-
-        return $next($request);
+```
+public function handle($request, Closure $next)
+{
+    if ($request->user() && ! $request->user()->subscribed('main')) {
+        // This user is not a paying customer...
+        return redirect('billing');
     }
+
+    return $next($request);
+}
+```
 
 If you would like to determine if a user is still within their trial period, you may use the `onTrial` method. This method can be useful for displaying a warning to the user that they are still on their trial period:
 
-    if ($user->subscription('main')->onTrial()) {
-        //
-    }
+```php
+if ($user->subscription('main')->onTrial()) {
+    //
+}
+```
 
 The `subscribedToPlan` method may be used to determine if the user is subscribed to a given plan based on a configured plan. In this example, we will determine if the user's `main` subscription is actively subscribed to the `monthly` plan:
 
-    if ($user->subscribedToPlan('monthly', 'main')) {
-        //
-    }
+```php
+if ($user->subscribedToPlan('monthly', 'main')) {
+    //
+}
+```
     
 ### Cancelled Subscription Status
 
 To determine if the user was once an active subscriber, but has cancelled their subscription, you may use the `cancelled` method:
 
-    if ($user->subscription('main')->cancelled()) {
-        //
-    }
+```php
+if ($user->subscription('main')->cancelled()) {
+    //
+}
+```
 
 You may also determine if a user has cancelled their subscription, but are still on their "grace period" until the subscription fully expires. For example, if a user cancels a subscription on March 5th that was originally scheduled to expire on March 10th, the user is on their "grace period" until March 10th. Note that the `subscribed` method still returns `true` during this time:
 
-    if ($user->subscription('main')->onGracePeriod()) {
-        //
-    }
+```php
+if ($user->subscription('main')->onGracePeriod()) {
+    //
+}
+```
 
 ### Changing Plans
 
 After a user is subscribed to your application, they may occasionally want to change to a new subscription plan. To swap a user to a new subscription, pass the plan's identifier to the `swap` or `swapNextCycle` method:
 
-    $user = App\User::find(1);
+```php
+$user = App\User::find(1);
 
-    // Swap right now
-    $user->subscription('main')->swap('other-plan-id');
-    
-    // Swap once the current cycle has completed
-    $user->subscription('main')->swapNextCycle('other-plan-id');
+// Swap right now
+$user->subscription('main')->swap('other-plan-id');
+
+// Swap once the current cycle has completed
+$user->subscription('main')->swapNextCycle('other-plan-id');
+```
 
 If the user is on trial, the trial period will be maintained. Also, if a "quantity" exists for the subscription, that quantity will also be maintained.
 
@@ -255,29 +271,35 @@ If the user is on trial, the trial period will be maintained. Also, if a "quanti
 
 Sometimes subscriptions are affected by "quantity". For example, your application might charge €10 per month **per user** on an account. To easily increment or decrement your subscription quantity, use the `incrementQuantity` and `decrementQuantity` methods:
 
-    $user = User::find(1);
+```php
+$user = User::find(1);
 
-    $user->subscription('main')->incrementQuantity();
+$user->subscription('main')->incrementQuantity();
 
-    // Add five to the subscription's current quantity...
-    $user->subscription('main')->incrementQuantity(5);
+// Add five to the subscription's current quantity...
+$user->subscription('main')->incrementQuantity(5);
 
-    $user->subscription('main')->decrementQuantity();
+$user->subscription('main')->decrementQuantity();
 
-    // Subtract five to the subscription's current quantity...
-    $user->subscription('main')->decrementQuantity(5);
+// Subtract five to the subscription's current quantity...
+$user->subscription('main')->decrementQuantity(5);
+```
 
 Alternatively, you may set a specific quantity using the `updateQuantity` method:
 
-    $user->subscription('main')->updateQuantity(10);
+```php
+$user->subscription('main')->updateQuantity(10);
+```
 
 ### Subscription Taxes
 
 To specify the tax percentage a user pays on a subscription, implement the `taxPercentage` method on your billable model, and return a numeric value between 0 and 100, with no more than 2 decimal places.
 
-    public function taxPercentage() {
-        return 20;
-    }
+```php
+public function taxPercentage() {
+    return 20;
+}
+```
 
 The `taxPercentage` method enables you to apply a tax rate on a model-by-model basis, which may be helpful for a user base that spans multiple countries and tax rates.
 
@@ -285,7 +307,9 @@ The `taxPercentage` method enables you to apply a tax rate on a model-by-model b
 
 When changing the hard-coded value returned by the `taxPercentage` method, the tax settings on any existing subscriptions for the user will remain the same. If you wish to update the tax value for existing subscriptions with the returned `taxPercentage` value, you should call the `syncTaxPercentage` method on the user's subscription instance:
 
-    $user->subscription('main')->syncTaxPercentage();
+```php
+$user->subscription('main')->syncTaxPercentage();
+```
     
 ### Subscription Anchor Date
 
@@ -295,15 +319,19 @@ Not (yet) implemented, but you could make this work by scheduling `Cashier::run(
 
 To cancel a subscription, call the `cancel` method on the user's subscription:
 
-    $user->subscription('main')->cancel();
+```php
+$user->subscription('main')->cancel();
+```
 
 When a subscription is cancelled, Cashier will automatically set the `ends_at` column in your database. This column is used to know when the `subscribed` method should begin returning `false`. For example, if a customer cancels a subscription on March 1st, but the subscription was not scheduled to end until March 5th, the `subscribed` method will continue to return `true` until March 5th.
 
 You may determine if a user has cancelled their subscription but are still on their "grace period" using the `onGracePeriod` method:
 
-    if ($user->subscription('main')->onGracePeriod()) {
-        //
-    }
+```php
+if ($user->subscription('main')->onGracePeriod()) {
+    //
+}
+```
 
 ### Resuming Subscriptions
 
@@ -323,11 +351,13 @@ Coming soon.
 
 If you would like to offer trial periods to your customers while still collecting payment method information up front, you should use the `trialDays` method when creating your subscriptions:
 
-    $user = User::find(1);
+```
+$user = User::find(1);
 
-    $user->newSubscription('main', 'monthly')
-                ->trialDays(10)
-                ->create();
+$user->newSubscription('main', 'monthly')
+            ->trialDays(10)
+            ->create();
+```
 
 This method will set the trial period ending date on the subscription record within the database.
 
@@ -337,50 +367,62 @@ This method will set the trial period ending date on the subscription record wit
 
 The `trialUntil` method allows you to provide a `Carbon` instance to specify when the trial period should end:
 
-    use Carbon\Carbon;
+```php
+use Carbon\Carbon;
 
-    $user->newSubscription('main', 'monthly')
-                ->trialUntil(Carbon::now()->addDays(10))
-                ->create();
+$user->newSubscription('main', 'monthly')
+            ->trialUntil(Carbon::now()->addDays(10))
+            ->create();
+```
 
 You may determine if the user is within their trial period using either the `onTrial` method of the user instance, or the `onTrial` method of the subscription instance. The two examples below are identical:
 
-    if ($user->onTrial('main')) {
-        //
-    }
+```php
+if ($user->onTrial('main')) {
+    //
+}
 
-    if ($user->subscription('main')->onTrial()) {
-        //
-    }
+if ($user->subscription('main')->onTrial()) {
+    //
+}
+```
 
 #### Without Mandate Up Front
 
 If you would like to offer trial periods without collecting the user's payment method information up front, you may set the `trial_ends_at` column on the user record to your desired trial ending date. This is typically done during user registration:
 
-    $user = User::create([
-        // Populate other user properties...
-        'trial_ends_at' => now()->addDays(10),
-    ]);
+```php
+$user = User::create([
+    // Populate other user properties...
+    'trial_ends_at' => now()->addDays(10),
+]);
+```
 
 > {note}  Be sure to add a [date mutator](https://www.laravel.com/docs/middleware#date-mutators) for `trial_ends_at` to your model definition.
 
 Cashier refers to this type of trial as a "generic trial", since it is not attached to any existing subscription. The `onTrial` method on the `User` instance will return `true` if the current date is not past the value of `trial_ends_at`:
 
-    if ($user->onTrial()) {
-        // User is within their trial period...
-    }
+```php
+if ($user->onTrial()) {
+    // User is within their trial period...
+}
+```
 
 You may also use the `onGenericTrial` method if you wish to know specifically that the user is within their "generic" trial period and has not created an actual subscription yet:
 
-    if ($user->onGenericTrial()) {
-        // User is within their "generic" trial period...
-    }
+```php
+if ($user->onGenericTrial()) {
+    // User is within their "generic" trial period...
+}
+```
 
 Once you are ready to create an actual subscription for the user, you may use the `newSubscription` method as usual:
 
-    $user = User::find(1);
+```php
+$user = User::find(1);
 
-    $user->newSubscription('main', 'monthly')->create();
+$user->newSubscription('main', 'monthly')->create();
+```
     
 ### Defining Webhook Event Handlers
 
@@ -399,10 +441,12 @@ Coming soon.
 Listen for the `OrderProcessed` event (in the `Laravel\Cashier\Events` namespace).
 When a new order has been processed, you can grab the invoice by
     
-    $invoice = $event->order->invoice();
-    $invoice->view(); // get a Blade view
-    $invoice->pdf(); // get a pdf of the Blade view
-    $invoice->download(); // get a download response for the pdf
+```php
+$invoice = $event->order->invoice();
+$invoice->view(); // get a Blade view
+$invoice->pdf(); // get a pdf of the Blade view
+$invoice->download(); // get a download response for the pdf
+```
 
 To list invoices, access the user's orders using: `$user->orders->invoices()`.
 This includes invoices for all orders, even unprocessed or failed orders.
@@ -423,9 +467,11 @@ A separate balance is kept for each currency.
 There are a few methods available to interact with the balance directly.
 __Use these with care:__
 
-    $credit = $user->credit('EUR');
-    $user->addCredit(new Amount(10, 'EUR'); // add €10.00
-    $user->hasCredit('EUR');
+```php
+$credit = $user->credit('EUR');
+$user->addCredit(new Amount(10, 'EUR'); // add €10.00
+$user->hasCredit('EUR');
+```
 
 When an Order with a negative total amount due is processed, that amount is credited to the user balance.
 A `BalanceTurnedStale` event will be raised if the user has no active subscriptions at that moment.
@@ -439,59 +485,61 @@ default locale, configure it in `config/cashier.php`. This is convenient for ser
 If you're dealing with multiple locales and want to override Mollie's default behaviour, implement the `getLocale()`
 method on the billable model. A common way is to add a nullable `locale` field to the user table and retrieve its value:
 
-    class User extends Model
-    {
-        /**
-         * @return string
-         * @link https://docs.mollie.com/reference/v2/payments-api/create-payment#parameters
-         * @example 'nl_NL'
-         */
-        public function getLocale() {
-            return $this->locale; 
-        }
+```php
+class User extends Model
+{
+    /**
+     * @return string
+     * @link https://docs.mollie.com/reference/v2/payments-api/create-payment#parameters
+     * @example 'nl_NL'
+     */
+    public function getLocale() {
+        return $this->locale; 
     }
+}
+```
 
 ### All Cashier Events
 
 You can listen for the following events from the Laravel\Cashier\Events namespace:
 
-#### BalanceTurnedStale event
+#### `BalanceTurnedStale` event
 The user has a positive account balance, but no active subscriptions. Consider a refund.
 
-#### CouponApplied event
+#### `CouponApplied` event
 A coupon was applied to an OrderItem. Note the distinction between _redeeming_ a coupon and _applying_ a coupon. A
 redeemed coupon can be applied to multiple orders. I.e. applying a 6 month discount on a monthly subscription using a
 single (redeemed) coupon.
 
-#### FirstPaymentFailed event
+#### `FirstPaymentFailed` event
 The first payment (used for obtaining a mandate) has failed.
 
-#### FirstPaymentPaid event
+#### `FirstPaymentPaid` event
 The first payment (used for obtaining a mandate) was successful.
 
-#### MandateClearedFromBillable event
+#### `MandateClearedFromBillable` event
 The `mollie_mandate_id` was cleared on the billable model. This happens when a payment has failed because of a invalid
 mandate.
 
-#### OrderCreated event
+#### `OrderCreated` event
 An Order was created.
 
-#### OrderPaymentFailed event
+#### `OrderPaymentFailed` event
 The payment for an order has failed.
 
-#### OrderPaymentPaid event
+#### `OrderPaymentPaid` event
 The payment for an order was successful. 
 
-#### OrderProcessed event
+#### `OrderProcessed` event
 The order has been fully processed.
 
-#### SubscriptionCancelled event
+#### `SubscriptionCancelled` event
 The subscription was cancelled.
 
-#### SubscriptionPlanSwapped event
+#### `SubscriptionPlanSwapped` event
 The subscription plan was swapped.
 
-#### SubscriptionQuantityUpdated event
+#### `SubscriptionQuantityUpdated` event
 The subscription quantity was updated.
 
 ## Metered billing with variable amounts
@@ -532,11 +580,13 @@ configuration.
 By default Cashier Mollie uses `unsignedInteger` fields for the billable model relationships.
 If required for your billable model, modify the cashier migrations for UUIDs:
 
-    // Replace this:
-    $table->unsignedInteger('owner_id');
+```php
+// Replace this:
+$table->unsignedInteger('owner_id');
     
-    // By this:
-    $table->uuid('owner_id');  
+// By this:
+$table->uuid('owner_id');  
+```
 
 ## Testing
 
