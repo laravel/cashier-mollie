@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Dompdf\Dompdf;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Str;
 use Laravel\Cashier\Order\Contracts\InvoicableItem;
 use Laravel\Cashier\Traits\FormatsAmount;
 use Money\Money;
@@ -470,7 +471,10 @@ class Invoice
      */
     public function download(array $data = [], string $view = self::DEFAULT_VIEW)
     {
-        $filename = $this->date()->month.'_'.$this->date()->year.'.pdf';
+        $filename = implode('_', [
+                $this->id,
+                Str::snake(config('app.name', '')),
+            ]) . '.pdf';
 
         return new Response($this->pdf($data, $view), 200, [
             'Content-Description' => 'File Transfer',

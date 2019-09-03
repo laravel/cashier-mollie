@@ -162,4 +162,16 @@ class CashierTest extends BaseTestCase
             'Unexpected total amount of orderItems.'
         );
     }
+
+    /** @test */
+    public function canOverrideDefaultCurrencySymbol()
+    {
+        $this->assertEquals('€', Cashier::usesCurrencySymbol());
+        $this->assertEquals('eur', Cashier::usesCurrency());
+
+        Cashier::useCurrency('usd');
+
+        $this->assertEquals('usd', Cashier::usesCurrency());
+        $this->assertEquals('$', Cashier::usesCurrencySymbol());
+    }
 }

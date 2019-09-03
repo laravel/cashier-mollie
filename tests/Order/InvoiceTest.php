@@ -198,15 +198,17 @@ class InvoiceTest extends BaseTestCase
     {
         Carbon::setTestNow(Carbon::parse('2018-12-31'));
         $items = factory(OrderItem::class, 2)->make();
+        config(['app.name' => 'FooBar']);
 
         $invoice = new Invoice('EUR');
         $invoice = $invoice->addItems($items);
+        $invoice->setId('TestNumber-123');
 
         $response = $invoice->download();
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertTrue($response->headers->contains('content-description', 'File Transfer'));
-        $this->assertTrue($response->headers->contains('content-disposition', 'attachment; filename="12_2018.pdf"'));
+        $this->assertTrue($response->headers->contains('content-disposition', 'attachment; filename="TestNumber-123_foo_bar.pdf"'));
         $this->assertTrue($response->headers->contains('Content-Transfer-Encoding', 'binary'));
         $this->assertTrue($response->headers->contains('Content-Type', 'application/pdf'));
     }
