@@ -73,23 +73,29 @@ class FirstPaymentSubscriptionBuilder implements Contract
     /**
      * Create a new subscription. Returns a redirect to Mollie's checkout screen.
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Laravel\Cashier\SubscriptionBuilder\RedirectToCheckoutResponse
      */
     public function create()
     {
         $actions = [ $this->startSubscription ];
 
         if($this->isTrial) {
+            $taxPercentage = $this->owner->taxPercentage() * 0.01;
+            $total = $this->plan->firstPaymentAmount();
+
+            $vat = $total->divide(1 + $taxPercentage)->multiply($taxPercentage);
+            $subtotal = $total->subtract($vat);
+
             $actions[] = new AddGenericOrderItem(
                 $this->owner,
-                $this->plan->firstPaymentAmount(),
+                $subtotal,
                 $this->plan->firstPaymentDescription()
             );
         }
 
-        $payment = $this->mandatePaymentBuilder->inOrderTo($actions)->create();
+        $this->mandatePaymentBuilder->inOrderTo($actions)->create();
 
-        return redirect($payment->getCheckoutUrl());
+        return $this->redirectToCheckout();
     }
 
     /**
@@ -169,5 +175,13 @@ class FirstPaymentSubscriptionBuilder implements Contract
     public function getMandatePaymentBuilder()
     {
         return $this->mandatePaymentBuilder;
+    }
+
+    /**
+     * @return \Laravel\Cashier\SubscriptionBuilder\RedirectToCheckoutResponse
+     */
+    protected function redirectToCheckout()
+    {
+        return RedirectToCheckoutResponse::forFirstPaymentSubscriptionBuilder($this);
     }
 }

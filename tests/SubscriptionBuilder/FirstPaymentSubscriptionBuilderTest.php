@@ -9,7 +9,9 @@ use Laravel\Cashier\Events\OrderProcessed;
 use Laravel\Cashier\FirstPayment\Actions\AddGenericOrderItem;
 use Laravel\Cashier\FirstPayment\Actions\StartSubscription;
 use Laravel\Cashier\SubscriptionBuilder\FirstPaymentSubscriptionBuilder;
+use Laravel\Cashier\SubscriptionBuilder\RedirectToCheckoutResponse;
 use Laravel\Cashier\Tests\BaseTestCase;
+use Mollie\Api\Resources\Payment;
 
 class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
 {
@@ -36,6 +38,8 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
         $response = $builder->create();
 
         $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertInstanceOf(RedirectToCheckoutResponse::class, $response);
+        $this->assertInstanceOf(Payment::class, $response->payment());
 
         $payload = $builder->getMandatePaymentBuilder()->getMolliePayload();
 
@@ -45,7 +49,7 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
             "customerId" => $this->user->mollie_customer_id,
             "description" => config('app.name'),
             "amount" => [
-                "value" => "0.06",
+                "value" => "0.05",
                 "currency" => "EUR",
             ],
             "webhookUrl" => config('cashier.first_payment.webhook_url'),
@@ -75,7 +79,7 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
                         "handler" => AddGenericOrderItem::class,
                         "description" => "Test mandate payment",
                         "subtotal" => [
-                            "value" => "0.05",
+                            "value" => "0.04",
                             "currency" => "EUR",
                         ],
                         "taxPercentage" => 20,
@@ -86,8 +90,8 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
 
         // For creating a new paid first payment, use:
         // dd(
-        //     $builder->getMandatePaymentBuilder()->getMolliePayment()->getCheckoutUrl(), // visit this Mollie checkout url and set status to 'paid'
-        //     $builder->getMandatePaymentBuilder()->getMolliePayment()->id // store this in phpunit.xml: SUBSCRIPTION_MANDATE_PAYMENT_PAID_ID
+        //     $response->payment()->getCheckoutUrl(), // visit this Mollie checkout url and set status to 'paid'
+        //     $response->payment()->id // store this in phpunit.xml: SUBSCRIPTION_MANDATE_PAYMENT_PAID_ID
         // );
     }
 

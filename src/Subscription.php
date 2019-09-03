@@ -179,18 +179,18 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
      * Swap the subscription to another plan right now by ending the current billing cycle and starting a new one.
      * A new Order is processed along with the payment.
      *
-     * @param  string $plan
+     * @param string $plan
+     * @param bool $invoiceNow
      * @return $this
-     * @throws Exceptions\PlanNotFoundException
      */
-    public function swap(string $plan)
+    public function swap(string $plan, $invoiceNow = true)
     {
         $newPlan = app(PlanRepository::class)::findOrFail($plan);
         $applyNewSettings = function() use ($newPlan) {
             $this->plan = $newPlan->name();
         };
 
-        $this->restartCycleWithModifications($applyNewSettings);
+        $this->restartCycleWithModifications($applyNewSettings, now(), $invoiceNow);
 
         Event::dispatch(new SubscriptionPlanSwapped($this));
 
@@ -521,35 +521,37 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
      * Increment the quantity of the subscription.
      *
      * @param int $count
+     * @param bool $invoiceNow
      * @return \Laravel\Cashier\Subscription
-     * @throws \Throwable|\LogicException
+     * @throws \Throwable
      */
-    public function incrementQuantity(int $count = 1)
+    public function incrementQuantity(int $count = 1, $invoiceNow = true)
     {
-        return $this->updateQuantity($this->quantity + $count);
+        return $this->updateQuantity($this->quantity + $count, $invoiceNow);
     }
 
     /**
      * Decrement the quantity of the subscription.
      *
      * @param int $count
+     * @param bool $invoiceNow
      * @return \Laravel\Cashier\Subscription
-     * @throws \Throwable|\LogicException
+     * @throws \Throwable
      */
-    public function decrementQuantity(int $count = 1)
+    public function decrementQuantity(int $count = 1, $invoiceNow = true)
     {
-        return $this->updateQuantity($this->quantity - $count);
+        return $this->updateQuantity($this->quantity - $count, $invoiceNow);
     }
 
     /**
      * Update the quantity of the subscription.
      *
-     * @param  int $quantity
+     * @param int $quantity
+     * @param bool $invoiceNow
      * @return $this
-     * @throws \Throwable|\LogicException
-     * @throws
+     * @throws \Throwable
      */
-    public function updateQuantity(int $quantity)
+    public function updateQuantity(int $quantity, $invoiceNow = true)
     {
         throw_if(
             $quantity < 1,
@@ -560,7 +562,7 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
 
         $this->restartCycleWithModifications(function() use ($quantity) {
             $this->quantity = $quantity;
-        });
+        }, now(), $invoiceNow);
 
         $this->save();
 
@@ -622,13 +624,14 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
      *
      * @param \Closure $applyNewSettings
      * @param \Carbon\Carbon|null $now
+     * @param bool $invoiceNow
      * @return mixed
      */
-    protected function restartCycleWithModifications(\Closure $applyNewSettings, ?Carbon $now = null)
+    public function restartCycleWithModifications(\Closure $applyNewSettings, ?Carbon $now = null, $invoiceNow = true)
     {
         $now = $now ?: now();
 
-        return DB::transaction(function () use ($applyNewSettings, $now) {
+        return DB::transaction(function () use ($applyNewSettings, $now, $invoiceNow) {
 
             // Wrap up current billing cycle
             $this->removeScheduledOrderItem();
@@ -656,8 +659,10 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
 
             $this->save();
 
-            $order = Order::createFromItems($orderItems);
-            $order->processPayment();
+            if($invoiceNow) {
+                $order = Order::createFromItems($orderItems);
+                $order->processPayment();
+            }
 
             return $this;
         });

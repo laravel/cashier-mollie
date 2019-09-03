@@ -17,21 +17,12 @@
 
 Laravel Cashier provides an expressive, fluent interface to subscriptions using [Mollie](https://www.mollie.com)'s billing services.
 
-## Early release warning
-
-This is an early release for this package. Things are likely to change before production-ready stability is reached.
-
-At this point it's advised to only use this package with Mollie's **test API**.
-
-The more we learn, the faster we will get to a stable release. Help us get there faster by opening a ticket in the issue
-tracker with your comments, suggestions, questions, problems etc..
-
 ## Installation
 
 You can pull this package in using composer:
 
 ```bash
-composer require laravel/cashier-mollie "^0.1"
+composer require laravel/cashier-mollie "^1.0"
 ```
 
 ## Setup
@@ -205,7 +196,7 @@ if ($user->subscribed('main')) {
 
 The `subscribed` method also makes a great candidate for a [route middleware](https://www.laravel.com/docs/middleware), allowing you to filter access to routes and controllers based on the user's subscription status:
 
-```
+```php
 public function handle($request, Closure $next)
 {
     if ($request->user() && ! $request->user()->subscribed('main')) {
@@ -521,6 +512,9 @@ The first payment (used for obtaining a mandate) was successful.
 The `mollie_mandate_id` was cleared on the billable model. This happens when a payment has failed because of a invalid
 mandate.
 
+#### `MandateUpdated` event
+The billable model's mandate was updated. This usually means a new payment card was registered.
+
 #### `OrderCreated` event
 An Order was created.
 
@@ -543,6 +537,7 @@ The subscription plan was swapped.
 The subscription quantity was updated.
 
 ## Metered billing with variable amounts
+
 Some business cases will require dynamic subscription amounts.
 
 To allow for full flexibility Cashier Mollie allows you to define your own set of Subscription OrderItem preprocessors.
@@ -587,6 +582,20 @@ $table->unsignedInteger('owner_id');
 // By this:
 $table->uuid('owner_id');  
 ```
+
+### How is prorating handled?
+
+Cashier Mollie applies prorating by default. With prorating, customers are billed at the start of each billing cycle.
+
+This means that when the subscription quantity is updated or is switched to another plan: 
+
+1. the billing cycle is reset
+2. the customer is credited for unused time, meaning that the amount that was overpaid is added to the customer's balance.
+3. a new billing cycle is started with the new subscription settings. An Order (and payment) is generated to deal with
+all of the previous, including applying the credited balance to the Order.
+
+This does not apply to the `$subscription->swapNextCycle('other-plan')`, which simply waits for the next billing cycle
+to update the subscription plan. A common use case for this is downgrading the plan at the end of the billing cycle. 
 
 ## Testing
 
