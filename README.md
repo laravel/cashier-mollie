@@ -196,7 +196,7 @@ if ($user->subscribed('main')) {
 
 The `subscribed` method also makes a great candidate for a [route middleware](https://www.laravel.com/docs/middleware), allowing you to filter access to routes and controllers based on the user's subscription status:
 
-```
+```php
 public function handle($request, Closure $next)
 {
     if ($request->user() && ! $request->user()->subscribed('main')) {
@@ -512,10 +512,9 @@ The first payment (used for obtaining a mandate) was successful.
 The `mollie_mandate_id` was cleared on the billable model. This happens when a payment has failed because of a invalid
 mandate.
 
-#### MandateUpdated
+#### `MandateUpdated` event
 The billable model's mandate was updated. This usually means a new payment card was registered.
 
-#### OrderCreated event
 #### `OrderCreated` event
 An Order was created.
 
@@ -538,6 +537,7 @@ The subscription plan was swapped.
 The subscription quantity was updated.
 
 ## Metered billing with variable amounts
+
 Some business cases will require dynamic subscription amounts.
 
 To allow for full flexibility Cashier Mollie allows you to define your own set of Subscription OrderItem preprocessors.
