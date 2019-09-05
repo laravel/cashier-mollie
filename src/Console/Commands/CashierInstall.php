@@ -12,6 +12,7 @@ class CashierInstall extends Command
      * @var string
      */
     protected $signature = 'cashier:install 
+                            {--M|migrations : include publishing the migrations}
                             {--T|template : include publishing the invoice template}';
 
     /**
@@ -35,8 +36,18 @@ class CashierInstall extends Command
             }
         }
 
-        $this->comment('Publishing Cashier migrations...');
-        $this->callSilent('vendor:publish', ['--tag' => 'cashier-migrations']);
+        if($this->option('migrations')) {
+            $this->callSilent('vendor:publish', ['--tag' => 'cashier-migrations']);
+        } else {
+            $this->info(
+                'Cashier migrations are loaded automatically. However, you can publish the Cashier migrations so you can modify it.'
+            );
+
+            if($this->confirm('Would you like to publish the Cashier migrations?')) {
+                $this->comment('Publishing Cashier migrations...');
+                $this->callSilent('vendor:publish', ['--tag' => 'cashier-migrations']);
+            }
+        }
 
         $this->comment('Publishing Cashier configuration files...');
         $this->callSilent('vendor:publish', ['--tag' => 'cashier-configs']);

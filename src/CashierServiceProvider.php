@@ -24,6 +24,7 @@ class CashierServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(__DIR__.'/../routes/webhooks.php');
         $this->mergeConfig();
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'cashier');
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
 
         mollie()->addVersionString('MollieLaravelCashier/' . self::PACKAGE_VERSION);
 
@@ -64,15 +65,8 @@ class CashierServiceProvider extends ServiceProvider
 
     protected function publishMigrations(string $tag)
     {
-        $prefix = 'migrations/'.date('Y_m_d_His', time());
-
         $this->publishes([
-            __DIR__.'/../database/migrations/create_applied_coupons_table.php.stub' => database_path($prefix .'_create_applied_coupons_table.php'),
-            __DIR__.'/../database/migrations/create_redeemed_coupons_table.php.stub' => database_path($prefix .'_create_redeemed_coupons_table.php'),
-            __DIR__.'/../database/migrations/create_credits_table.php.stub' => database_path($prefix .'_create_credits_table.php'),
-            __DIR__.'/../database/migrations/create_orders_table.php.stub' => database_path($prefix .'_create_orders_table.php'),
-            __DIR__.'/../database/migrations/create_order_items_table.php.stub' => database_path($prefix .'_create_order_items_table.php'),
-            __DIR__.'/../database/migrations/create_subscriptions_table.php.stub' => database_path($prefix .'_create_subscriptions_table.php'),
+            __DIR__.'/../database/migrations/' => database_path('migrations')
         ], $tag);
     }
 
