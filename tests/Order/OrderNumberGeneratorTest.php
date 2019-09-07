@@ -41,7 +41,7 @@ class OrderNumberGeneratorTest extends BaseTestCase
         $this->assertTrue(Str::endsWith($this->generator->generate(), '16'));
 
         factory(Order::class, 3)->create();
-        $this->assertTrue(ends_with($this->generator->generate(), '19'));
+        $this->assertTrue(Str::endsWith($this->generator->generate(), '19'));
 
     }
 
