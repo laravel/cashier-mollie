@@ -43,8 +43,9 @@ class FirstPaymentBuilderTest extends BaseTestCase
         ]);
 
         $payload = $builder->getMolliePayload();
-
-        $this->assertArraySubset([
+        $customerId = $payload['customerId'];
+        unset($payload['customerId']);
+        $check_payload = [
             'sequenceType' => SequenceType::SEQUENCETYPE_FIRST,
             'description' => 'Test mandate payment',
             'amount' => [
@@ -79,11 +80,12 @@ class FirstPaymentBuilderTest extends BaseTestCase
                     ],
                 ],
             ],
-        ], $payload);
+        ];
+        $this->assertEquals($payload, $check_payload);
 
-        $this->assertArrayHasKey('customerId', $payload);
-        $this->assertNotEmpty($payload['customerId']);
 
+
+        $this->assertNotEmpty($customerId);
         $this->assertEquals(0, $owner->orderItems()->count());
         $this->assertEquals(0, $owner->orders()->count());
     }
