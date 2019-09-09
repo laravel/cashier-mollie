@@ -104,14 +104,13 @@ class OrderTest extends BaseTestCase
         $this->assertCarbon(now()->addMonth(), $subscription->cycle_ends_at);
         $this->assertCarbon(now()->addMonth(), $scheduled_item->process_at);
 
-        $this->assertArraySubset([
-            'owner_id' => 2,
-            'owner_type' => User::class,
-            'currency' => 'EUR',
-            'quantity' => 1,
-            'unit_price' => 1000,
-            'tax_percentage' => 0,
-        ], $scheduled_item->toArray());
+        $this->assertSame('2', $scheduled_item->owner_id);
+        $this->assertSame(User::class, $scheduled_item->owner_type);
+        $this->assertSame('EUR', $scheduled_item->currency);
+        $this->assertSame('1', $scheduled_item->quantity);
+        $this->assertSame('1000', $scheduled_item->unit_price);
+        $this->assertSame('0', $scheduled_item->tax_percentage);
+
     }
 
     /** @test */
@@ -145,17 +144,16 @@ class OrderTest extends BaseTestCase
 
         $order = Order::createFromItems(new OrderItemCollection([$scheduled_item]))->fresh();
 
-        $this->assertArraySubset([
-            "owner_id" => "2",
-            "owner_type" => User::class,
-            "currency" => "EUR",
-            "tax" => 0.0,
-            "subtotal" => 1000,
-            "total" => 1000,
-            "total_due" => 1000,
-            "credit_used" => 0,
-            "balance_before" => 0,
-        ], $order->toArray());
+        $this->assertSame("2", $order->owner_id);
+        $this->assertSame(User::class, $order->owner_type);
+        $this->assertSame("EUR", $order->currency);
+        $this->assertSame("0", $order->tax);
+        $this->assertSame("1000", $order->subtotal);
+        $this->assertSame("1000", $order->total);
+        $this->assertSame("1000", $order->total_due);
+        $this->assertSame("0", $order->credit_used);
+        $this->assertSame("0", $order->balance_before);
+
 
         $this->assertEquals(0, $order->balance_after);
         $this->assertMoneyEURCents(0, $order->getBalanceAfter());
@@ -180,17 +178,18 @@ class OrderTest extends BaseTestCase
         $this->assertEquals(500, $user->credit('EUR')->value);
         $this->assertMoneyEURCents(500, $user->credit('EUR')->money());
 
-        $this->assertArraySubset([
-            "owner_id" => "2",
-            "owner_type" => User::class,
-            "currency" => "EUR",
-            "tax" => 0.0,
-            "subtotal" => 1000,
-            "total" => 1000,
-            "total_due" => 0,
-            "credit_used" => 1000,
-            "balance_before" => 1500,
-        ], $order->toArray());
+
+        $this->assertSame("2", $order->owner_id);
+        $this->assertSame(User::class, $order->owner_type);
+        $this->assertSame("EUR", $order->currency);
+        $this->assertSame("0", $order->tax);
+        $this->assertSame("1000", $order->subtotal);
+        $this->assertSame("1000", $order->total);
+        $this->assertSame("0", $order->total_due);
+        $this->assertSame(1000, $order->credit_used);
+        $this->assertSame("1500", $order->balance_before);
+
+
     }
 
     /** @test */
