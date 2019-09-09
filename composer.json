@@ -38,8 +38,7 @@
         "illuminate/support": "~5.5.0|~5.6.0|~5.7.0|~5.8.0|~6.0.0",
         "mollie/laravel-mollie": "^2.5",
         "moneyphp/money": "^3.2",
-        "nesbot/carbon": "^1.33 || ^2.0",
-        "laravel/helpers": "1.*"
+        "nesbot/carbon": "^1.33 || ^2.0"
     },
     "require-dev": {
         "mockery/mockery": "^1.0",
