@@ -8,7 +8,7 @@
 <!--
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/mollie/laravel-cashier.svg?style=flat-square)](https://packagist.org/packages/mollie/laravel-cashier)
 -->
-[![Build Status](https://travis-ci.org/ciungulete/cashier-mollie.svg?branch=develop)](https://travis-ci.org/ciungulete/cashier-mollie.svg?branch=develop)
+[![Build Status](https://travis-ci.org/laravel/cashier-mollie.svg?branch=master)](https://travis-ci.org/laravel/cashier-mollie)](https://travis-ci.org/laravel/cashier-mollie.svg?branch=master)](https://travis-ci.org/laravel/cashier-mollie)
 <!--
 [![SensioLabsInsight](https://img.shields.io/sensiolabs/i/xxxxxxxxx.svg?style=flat-square)](https://insight.sensiolabs.com/projects/xxxxxxxxx)
 [![Quality Score](https://img.shields.io/scrutinizer/g/mollie/:package_name.svg?style=flat-square)](https://scrutinizer-ci.com/g/mollie/:package_name)

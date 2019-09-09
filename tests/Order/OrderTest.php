@@ -177,7 +177,7 @@ class OrderTest extends BaseTestCase
 
         $this->assertEquals(500, $user->credit('EUR')->value);
         $this->assertMoneyEURCents(500, $user->credit('EUR')->money());
-        
+
 
         $this->assertSame("2", $order->owner_id);
         $this->assertSame(User::class, $order->owner_type);
