@@ -6,7 +6,6 @@ use Carbon\Carbon;
 use Dompdf\Dompdf;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\View;
-use Illuminate\Support\Str;
 use Laravel\Cashier\Order\Contracts\InvoicableItem;
 use Laravel\Cashier\Traits\FormatsAmount;
 use Money\Money;
@@ -473,7 +472,7 @@ class Invoice
     {
         $filename = implode('_', [
                 $this->id,
-                Str::snake(config('app.name', '')),
+                snake_case(config('app.name', '')),
             ]) . '.pdf';
 
         return new Response($this->pdf($data, $view), 200, [
