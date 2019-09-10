@@ -389,7 +389,7 @@ $user = User::create([
 ]);
 ```
 
-> {note}  Be sure to add a [date mutator](https://www.laravel.com/docs/middleware#date-mutators) for `trial_ends_at` to your model definition.
+> {note}  Be sure to add a [date mutator](https://laravel.com/docs/eloquent-mutators#date-mutators) for `trial_ends_at` to your model definition.
 
 Cashier refers to this type of trial as a "generic trial", since it is not attached to any existing subscription. The `onTrial` method on the `User` instance will return `true` if the current date is not past the value of `trial_ends_at`:
 
