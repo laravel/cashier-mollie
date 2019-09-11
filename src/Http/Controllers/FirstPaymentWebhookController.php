@@ -22,9 +22,9 @@ class FirstPaymentWebhookController extends BaseWebhookController
 
         if ($payment) {
             if ($payment->isPaid()) {
-                (new FirstPaymentHandler($payment))->execute();
+                $order = (new FirstPaymentHandler($payment))->execute();
 
-                Event::dispatch(new FirstPaymentPaid($payment));
+                Event::dispatch(new FirstPaymentPaid($payment, $order));
             } elseif ($payment->isFailed()) {
                 Event::dispatch(new FirstPaymentFailed($payment));
             }
