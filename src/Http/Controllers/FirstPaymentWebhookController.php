@@ -20,11 +20,11 @@ class FirstPaymentWebhookController extends BaseWebhookController
     {
         $payment = $this->getPaymentById($request->get('id'));
 
-        if($payment) {
+        if ($payment) {
             if ($payment->isPaid()) {
-                Event::dispatch(new FirstPaymentPaid($payment));
-
                 (new FirstPaymentHandler($payment))->execute();
+
+                Event::dispatch(new FirstPaymentPaid($payment));
             } elseif ($payment->isFailed()) {
                 Event::dispatch(new FirstPaymentFailed($payment));
             }
