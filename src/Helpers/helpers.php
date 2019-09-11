@@ -133,24 +133,22 @@ if (! function_exists('ends_with')) {
 
         return false;
     }
+}
 
-
-
-    if (! function_exists('snake_case')) {
-        /**
-         * Convert a string to snake case.
-         *
-         * @param  string  $value
-         * @param  string  $delimiter
-         * @return string
-         */
-        function snake_case($value, $delimiter = '_')
-        {
-            if (! ctype_lower($value)) {
-                $value = preg_replace('/\s+/', '', $value);
-                $value = strtolower(preg_replace('/(.)(?=[A-Z])/', '$1'.$delimiter, $value));
-            }
-            return $value;
+if (! function_exists('snake_case')) {
+    /**
+     * Convert a string to snake case.
+     *
+     * @param  string  $value
+     * @param  string  $delimiter
+     * @return string
+     */
+    function snake_case($value, $delimiter = '_')
+    {
+        if (! ctype_lower($value)) {
+            $value = preg_replace('/\s+/', '', $value);
+            $value = strtolower(preg_replace('/(.)(?=[A-Z])/', '$1'.$delimiter, $value));
         }
+        return $value;
     }
 }
