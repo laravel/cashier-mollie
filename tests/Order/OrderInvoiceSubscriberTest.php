@@ -9,6 +9,7 @@ use Laravel\Cashier\Events\OrderPaymentPaid;
 use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Order\OrderInvoiceSubscriber;
 use Laravel\Cashier\Tests\BaseTestCase;
+use Mollie\Api\Resources\Payment;
 
 class OrderInvoiceSubscriberTest extends BaseTestCase
 {
@@ -21,25 +22,33 @@ class OrderInvoiceSubscriberTest extends BaseTestCase
     /** @test */
     public function itHandlesTheFirstPaymentPaidEvent()
     {
-        $this->assertItHandlesEvent(FirstPaymentPaid::class, 'handleFirstPaymentPaid');
+        $this->assertItHandlesEvent(
+            new FirstPaymentPaid($this->mock(Payment::class), $this->order()),
+            'handleFirstPaymentPaid'
+        );
     }
 
     /** @test */
     public function itHandlesTheOrderPaymentPaidEvent()
     {
-        $this->assertItHandlesEvent(OrderPaymentPaid::class, 'handleOrderPaymentPaid');
+        $this->assertItHandlesEvent(
+            new OrderPaymentPaid($this->order()),
+            'handleOrderPaymentPaid'
+        );
     }
 
-    private function assertItHandlesEvent($eventClass, $methodName)
+    private function assertItHandlesEvent($event, $methodName)
     {
         Event::fake(OrderInvoiceAvailable::class);
-        $order = factory(Order::class)->make();
-        $event = new $eventClass($order);
 
         (new OrderInvoiceSubscriber)->$methodName($event);
 
-        Event::assertDispatched(OrderInvoiceAvailable::class, function($e) use ($order) {
-            return $e->order === $order;
+        Event::assertDispatched(OrderInvoiceAvailable::class, function($e) use ($event) {
+            return $e->order === $event->order;
         });
+    }
+
+    private function order() {
+        return factory(Order::class)->make();
     }
 }

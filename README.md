@@ -429,7 +429,7 @@ Coming soon.
 
 ### Invoices
 
-Listen for the `OrderProcessed` event (in the `Laravel\Cashier\Events` namespace).
+Listen for the `OrderInvoiceAvailable` event (in the `Laravel\Cashier\Events` namespace).
 When a new order has been processed, you can grab the invoice by
     
 ```php
@@ -517,6 +517,9 @@ The billable model's mandate was updated. This usually means a new payment card 
 
 #### `OrderCreated` event
 An Order was created.
+
+#### `OrderInvoiceAvailable` event
+An Invoice is available on the Order. Access it using `$event->order->invoice()`.
 
 #### `OrderPaymentFailed` event
 The payment for an order has failed.
