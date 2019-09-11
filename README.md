@@ -76,7 +76,7 @@ Once you have pulled in the package:
     ```
     Learn more about storing data on the Mollie Customer [here](https://docs.mollie.com/reference/v2/customers-api/create-customer#parameters).
     
-    - Implement `Cashier\Contracts\ProvidesInvoiceInformation` interface. For example:
+    - Implement `Laravel\Cashier\Order\Contracts\ProvidesInvoiceInformation` interface. For example:
     
     ```php
    /**
@@ -389,7 +389,7 @@ $user = User::create([
 ]);
 ```
 
-> {note}  Be sure to add a [date mutator](https://www.laravel.com/docs/middleware#date-mutators) for `trial_ends_at` to your model definition.
+> {note}  Be sure to add a [date mutator](https://laravel.com/docs/eloquent-mutators#date-mutators) for `trial_ends_at` to your model definition.
 
 Cashier refers to this type of trial as a "generic trial", since it is not attached to any existing subscription. The `onTrial` method on the `User` instance will return `true` if the current date is not past the value of `trial_ends_at`:
 
@@ -421,7 +421,7 @@ Cashier automatically handles subscription cancellation on failed charges.
 
 Additionally, listen for the following events (in the `Laravel\Cashier\Events` namespace) to add app specific behaviour:
 - `OrderPaymentPaid` and `OrderPaymentFailed`
-- `MandatePaymentPaid` and `MandatePaymentFailed`
+- `FirstPaymentPaid` and `FirstPaymentFailed`
 
 ### One-off charges
 
@@ -429,7 +429,7 @@ Coming soon.
 
 ### Invoices
 
-Listen for the `OrderProcessed` event (in the `Laravel\Cashier\Events` namespace).
+Listen for the `OrderInvoiceAvailable` event (in the `Laravel\Cashier\Events` namespace).
 When a new order has been processed, you can grab the invoice by
     
 ```php
@@ -517,6 +517,9 @@ The billable model's mandate was updated. This usually means a new payment card 
 
 #### `OrderCreated` event
 An Order was created.
+
+#### `OrderInvoiceAvailable` event
+An Invoice is available on the Order. Access it using `$event->order->invoice()`.
 
 #### `OrderPaymentFailed` event
 The payment for an order has failed.

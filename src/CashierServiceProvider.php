@@ -14,7 +14,7 @@ use Mollie\Laravel\MollieServiceProvider;
 
 class CashierServiceProvider extends ServiceProvider
 {
-    const PACKAGE_VERSION = '1.0.0';
+    const PACKAGE_VERSION = '1.1.0';
 
     /**
      * Bootstrap the application services.
@@ -53,6 +53,8 @@ class CashierServiceProvider extends ServiceProvider
             CashierInstall::class,
             CashierRun::class,
         ]);
+
+        $this->app->register(EventServiceProvider::class);
     }
 
     protected function mergeConfig()

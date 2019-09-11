@@ -3,21 +3,20 @@
 namespace Laravel\Cashier\Events;
 
 use Illuminate\Queue\SerializesModels;
-use Laravel\Cashier\Order\Order;
 
-class OrderCreated
+class OrderInvoiceAvailable
 {
     use SerializesModels;
 
     /**
      * The created order.
      *
-     * @var Order
+     * @var \Laravel\Cashier\Order\Order
      */
     public $order;
 
     /**
-     * Creates a new OrderCreated event.
+     * Creates a new OrderInvoiceAvailable event.
      *
      * @param $order
      */

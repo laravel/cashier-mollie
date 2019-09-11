@@ -94,3 +94,61 @@ if (! function_exists('mollie_object_to_money')) {
         return decimal_to_money($object->value, $object->currency);
     }
 }
+
+if (! function_exists('starts_with')) {
+    /**
+     * Determine if a given string starts with a given substring.
+     *
+     * @param  string  $haystack
+     * @param  string|array  $needles
+     * @return bool
+     */
+    function starts_with($haystack, $needles)
+    {
+        foreach ((array) $needles as $needle) {
+            if ($needle !== '' && substr($haystack, 0, strlen($needle)) === (string) $needle) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
+if (! function_exists('ends_with')) {
+    /**
+     * Determine if a given string ends with a given substring.
+     *
+     * @param  string  $haystack
+     * @param  string|array  $needles
+     * @return bool
+     */
+    function ends_with($haystack, $needles)
+    {
+        foreach ((array) $needles as $needle) {
+            if (substr($haystack, -strlen($needle)) === (string) $needle) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
+if (! function_exists('snake_case')) {
+    /**
+     * Convert a string to snake case.
+     *
+     * @param  string  $value
+     * @param  string  $delimiter
+     * @return string
+     */
+    function snake_case($value, $delimiter = '_')
+    {
+        if (! ctype_lower($value)) {
+            $value = preg_replace('/\s+/', '', $value);
+            $value = strtolower(preg_replace('/(.)(?=[A-Z])/', '$1'.$delimiter, $value));
+        }
+        return $value;
+    }
+}
