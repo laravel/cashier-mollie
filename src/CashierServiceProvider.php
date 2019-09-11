@@ -53,6 +53,8 @@ class CashierServiceProvider extends ServiceProvider
             CashierInstall::class,
             CashierRun::class,
         ]);
+
+        $this->app->register(EventServiceProvider::class);
     }
 
     protected function mergeConfig()
