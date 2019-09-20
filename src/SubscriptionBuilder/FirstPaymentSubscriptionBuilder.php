@@ -81,6 +81,7 @@ class FirstPaymentSubscriptionBuilder implements Contract
         $this->validateCoupon();
 
         $actions = [ $this->startSubscription ];
+        $coupon = $this->startSubscription->coupon();
 
         if($this->isTrial) {
             $taxPercentage = $this->owner->taxPercentage() * 0.01;
@@ -94,6 +95,8 @@ class FirstPaymentSubscriptionBuilder implements Contract
                 $subtotal,
                 $this->plan->firstPaymentDescription()
             );
+        } elseif ($coupon) {
+            dd($coupon);
         }
 
         $this->firstPaymentBuilder->inOrderTo($actions)->create();

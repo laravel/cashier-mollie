@@ -137,6 +137,20 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
         $this->getBuilder()->trialDays(5)->withCoupon('test-coupon')->create();
     }
 
+    /** @test */
+    public function withCouponNoTrialModifiesThePaymentAmount()
+    {
+        $this->withMockedCouponRepository();
+        $builder = $this->getBuilder()->withCoupon('test-coupon');
+        $builder->create();
+
+        $amount = $builder->getMandatePaymentBuilder()->getMolliePayload()['amount'];
+
+        $this->assertEquals('7.00', $amount['value']);
+        $this->assertEquals('EUR', $amount['currency']);
+    }
+
+
     /**
      * @return \Laravel\Cashier\SubscriptionBuilder\FirstPaymentSubscriptionBuilder
      */
