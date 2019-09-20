@@ -72,6 +72,12 @@ class StartSubscription extends BaseAction
     {
         $action = new static($owner, $payload['name'], $payload['plan']);
 
+        // Already validated when preparing the first payment, so don't validate again
+        $action->builder()->skipCouponValidation();
+
+        // The coupon will be handled manually by this action
+        $action->builder()->skipCouponHandling();
+
         if(isset($payload['taxPercentage'])) {
             $action->withTaxPercentage($payload['taxPercentage']);
         }
@@ -204,6 +210,14 @@ class StartSubscription extends BaseAction
     }
 
     /**
+     * @return \Laravel\Cashier\Coupon\Coupon|null
+     */
+    public function coupon()
+    {
+        return $this->coupon;
+    }
+
+    /**
      * Specify and validate the coupon code.
      *
      * @param string $coupon
@@ -214,10 +228,7 @@ class StartSubscription extends BaseAction
     public function withCoupon(string $coupon)
     {
         $this->coupon = $this->couponRepository->findOrFail($coupon);
-
-        $this->builder()
-            ->skipCouponValidation() // Already validated when preparing the first payment, so don't validate again
-            ->withCoupon($coupon);
+        $this->builder()->withCoupon($coupon);
 
         return $this;
     }
@@ -249,7 +260,7 @@ class StartSubscription extends BaseAction
      * @return \Laravel\Cashier\SubscriptionBuilder\MandatedSubscriptionBuilder
      * @throws \Throwable|\Laravel\Cashier\Exceptions\PlanNotFoundException
      */
-    protected function builder()
+    public function builder()
     {
         if($this->builder === null) {
             $this->builder = new MandatedSubscriptionBuilder(

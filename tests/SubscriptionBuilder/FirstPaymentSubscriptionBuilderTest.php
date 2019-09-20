@@ -6,6 +6,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Event;
 use Laravel\Cashier\Events\FirstPaymentPaid;
 use Laravel\Cashier\Events\OrderProcessed;
+use Laravel\Cashier\Exceptions\CouponException;
 use Laravel\Cashier\FirstPayment\Actions\AddGenericOrderItem;
 use Laravel\Cashier\FirstPayment\Actions\StartSubscription;
 use Laravel\Cashier\SubscriptionBuilder\FirstPaymentSubscriptionBuilder;
@@ -118,6 +119,22 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
 
         Event::assertDispatched(OrderProcessed::class);
         Event::assertDispatched(FirstPaymentPaid::class);
+    }
+
+    /** @test */
+    public function testWithCouponNoTrialValidatesCoupon()
+    {
+        $this->expectException(CouponException::class);
+        $this->withMockedCouponRepository(null, new InvalidatingCouponHandler);
+        $this->getBuilder()->withCoupon('test-coupon')->create();
+    }
+
+    /** @test */
+    public function testWithCouponWithTrialValidatesCoupon()
+    {
+        $this->expectException(CouponException::class);
+        $this->withMockedCouponRepository(null, new InvalidatingCouponHandler);
+        $this->getBuilder()->trialDays(5)->withCoupon('test-coupon')->create();
     }
 
     /**
