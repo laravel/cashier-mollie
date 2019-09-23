@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Laravel\Cashier\Coupon\Contracts\CouponRepository;
 use Laravel\Cashier\Coupon\RedeemedCoupon;
 use Laravel\Cashier\Order\OrderItem;
+use Laravel\Cashier\Order\OrderItemCollection;
 use Laravel\Cashier\Plan\Contracts\PlanRepository;
 use Laravel\Cashier\SubscriptionBuilder\MandatedSubscriptionBuilder;
 
@@ -122,7 +123,7 @@ class StartSubscription extends BaseAction
      * Returns an OrderItemCollection ready for processing right away.
      * Another OrderItem is scheduled for the next billing cycle.
      *
-     * @return \Laravel\Cashier\Order\OrderItem|\Laravel\Cashier\Order\OrderItemCollection
+     * @return \Laravel\Cashier\Order\OrderItemCollection
      * @throws \Laravel\Cashier\Exceptions\PlanNotFoundException
      * @throws \Throwable
      */
@@ -136,8 +137,8 @@ class StartSubscription extends BaseAction
         $subscription = $this->builder()->create();
 
         // Create an additional OrderItem for the already processed payment
-        /** @var OrderItem $paidItem */
-        $paidItem = $subscription->orderItems()->create([
+        /** @var OrderItemCollection $processedItems */
+        $processedItems = $subscription->orderItems()->create([
             'owner_type' => get_class($this->owner),
             'owner_id' => $this->owner->id,
             'process_at' => now(),
@@ -146,19 +147,19 @@ class StartSubscription extends BaseAction
             'unit_price' => $this->getSubtotal()->getAmount(),
             'tax_percentage' => $this->getTaxPercentage(),
             'quantity' => $this->quantity,
-        ]);
+        ])->toCollection();
 
         if($this->coupon) {
             $redeemedCoupon = RedeemedCoupon::record($this->coupon, $subscription);
 
             if(!$this->isTrial()) {
-                return $this->coupon->applyTo($redeemedCoupon, $paidItem->toCollection());
+                $processedItems =  $this->coupon->applyTo($redeemedCoupon, $processedItems);
             }
         }
 
         $this->owner->cancelGenericTrial();
 
-        return $paidItem;
+        return $processedItems;
     }
 
     /**

@@ -4,11 +4,17 @@ namespace Laravel\Cashier\SubscriptionBuilder;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Cashier\Coupon\NullCouponAcceptor;
+use Laravel\Cashier\Coupon\RedeemedCoupon;
+use Laravel\Cashier\FirstPayment\Actions\ActionCollection;
 use Laravel\Cashier\FirstPayment\Actions\AddGenericOrderItem;
+use Laravel\Cashier\FirstPayment\Actions\ApplySubscriptionCouponToPayment;
 use Laravel\Cashier\FirstPayment\Actions\StartSubscription;
 use Laravel\Cashier\FirstPayment\FirstPaymentBuilder;
+use Laravel\Cashier\Order\OrderItemCollection;
 use Laravel\Cashier\Plan\Contracts\PlanRepository;
 use Laravel\Cashier\Plan\Plan;
+use Laravel\Cashier\Subscription;
 use Laravel\Cashier\SubscriptionBuilder\Contracts\SubscriptionBuilder as Contract;
 
 /**
@@ -80,7 +86,7 @@ class FirstPaymentSubscriptionBuilder implements Contract
     {
         $this->validateCoupon();
 
-        $actions = [ $this->startSubscription ];
+        $actions = new ActionCollection([$this->startSubscription]);
         $coupon = $this->startSubscription->coupon();
 
         if($this->isTrial) {
@@ -96,10 +102,10 @@ class FirstPaymentSubscriptionBuilder implements Contract
                 $this->plan->firstPaymentDescription()
             );
         } elseif ($coupon) {
-            dd($coupon);
+            $actions[] = new ApplySubscriptionCouponToPayment($this->owner, $coupon, $actions);
         }
 
-        $this->firstPaymentBuilder->inOrderTo($actions)->create();
+        $this->firstPaymentBuilder->inOrderTo($actions->toArray())->create();
 
         return $this->redirectToCheckout();
     }

@@ -18,12 +18,6 @@ abstract class BaseAction
     /** var float */
     protected $taxPercentage = 0;
 
-    /** @var \Money\Money */
-    protected $discount;
-
-    /** @var string */
-    protected $discountDescription;
-
     /** @var \Illuminate\Database\Eloquent\Model */
     protected $owner;
 
