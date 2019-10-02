@@ -32,7 +32,7 @@ class FixedDiscountHandler extends BaseCouponHandler
             'unit_price' => $unitPrice->getAmount(),
             'quantity' => $this->quantity($firstItem),
             'tax_percentage' => $this->taxPercentage($firstItem),
-            'description' => $this->context('description', ),
+            'description' => $this->context('description'),
         ])->toCollection();
     }
 
