@@ -5,6 +5,7 @@ namespace Laravel\Cashier\FirstPayment\Actions;
 use Illuminate\Support\Collection;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\Exceptions\CurrencyMismatchException;
+use Laravel\Cashier\Order\OrderItemCollection;
 
 class ActionCollection extends Collection
 {
@@ -63,5 +64,20 @@ class ActionCollection extends Collection
         }
 
         return $payload;
+    }
+
+    /**
+     * @return \Laravel\Cashier\Order\OrderItemCollection
+     */
+    public function processedOrderItems()
+    {
+        $orderItems = new OrderItemCollection;
+
+        /** @var \Laravel\Cashier\FirstPayment\Actions\BaseAction $action */
+        foreach ($this->items as $action) {
+            $orderItems->concat($action->makeProcessedOrderItems());
+        }
+
+        return $orderItems;
     }
 }

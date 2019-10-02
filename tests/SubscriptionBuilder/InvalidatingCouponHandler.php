@@ -16,7 +16,7 @@ class InvalidatingCouponHandler extends BaseCouponHandler
         throw new CouponException('This exception should be thrown');
     }
 
-    public function getDiscountOrderItems(RedeemedCoupon $redeemedCoupon, OrderItemCollection $items)
+    public function getDiscountOrderItems(?RedeemedCoupon $redeemedCoupon, OrderItemCollection $items)
     {
         return $items;
     }

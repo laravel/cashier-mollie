@@ -102,7 +102,7 @@ class FirstPaymentSubscriptionBuilder implements Contract
                 $this->plan->firstPaymentDescription()
             );
         } elseif ($coupon) {
-            $actions[] = new ApplySubscriptionCouponToPayment($this->owner, $coupon, $actions);
+            $actions[] = new ApplySubscriptionCouponToPayment($this->owner, $coupon, $actions->processedOrderItems());
         }
 
         $this->firstPaymentBuilder->inOrderTo($actions->toArray())->create();

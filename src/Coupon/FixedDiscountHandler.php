@@ -2,7 +2,6 @@
 
 namespace Laravel\Cashier\Coupon;
 
-use Laravel\Cashier\FirstPayment\Actions\ActionCollection;
 use Laravel\Cashier\Order\OrderItem;
 use Laravel\Cashier\Order\OrderItemCollection;
 use Money\Money;
@@ -14,7 +13,7 @@ class FixedDiscountHandler extends BaseCouponHandler
      * @param \Laravel\Cashier\Order\OrderItemCollection $items
      * @return \Laravel\Cashier\Order\OrderItemCollection
      */
-    public function getDiscountOrderItems(RedeemedCoupon $redeemedCoupon, OrderItemCollection $items)
+    public function getDiscountOrderItems(?RedeemedCoupon $redeemedCoupon, OrderItemCollection $items)
     {
         if($items->isEmpty()) {
             return new OrderItemCollection;
@@ -33,22 +32,8 @@ class FixedDiscountHandler extends BaseCouponHandler
             'unit_price' => $unitPrice->getAmount(),
             'quantity' => $this->quantity($firstItem),
             'tax_percentage' => $this->taxPercentage($firstItem),
-            'description' => $this->context('description'),
+            'description' => $this->context('description', ),
         ])->toCollection();
-    }
-
-    public function applyToFirstPayment(ActionCollection $otherActions)
-    {
-        return true;
-    }
-
-    /**
-     * @param \Laravel\Cashier\FirstPayment\Actions\ActionCollection $otherActions
-     * @return \Money\Money
-     */
-    public function getFirstPaymentTotal(ActionCollection $otherActions)
-    {
-        return money(0, $otherActions->getCurrency());
     }
 
     /**

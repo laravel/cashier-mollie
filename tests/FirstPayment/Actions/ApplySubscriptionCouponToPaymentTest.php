@@ -3,8 +3,8 @@
 namespace Laravel\Cashier\Tests\FirstPayment\Actions;
 
 use Laravel\Cashier\Coupon\Contracts\CouponRepository;
-use Laravel\Cashier\FirstPayment\Actions\ActionCollection;
 use Laravel\Cashier\FirstPayment\Actions\ApplySubscriptionCouponToPayment as Action;
+use Laravel\Cashier\Order\OrderItem;
 use Laravel\Cashier\Order\OrderItemCollection;
 use Laravel\Cashier\Tests\BaseTestCase;
 use Laravel\Cashier\Tests\Fixtures\User;
@@ -22,9 +22,12 @@ class ApplySubscriptionCouponToPaymentTest extends BaseTestCase
         $this->withMockedCouponRepository();
         $this->coupon = app()->make(CouponRepository::class)->findOrFail('test-coupon');
         $this->owner = factory(User::class)->make();
-        $otherActions = new ActionCollection;
+        $orderItems = factory(OrderItem::class)->make([
+            'unit_price' => 10000,
+            'currency' => 'EUR',
+        ])->toCollection();
 
-        $this->action = new Action($this->owner, $this->coupon, $otherActions);
+        $this->action = new Action($this->owner, $this->coupon, $orderItems);
     }
 
     /** @test */

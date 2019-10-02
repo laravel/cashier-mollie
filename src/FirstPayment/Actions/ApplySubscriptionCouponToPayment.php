@@ -4,6 +4,7 @@ namespace Laravel\Cashier\FirstPayment\Actions;
 
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Cashier\Coupon\Coupon;
+use Laravel\Cashier\Order\OrderItemCollection;
 
 class ApplySubscriptionCouponToPayment extends BaseNullAction
 {
@@ -13,22 +14,22 @@ class ApplySubscriptionCouponToPayment extends BaseNullAction
     protected $coupon;
 
     /**
-     * @var \Laravel\Cashier\FirstPayment\Actions\ActionCollection
+     * @var \Laravel\Cashier\Order\OrderItemCollection
      */
-    protected $otherActions;
+    protected $orderItems;
 
     /**
      * ApplySubscriptionCouponToPayment constructor.
      *
      * @param \Illuminate\Database\Eloquent\Model $owner
      * @param \Laravel\Cashier\Coupon\Coupon $coupon
-     * @param \Laravel\Cashier\FirstPayment\Actions\ActionCollection $otherActions
+     * @param \Laravel\Cashier\Order\OrderItemCollection $orderItems
      */
-    public function __construct(Model $owner, Coupon $coupon, ActionCollection $otherActions)
+    public function __construct(Model $owner, Coupon $coupon, OrderItemCollection $orderItems)
     {
         $this->owner = $owner;
         $this->coupon = $coupon;
-        $this->otherActions = $otherActions;
+        $this->orderItems = $this->coupon->handler()->getDiscountOrderItems(null, $orderItems);
     }
 
     /**
@@ -36,15 +37,7 @@ class ApplySubscriptionCouponToPayment extends BaseNullAction
      */
     public function getSubtotal()
     {
-        return $this->coupon->handler()->getFirstPaymentTotal($this->otherActions);
-    }
-
-    /**
-     * @return \Money\Money
-     */
-    public function getTotal()
-    {
-        return $this->getSubtotal();
+        return $this->toMoney($this->orderItems->sum('subtotal'));
     }
 
     /**
@@ -52,6 +45,15 @@ class ApplySubscriptionCouponToPayment extends BaseNullAction
      */
     public function getTax()
     {
-        return money(0, $this->getCurrency());
+        return $this->toMoney($this->orderItems->sum('tax'));
+    }
+
+    /**
+     * @param int $value
+     * @return \Money\Money
+     */
+    protected function toMoney($value = 0)
+    {
+        return money($value, $this->getCurrency());
     }
 }

@@ -38,17 +38,5 @@ interface CouponHandler
      * @param \Laravel\Cashier\Order\OrderItemCollection $items
      * @return \Laravel\Cashier\Order\OrderItemCollection
      */
-    public function getDiscountOrderItems(RedeemedCoupon $redeemedCoupon, OrderItemCollection $items);
-
-    /**
-     * @param \Laravel\Cashier\FirstPayment\Actions\ActionCollection $otherActions
-     * @return bool
-     */
-    public function applyToFirstPayment(ActionCollection $otherActions);
-
-    /**
-     * @param \Laravel\Cashier\FirstPayment\Actions\ActionCollection $otherActions
-     * @return \Money\Money
-     */
-    public function getFirstPaymentTotal(ActionCollection $otherActions);
+    public function getDiscountOrderItems(?RedeemedCoupon $redeemedCoupon, OrderItemCollection $items);
 }
