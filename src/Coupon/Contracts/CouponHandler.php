@@ -5,7 +5,6 @@ namespace Laravel\Cashier\Coupon\Contracts;
 use Laravel\Cashier\Coupon\Coupon;
 use Laravel\Cashier\Coupon\RedeemedCoupon;
 use Laravel\Cashier\Exceptions\CouponException;
-use Laravel\Cashier\FirstPayment\Actions\ActionCollection;
 use Laravel\Cashier\Order\OrderItemCollection;
 
 interface CouponHandler
