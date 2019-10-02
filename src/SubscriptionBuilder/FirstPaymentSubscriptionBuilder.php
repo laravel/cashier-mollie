@@ -4,17 +4,13 @@ namespace Laravel\Cashier\SubscriptionBuilder;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
-use Laravel\Cashier\Coupon\NullCouponAcceptor;
-use Laravel\Cashier\Coupon\RedeemedCoupon;
 use Laravel\Cashier\FirstPayment\Actions\ActionCollection;
 use Laravel\Cashier\FirstPayment\Actions\AddGenericOrderItem;
 use Laravel\Cashier\FirstPayment\Actions\ApplySubscriptionCouponToPayment;
 use Laravel\Cashier\FirstPayment\Actions\StartSubscription;
 use Laravel\Cashier\FirstPayment\FirstPaymentBuilder;
-use Laravel\Cashier\Order\OrderItemCollection;
 use Laravel\Cashier\Plan\Contracts\PlanRepository;
 use Laravel\Cashier\Plan\Plan;
-use Laravel\Cashier\Subscription;
 use Laravel\Cashier\SubscriptionBuilder\Contracts\SubscriptionBuilder as Contract;
 
 /**
