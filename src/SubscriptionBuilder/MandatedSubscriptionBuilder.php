@@ -108,11 +108,7 @@ class MandatedSubscriptionBuilder implements Contract
 
             $subscription->scheduleNewOrderItemAt($this->nextPaymentAt);
             $subscription->save();
-
-            //if($this->coupon && !$couponRedeemed) {
-            //    $this->coupon->redeemFor($subscription);
-            //}
-
+            
             $this->owner->cancelGenericTrial();
 
             return $subscription;
