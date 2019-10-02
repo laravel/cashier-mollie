@@ -7,7 +7,6 @@ use Laravel\Cashier\Coupon\Contracts\AcceptsCoupons;
 use Laravel\Cashier\Coupon\Contracts\CouponHandler;
 use Laravel\Cashier\Events\CouponApplied;
 use Laravel\Cashier\Exceptions\CouponException;
-use Laravel\Cashier\FirstPayment\Actions\ActionCollection;
 use Laravel\Cashier\Order\OrderItem;
 use Laravel\Cashier\Order\OrderItemCollection;
 
