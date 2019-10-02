@@ -24,6 +24,14 @@ abstract class BaseNullAction extends BaseAction
     }
 
     /**
+     * @return \Laravel\Cashier\Order\OrderItemCollection
+     */
+    public function makeProcessedOrderItems()
+    {
+        return new OrderItemCollection;
+    }
+
+    /**
      * Execute this action and return the created OrderItem or OrderItemCollection.
      *
      * @return \Laravel\Cashier\Order\OrderItem|\Laravel\Cashier\Order\OrderItemCollection

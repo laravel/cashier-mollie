@@ -29,9 +29,29 @@ class ApplySubscriptionCouponToPayment extends BaseNullAction
         $this->owner = $owner;
         $this->coupon = $coupon;
         $this->otherActions = $otherActions;
+    }
 
-        // TODO set taxPercentage amount
-        // TODO set subtotal discount amount
-        $this->subtotal = money(-500, 'EUR');
+    /**
+     * @return \Money\Money
+     */
+    public function getSubtotal()
+    {
+        return $this->coupon->handler()->getFirstPaymentTotal($this->otherActions);
+    }
+
+    /**
+     * @return \Money\Money
+     */
+    public function getTotal()
+    {
+        return $this->getSubtotal();
+    }
+
+    /**
+     * @return \Money\Money
+     */
+    public function getTax()
+    {
+        return money(0, $this->getCurrency());
     }
 }

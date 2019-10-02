@@ -2,8 +2,7 @@
 
 namespace Laravel\Cashier\Tests\FirstPayment\Actions;
 
-use Laravel\Cashier\Coupon\Coupon;
-use Laravel\Cashier\Coupon\FixedDiscountHandler;
+use Laravel\Cashier\Coupon\Contracts\CouponRepository;
 use Laravel\Cashier\FirstPayment\Actions\ActionCollection;
 use Laravel\Cashier\FirstPayment\Actions\ApplySubscriptionCouponToPayment as Action;
 use Laravel\Cashier\Order\OrderItemCollection;
@@ -20,7 +19,8 @@ class ApplySubscriptionCouponToPaymentTest extends BaseTestCase
     {
         parent::setUp();
 
-        $this->coupon = new Coupon('test-coupon', new FixedDiscountHandler);
+        $this->withMockedCouponRepository();
+        $this->coupon = app()->make(CouponRepository::class)->findOrFail('test-coupon');
         $this->owner = factory(User::class)->make();
         $otherActions = new ActionCollection;
 
@@ -28,9 +28,9 @@ class ApplySubscriptionCouponToPaymentTest extends BaseTestCase
     }
 
     /** @test */
-    public function testGetSubtotalReturnsDiscountSubtotal()
+    public function testGetTotalReturnsDiscountSubtotal()
     {
-        $this->assertMoneyEURCents(-500, $this->action->getSubtotal());
+        $this->assertMoneyEURCents(-500, $this->action->getTotal());
     }
 
     /** @test */

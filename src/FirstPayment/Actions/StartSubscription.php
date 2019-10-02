@@ -120,6 +120,33 @@ class StartSubscription extends BaseAction
     }
 
     /**
+     * Prepare a stub of OrderItems processed with the payment.
+     *
+     * @return \Laravel\Cashier\Order\OrderItemCollection
+     */
+    public function makeProcessedOrderItems()
+    {
+        return OrderItem::make($this->processedOrderItemData())->toCollection();
+    }
+
+    /**
+     * @return array
+     */
+    protected function processedOrderItemData()
+    {
+        return [
+            'owner_type' => get_class($this->owner),
+            'owner_id' => $this->owner->id,
+            'process_at' => now(),
+            'description' => $this->getDescription(),
+            'currency' => $this->getCurrency(),
+            'unit_price' => $this->getSubtotal()->getAmount(),
+            'tax_percentage' => $this->getTaxPercentage(),
+            'quantity' => $this->quantity,
+        ];
+    }
+
+    /**
      * Returns an OrderItemCollection ready for processing right away.
      * Another OrderItem is scheduled for the next billing cycle.
      *
@@ -138,16 +165,9 @@ class StartSubscription extends BaseAction
 
         // Create an additional OrderItem for the already processed payment
         /** @var OrderItemCollection $processedItems */
-        $processedItems = $subscription->orderItems()->create([
-            'owner_type' => get_class($this->owner),
-            'owner_id' => $this->owner->id,
-            'process_at' => now(),
-            'description' => $this->getDescription(),
-            'currency' => $this->getCurrency(),
-            'unit_price' => $this->getSubtotal()->getAmount(),
-            'tax_percentage' => $this->getTaxPercentage(),
-            'quantity' => $this->quantity,
-        ])->toCollection();
+        $processedItems = $subscription->orderItems()
+            ->create($this->processedOrderItemData())
+            ->toCollection();
 
         if($this->coupon) {
             $redeemedCoupon = RedeemedCoupon::record($this->coupon, $subscription);

@@ -53,19 +53,31 @@ class AddGenericOrderItem extends BaseAction
     }
 
     /**
-     * Execute this action and return the created OrderItem or OrderItemCollection.
+     * Prepare a stub of OrderItems processed with the payment.
      *
-     * @return \Laravel\Cashier\Order\OrderItem|\Laravel\Cashier\Order\OrderItemCollection
+     * @return \Laravel\Cashier\Order\OrderItemCollection
      */
-    public function execute()
+    public function makeProcessedOrderItems()
     {
-        return $this->owner->orderItems()->create([
+        return $this->owner->orderItems()->make([
             'description' => $this->getDescription(),
             'currency' => $this->getCurrency(),
             'process_at' => now(),
             'unit_price' => $this->getSubtotal()->getAmount(),
             'tax_percentage' => $this->getTaxPercentage(),
             'quantity' => 1,
-        ]);
+        ])->toCollection();
+    }
+
+    /**
+     * Execute this action and return the created OrderItemCollection.
+     *
+     * @return \Laravel\Cashier\Order\OrderItemCollection
+     */
+    public function execute()
+    {
+        return tap($this->makeProcessedOrderItems(), function($items) {
+            $items->save();
+        });
     }
 }

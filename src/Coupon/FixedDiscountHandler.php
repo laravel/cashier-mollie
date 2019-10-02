@@ -2,6 +2,7 @@
 
 namespace Laravel\Cashier\Coupon;
 
+use Laravel\Cashier\FirstPayment\Actions\ActionCollection;
 use Laravel\Cashier\Order\OrderItem;
 use Laravel\Cashier\Order\OrderItemCollection;
 use Money\Money;
@@ -34,6 +35,20 @@ class FixedDiscountHandler extends BaseCouponHandler
             'tax_percentage' => $this->taxPercentage($firstItem),
             'description' => $this->context('description'),
         ])->toCollection();
+    }
+
+    public function applyToFirstPayment(ActionCollection $otherActions)
+    {
+        return true;
+    }
+
+    /**
+     * @param \Laravel\Cashier\FirstPayment\Actions\ActionCollection $otherActions
+     * @return \Money\Money
+     */
+    public function getFirstPaymentTotal(ActionCollection $otherActions)
+    {
+        return money(0, $otherActions->getCurrency());
     }
 
     /**

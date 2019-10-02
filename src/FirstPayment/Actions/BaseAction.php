@@ -4,6 +4,7 @@ namespace Laravel\Cashier\FirstPayment\Actions;
 
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Cashier\Cashier;
+use Laravel\Cashier\Order\OrderItemCollection;
 
 abstract class BaseAction
 {
@@ -37,9 +38,16 @@ abstract class BaseAction
     abstract public function getPayload();
 
     /**
-     * Execute this action and return the created OrderItem or OrderItemCollection.
+     * Prepare a stub of OrderItems processed with the payment.
      *
-     * @return \Laravel\Cashier\Order\OrderItem|\Laravel\Cashier\Order\OrderItemCollection
+     * @return \Laravel\Cashier\Order\OrderItemCollection
+     */
+    abstract public function makeProcessedOrderItems();
+
+    /**
+     * Execute this action and return the created OrderItemCollection.
+     *
+     * @return \Laravel\Cashier\Order\OrderItemCollection
      */
     abstract public function execute();
 

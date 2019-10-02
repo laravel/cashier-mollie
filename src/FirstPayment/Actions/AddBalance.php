@@ -22,9 +22,9 @@ class AddBalance extends AddGenericOrderItem
     }
 
     /**
-     * Execute this action and return the created OrderItem or OrderItemCollection.
+     * Execute this action and return the created OrderItemCollection.
      *
-     * @return \Laravel\Cashier\Order\OrderItem|\Laravel\Cashier\Order\OrderItemCollection
+     * @return \Laravel\Cashier\Order\OrderItemCollection
      */
     public function execute()
     {

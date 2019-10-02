@@ -7,6 +7,7 @@ use Laravel\Cashier\Coupon\Contracts\AcceptsCoupons;
 use Laravel\Cashier\Coupon\Contracts\CouponHandler;
 use Laravel\Cashier\Events\CouponApplied;
 use Laravel\Cashier\Exceptions\CouponException;
+use Laravel\Cashier\FirstPayment\Actions\ActionCollection;
 use Laravel\Cashier\Order\OrderItemCollection;
 
 abstract class BaseCouponHandler implements CouponHandler
@@ -23,6 +24,15 @@ abstract class BaseCouponHandler implements CouponHandler
      * @return \Laravel\Cashier\Order\OrderItemCollection
      */
     abstract public function getDiscountOrderItems(RedeemedCoupon $redeemedCoupon, OrderItemCollection $items);
+
+    /**
+     * @param \Laravel\Cashier\FirstPayment\Actions\ActionCollection $otherActions
+     * @return bool
+     */
+    public function applyToFirstPayment(ActionCollection $otherActions)
+    {
+        return false;
+    }
 
     /**
      * @param \Laravel\Cashier\Coupon\Coupon $coupon
