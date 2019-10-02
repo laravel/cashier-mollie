@@ -2,6 +2,7 @@
 
 namespace Laravel\Cashier\Tests\FirstPayment\Actions;
 
+use Laravel\Cashier\Cashier;
 use Laravel\Cashier\Coupon\Contracts\CouponRepository;
 use Laravel\Cashier\FirstPayment\Actions\ApplySubscriptionCouponToPayment as Action;
 use Laravel\Cashier\Order\OrderItem;
@@ -18,6 +19,8 @@ class ApplySubscriptionCouponToPaymentTest extends BaseTestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        Cashier::useCurrency('eur');
 
         $this->withMockedCouponRepository();
         $this->coupon = app()->make(CouponRepository::class)->findOrFail('test-coupon');

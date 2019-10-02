@@ -4,6 +4,7 @@ namespace Laravel\Cashier\Tests\SubscriptionBuilder;
 
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Event;
+use Laravel\Cashier\Cashier;
 use Laravel\Cashier\Events\FirstPaymentPaid;
 use Laravel\Cashier\Events\OrderProcessed;
 use Laravel\Cashier\Exceptions\CouponException;
@@ -21,6 +22,7 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
     protected function setUp(): void
     {
         parent::setUp();
+        Cashier::useCurrency('eur');
         $this->withTestNow('2019-01-01');
         $this->withPackageMigrations();
         $this->withConfiguredPlans();
