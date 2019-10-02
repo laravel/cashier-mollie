@@ -75,7 +75,7 @@ class ActionCollection extends Collection
 
         /** @var \Laravel\Cashier\FirstPayment\Actions\BaseAction $action */
         foreach ($this->items as $action) {
-            $orderItems->concat($action->makeProcessedOrderItems());
+            $orderItems = $orderItems->concat($action->makeProcessedOrderItems());
         }
 
         return $orderItems;
