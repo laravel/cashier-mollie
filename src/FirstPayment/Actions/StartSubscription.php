@@ -19,9 +19,6 @@ class StartSubscription extends BaseAction
     /** @var \Laravel\Cashier\Plan\Plan */
     protected $plan;
 
-    /** @var int */
-    protected $quantity = 1;
-
     /** @var \Laravel\Cashier\Coupon\Coupon */
     protected $coupon;
 

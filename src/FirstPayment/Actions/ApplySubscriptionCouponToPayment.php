@@ -14,6 +14,7 @@ class ApplySubscriptionCouponToPayment extends BaseNullAction
     protected $coupon;
 
     /**
+     * The coupon's (discount) OrderItems
      * @var \Laravel\Cashier\Order\OrderItemCollection
      */
     protected $orderItems;

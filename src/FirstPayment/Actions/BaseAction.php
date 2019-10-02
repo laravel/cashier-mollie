@@ -4,7 +4,6 @@ namespace Laravel\Cashier\FirstPayment\Actions;
 
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Cashier\Cashier;
-use Laravel\Cashier\Order\OrderItemCollection;
 
 abstract class BaseAction
 {
@@ -22,6 +21,9 @@ abstract class BaseAction
 
     /** @var \Illuminate\Database\Eloquent\Model */
     protected $owner;
+
+    /** @var int */
+    protected $quantity = 1;
 
     /**
      * Rebuild the Action from a payload.
@@ -92,7 +94,7 @@ abstract class BaseAction
      */
     public function getSubtotal()
     {
-        return $this->subtotal;
+        return $this->subtotal->multiply($this->quantity);
     }
 
     /**

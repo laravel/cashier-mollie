@@ -97,6 +97,29 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
     }
 
     /** @test */
+    public function handlesQuantity()
+    {
+        config(['cashier.locale' => 'nl_NL']);
+
+        $builder = $this->getBuilder()->quantity(3);
+
+        $response = $builder->create();
+
+        $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertInstanceOf(RedirectToCheckoutResponse::class, $response);
+        $this->assertInstanceOf(Payment::class, $response->payment());
+
+        $payload = $builder->getMandatePaymentBuilder()->getMolliePayload();
+
+        $this->assertEquals(3, $payload['metadata']['actions'][0]['quantity']);
+        $this->assertEquals([
+            'currency' => 'EUR',
+            'value' => 36,
+        ], $payload['amount']);
+
+    }
+
+    /** @test */
     public function handlesAPaidMandatePayment()
     {
         $this->withoutExceptionHandling();
