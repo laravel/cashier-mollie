@@ -17,6 +17,11 @@ abstract class BaseCouponHandler implements CouponHandler
     /** @var array */
     protected $context = [];
 
+    /**
+     * @param \Laravel\Cashier\Coupon\RedeemedCoupon $redeemedCoupon
+     * @param \Laravel\Cashier\Order\OrderItemCollection $items
+     * @return \Laravel\Cashier\Order\OrderItemCollection
+     */
     abstract public function getDiscountOrderItems(RedeemedCoupon $redeemedCoupon, OrderItemCollection $items);
 
     /**
