@@ -3,7 +3,6 @@
 namespace Laravel\Cashier\FirstPayment\Actions;
 
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\Exceptions\CurrencyMismatchException;
 
@@ -49,7 +48,7 @@ class ActionCollection extends Collection
             return $this->first()->getTotal()->getCurrency()->getCode();
         }
 
-        return Str::upper(Cashier::usesCurrency());
+        return strtoupper(Cashier::usesCurrency());
     }
 
     /**
