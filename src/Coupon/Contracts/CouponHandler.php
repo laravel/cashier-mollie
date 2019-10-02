@@ -5,6 +5,7 @@ namespace Laravel\Cashier\Coupon\Contracts;
 use Laravel\Cashier\Coupon\Coupon;
 use Laravel\Cashier\Coupon\RedeemedCoupon;
 use Laravel\Cashier\Exceptions\CouponException;
+use Laravel\Cashier\FirstPayment\Actions\ActionCollection;
 use Laravel\Cashier\Order\OrderItemCollection;
 
 interface CouponHandler
@@ -28,9 +29,14 @@ interface CouponHandler
      *
      * @param \Laravel\Cashier\Coupon\RedeemedCoupon $redeemedCoupon
      * @param \Laravel\Cashier\Order\OrderItemCollection $items
-     * @return \Laravel\Cashier\Order\OrderItemCollection $items
+     * @return \Laravel\Cashier\Order\OrderItemCollection
      */
     public function handle(RedeemedCoupon $redeemedCoupon, OrderItemCollection $items);
 
-    public function getDiscountOrderItems(RedeemedCoupon $redeemedCoupon, OrderItemCollection $items);
+    /**
+     * @param \Laravel\Cashier\Coupon\RedeemedCoupon $redeemedCoupon
+     * @param \Laravel\Cashier\Order\OrderItemCollection $items
+     * @return \Laravel\Cashier\Order\OrderItemCollection
+     */
+    public function getDiscountOrderItems(?RedeemedCoupon $redeemedCoupon, OrderItemCollection $items);
 }

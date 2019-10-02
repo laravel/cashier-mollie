@@ -7,6 +7,8 @@ use Laravel\Cashier\Coupon\Contracts\AcceptsCoupons;
 use Laravel\Cashier\Coupon\Contracts\CouponHandler;
 use Laravel\Cashier\Events\CouponApplied;
 use Laravel\Cashier\Exceptions\CouponException;
+use Laravel\Cashier\FirstPayment\Actions\ActionCollection;
+use Laravel\Cashier\Order\OrderItem;
 use Laravel\Cashier\Order\OrderItemCollection;
 
 abstract class BaseCouponHandler implements CouponHandler
@@ -17,7 +19,12 @@ abstract class BaseCouponHandler implements CouponHandler
     /** @var array */
     protected $context = [];
 
-    abstract public function getDiscountOrderItems(RedeemedCoupon $redeemedCoupon, OrderItemCollection $items);
+    /**
+     * @param \Laravel\Cashier\Coupon\RedeemedCoupon $redeemedCoupon
+     * @param \Laravel\Cashier\Order\OrderItemCollection $items
+     * @return \Laravel\Cashier\Order\OrderItemCollection
+     */
+    abstract public function getDiscountOrderItems(?RedeemedCoupon $redeemedCoupon, OrderItemCollection $items);
 
     /**
      * @param \Laravel\Cashier\Coupon\Coupon $coupon
@@ -90,14 +97,19 @@ abstract class BaseCouponHandler implements CouponHandler
     }
 
     /**
-     * Create and return an un-saved OrderItem instance tied to the applied coupon.
+     * Create and return an un-saved OrderItem instance. If a coupon has been applied,
+     * the order item will be tied to the coupon.
      *
      * @param array $data
      * @return \Illuminate\Database\Eloquent\Model|\Laravel\Cashier\Order\OrderItem
      */
     protected function makeOrderItem(array $data)
     {
-        return $this->appliedCoupon->orderItems()->make($data);
+        if($this->appliedCoupon) {
+            return $this->appliedCoupon->orderItems()->make($data);
+        }
+
+        return OrderItem::make($data);
     }
 
     /**

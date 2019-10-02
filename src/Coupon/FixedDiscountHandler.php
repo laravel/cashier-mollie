@@ -13,7 +13,7 @@ class FixedDiscountHandler extends BaseCouponHandler
      * @param \Laravel\Cashier\Order\OrderItemCollection $items
      * @return \Laravel\Cashier\Order\OrderItemCollection
      */
-    public function getDiscountOrderItems(RedeemedCoupon $redeemedCoupon, OrderItemCollection $items)
+    public function getDiscountOrderItems(?RedeemedCoupon $redeemedCoupon, OrderItemCollection $items)
     {
         if($items->isEmpty()) {
             return new OrderItemCollection;
@@ -32,7 +32,7 @@ class FixedDiscountHandler extends BaseCouponHandler
             'unit_price' => $unitPrice->getAmount(),
             'quantity' => $this->quantity($firstItem),
             'tax_percentage' => $this->taxPercentage($firstItem),
-            'description' => $this->context('description'),
+            'description' => $this->context('description', ),
         ])->toCollection();
     }
 

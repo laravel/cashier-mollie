@@ -16,6 +16,7 @@ use Laravel\Cashier\Traits\HasOwner;
  * @property string orderable_type
  * @property mixed orderable_id
  * @method static create(array $array)
+ * @method static make(array $array)
  */
 class OrderItem extends Model implements InvoicableItem
 {
