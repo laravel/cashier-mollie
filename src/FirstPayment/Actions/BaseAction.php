@@ -3,6 +3,7 @@
 namespace Laravel\Cashier\FirstPayment\Actions;
 
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Cashier\Cashier;
 
 abstract class BaseAction
 {
@@ -55,7 +56,7 @@ abstract class BaseAction
      */
     public function getCurrency()
     {
-        return $this->currency;
+        return $this->currency ?? strtoupper(Cashier::usesCurrency());
     }
 
     /**
