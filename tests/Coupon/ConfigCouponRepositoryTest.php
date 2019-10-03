@@ -81,4 +81,12 @@ class ConfigCouponRepositoryTest extends BaseTestCase
         $this->assertEquals($lowercaseCoupon, $uppercaseCoupon);
     }
 
+    /** @test */
+    public function itHandlesTimesAttribute()
+    {
+        $coupon = $this->repository->findOrFail('test-coupon');
+
+        $this->assertEquals(6, $coupon->times());
+    }
+
 }

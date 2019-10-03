@@ -62,6 +62,8 @@ class ConfigCouponRepository implements CouponRepository
     {
         $couponConfig = array_merge($this->defaults, $this->coupons[$name]);
 
-        return new Coupon($name, new $couponConfig['handler'], $couponConfig['context']);
+        $coupon = new Coupon($name, new $couponConfig['handler'], $couponConfig['context']);
+
+        return $coupon->withTimes($couponConfig['times']);
     }
 }
