@@ -9,11 +9,10 @@ use Money\Money;
 class FixedDiscountHandler extends BaseCouponHandler
 {
     /**
-     * @param \Laravel\Cashier\Coupon\RedeemedCoupon $redeemedCoupon
      * @param \Laravel\Cashier\Order\OrderItemCollection $items
      * @return \Laravel\Cashier\Order\OrderItemCollection
      */
-    public function getDiscountOrderItems(?RedeemedCoupon $redeemedCoupon, OrderItemCollection $items)
+    public function getDiscountOrderItems(OrderItemCollection $items)
     {
         if($items->isEmpty()) {
             return new OrderItemCollection;

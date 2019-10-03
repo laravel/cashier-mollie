@@ -30,7 +30,7 @@ class ApplySubscriptionCouponToPayment extends BaseNullAction
     {
         $this->owner = $owner;
         $this->coupon = $coupon;
-        $this->orderItems = $this->coupon->handler()->getDiscountOrderItems(null, $orderItems);
+        $this->orderItems = $this->coupon->handler()->getDiscountOrderItems($orderItems);
     }
 
     /**
