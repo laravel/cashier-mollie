@@ -60,7 +60,11 @@ class ActionCollection extends Collection
         $payload = [];
         foreach ($this->items as $item) {
             /** @var \Laravel\Cashier\FirstPayment\Actions\BaseAction $item */
-            $payload[] = $item->getPayload();
+            $itemPayload = $item->getPayload();
+
+            if(!empty($itemPayload)) {
+                $payload[] = $itemPayload;
+            }
         }
 
         return $payload;
