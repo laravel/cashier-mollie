@@ -70,6 +70,20 @@ class Coupon
     }
 
     /**
+     * @param $times
+     * @return \Laravel\Cashier\Coupon\Coupon
+     * @throws \LogicException|\Throwable
+     */
+    public function withTimes($times)
+    {
+        throw_if($times < 1, new \LogicException('Cannot apply coupons less than one time.'));
+
+        $this->times = $times;
+
+        return $this;
+    }
+
+    /**
      * @param \Laravel\Cashier\Coupon\Contracts\AcceptsCoupons $model
      * @return \Laravel\Cashier\Coupon\RedeemedCoupon
      */
