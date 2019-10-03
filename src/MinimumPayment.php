@@ -4,7 +4,6 @@ namespace Laravel\Cashier;
 
 use Laravel\Cashier\Order\Contracts\MinimumPayment as MinimumPaymentContract;
 use Mollie\Api\Resources\Mandate;
-use Money\Money;
 
 class MinimumPayment implements MinimumPaymentContract
 {
