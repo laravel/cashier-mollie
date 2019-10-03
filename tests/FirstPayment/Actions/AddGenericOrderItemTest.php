@@ -4,6 +4,7 @@ namespace Laravel\Cashier\Tests\FirstPayment\Actions;
 
 use Laravel\Cashier\FirstPayment\Actions\AddGenericOrderItem;
 use Laravel\Cashier\Order\OrderItem;
+use Laravel\Cashier\Order\OrderItemCollection;
 use Laravel\Cashier\Tests\BaseTestCase;
 use Laravel\Cashier\Tests\Fixtures\User;
 
@@ -83,8 +84,11 @@ class AddGenericOrderItemTest extends BaseTestCase
             'Adding a test order item'
         );
 
-        $item = $action->execute();
+        $items = $action->execute();
+        $item = $items->first();
 
+        $this->assertInstanceOf(OrderItemCollection::class, $items);
+        $this->assertCount(1, $items);
         $this->assertInstanceOf(OrderItem::class, $item);
         $this->assertEquals('Adding a test order item', $item->description);
         $this->assertEquals('EUR', $item->currency);

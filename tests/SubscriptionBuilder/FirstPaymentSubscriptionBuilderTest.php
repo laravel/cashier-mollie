@@ -4,8 +4,10 @@ namespace Laravel\Cashier\Tests\SubscriptionBuilder;
 
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Event;
+use Laravel\Cashier\Cashier;
 use Laravel\Cashier\Events\FirstPaymentPaid;
 use Laravel\Cashier\Events\OrderProcessed;
+use Laravel\Cashier\Exceptions\CouponException;
 use Laravel\Cashier\FirstPayment\Actions\AddGenericOrderItem;
 use Laravel\Cashier\FirstPayment\Actions\StartSubscription;
 use Laravel\Cashier\SubscriptionBuilder\FirstPaymentSubscriptionBuilder;
@@ -20,6 +22,7 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
     protected function setUp(): void
     {
         parent::setUp();
+        Cashier::useCurrency('eur');
         $this->withTestNow('2019-01-01');
         $this->withPackageMigrations();
         $this->withConfiguredPlans();
@@ -96,6 +99,29 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
     }
 
     /** @test */
+    public function handlesQuantity()
+    {
+        config(['cashier.locale' => 'nl_NL']);
+
+        $builder = $this->getBuilder()->quantity(3);
+
+        $response = $builder->create();
+
+        $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertInstanceOf(RedirectToCheckoutResponse::class, $response);
+        $this->assertInstanceOf(Payment::class, $response->payment());
+
+        $payload = $builder->getMandatePaymentBuilder()->getMolliePayload();
+
+        $this->assertEquals(3, $payload['metadata']['actions'][0]['quantity']);
+        $this->assertEquals([
+            'currency' => 'EUR',
+            'value' => 36,
+        ], $payload['amount']);
+
+    }
+
+    /** @test */
     public function handlesAPaidMandatePayment()
     {
         $this->withoutExceptionHandling();
@@ -118,6 +144,35 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
 
         Event::assertDispatched(OrderProcessed::class);
         Event::assertDispatched(FirstPaymentPaid::class);
+    }
+
+    /** @test */
+    public function testWithCouponNoTrialValidatesCoupon()
+    {
+        $this->expectException(CouponException::class);
+        $this->withMockedCouponRepository(null, new InvalidatingCouponHandler);
+        $this->getBuilder()->withCoupon('test-coupon')->create();
+    }
+
+    /** @test */
+    public function testWithCouponWithTrialValidatesCoupon()
+    {
+        $this->expectException(CouponException::class);
+        $this->withMockedCouponRepository(null, new InvalidatingCouponHandler);
+        $this->getBuilder()->trialDays(5)->withCoupon('test-coupon')->create();
+    }
+
+    /** @test */
+    public function testWithCouponNoTrialModifiesThePaymentAmount()
+    {
+        $this->withMockedCouponRepository();
+        $builder = $this->getBuilder()->withCoupon('test-coupon');
+        $builder->create();
+
+        $amount = $builder->getMandatePaymentBuilder()->getMolliePayload()['amount'];
+
+        $this->assertEquals('7.00', $amount['value']);
+        $this->assertEquals('EUR', $amount['currency']);
     }
 
     /**

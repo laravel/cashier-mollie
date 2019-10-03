@@ -60,6 +60,10 @@ class MandatedSubscriptionBuilder implements Contract
     /** @var \Laravel\Cashier\Coupon\Coupon */
     protected $coupon;
 
+    /** @var bool */
+    protected $handleCoupon = true;
+
+    /** @var bool */
     protected $validateCoupon = true;
 
     /**
@@ -89,33 +93,45 @@ class MandatedSubscriptionBuilder implements Contract
         $now = now();
 
         return DB::transaction(function () use ($now) {
-            /** @var Subscription $subscription */
-            $subscription = $this->owner->subscriptions()->create([
-                'name' => $this->name,
-                'plan' => $this->plan->name(),
-                'quantity' => $this->quantity,
-                'tax_percentage' => $this->owner->taxPercentage() ?: 0,
-                'trial_ends_at' => $this->trialExpires,
-                'cycle_started_at' => $now,
-                'cycle_ends_at' => $this->nextPaymentAt,
-            ]);
+            $subscription = $this->makeSubscription($now);
+            $subscription->save();
 
             if($this->coupon) {
-                $this->coupon->validateFor($subscription);
+                if($this->validateCoupon) {
+                    $this->coupon->validateFor($subscription);
+
+                    if($this->handleCoupon) {
+                        $this->coupon->redeemFor($subscription);
+                    }
+                }
             }
 
             $subscription->scheduleNewOrderItemAt($this->nextPaymentAt);
-
             $subscription->save();
-
-            if($this->coupon && $this->validateCoupon) {
-                $this->coupon->redeemFor($subscription);
-            }
-
+            
             $this->owner->cancelGenericTrial();
 
             return $subscription;
         });
+    }
+
+    /**
+     * Prepare a not yet persisted Subscription model
+     *
+     * @param null|Carbon $now
+     * @return Subscription $subscription
+     */
+    public function makeSubscription($now = null)
+    {
+        return $this->owner->subscriptions()->make([
+            'name' => $this->name,
+            'plan' => $this->plan->name(),
+            'quantity' => $this->quantity,
+            'tax_percentage' => $this->owner->taxPercentage() ?: 0,
+            'trial_ends_at' => $this->trialExpires,
+            'cycle_started_at' => $now ?: now(),
+            'cycle_ends_at' => $this->nextPaymentAt,
+        ]);
     }
 
     /**
@@ -193,6 +209,18 @@ class MandatedSubscriptionBuilder implements Contract
     public function skipCouponValidation()
     {
         $this->validateCoupon = false;
+
+        return $this;
+    }
+
+    /**
+     * Skip handling the coupon completely when creating the subscription.
+     *
+     * @return $this
+     */
+    public function skipCouponHandling()
+    {
+        $this->handleCoupon = false;
 
         return $this;
     }

@@ -3,6 +3,7 @@
 namespace Laravel\Cashier\FirstPayment\Actions;
 
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Cashier\Cashier;
 
 abstract class BaseAction
 {
@@ -18,14 +19,11 @@ abstract class BaseAction
     /** var float */
     protected $taxPercentage = 0;
 
-    /** @var \Money\Money */
-    protected $discount;
-
-    /** @var string */
-    protected $discountDescription;
-
     /** @var \Illuminate\Database\Eloquent\Model */
     protected $owner;
+
+    /** @var int */
+    protected $quantity = 1;
 
     /**
      * Rebuild the Action from a payload.
@@ -42,9 +40,16 @@ abstract class BaseAction
     abstract public function getPayload();
 
     /**
-     * Execute this action and return the created OrderItem or OrderItemCollection.
+     * Prepare a stub of OrderItems processed with the payment.
      *
-     * @return \Laravel\Cashier\Order\OrderItem|\Laravel\Cashier\Order\OrderItemCollection
+     * @return \Laravel\Cashier\Order\OrderItemCollection
+     */
+    abstract public function makeProcessedOrderItems();
+
+    /**
+     * Execute this action and return the created OrderItemCollection.
+     *
+     * @return \Laravel\Cashier\Order\OrderItemCollection
      */
     abstract public function execute();
 
@@ -61,7 +66,7 @@ abstract class BaseAction
      */
     public function getCurrency()
     {
-        return $this->currency;
+        return $this->currency ?? strtoupper(Cashier::usesCurrency());
     }
 
     /**
@@ -89,7 +94,7 @@ abstract class BaseAction
      */
     public function getSubtotal()
     {
-        return $this->subtotal;
+        return $this->subtotal->multiply($this->quantity);
     }
 
     /**

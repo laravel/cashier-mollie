@@ -4,7 +4,9 @@ namespace Laravel\Cashier\SubscriptionBuilder;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Cashier\FirstPayment\Actions\ActionCollection;
 use Laravel\Cashier\FirstPayment\Actions\AddGenericOrderItem;
+use Laravel\Cashier\FirstPayment\Actions\ApplySubscriptionCouponToPayment;
 use Laravel\Cashier\FirstPayment\Actions\StartSubscription;
 use Laravel\Cashier\FirstPayment\FirstPaymentBuilder;
 use Laravel\Cashier\Plan\Contracts\PlanRepository;
@@ -21,7 +23,7 @@ class FirstPaymentSubscriptionBuilder implements Contract
     /**
      * @var \Laravel\Cashier\FirstPayment\FirstPaymentBuilder
      */
-    protected $mandatePaymentBuilder;
+    protected $firstPaymentBuilder;
 
     /**
      * @var \Laravel\Cashier\FirstPayment\Actions\StartSubscription
@@ -64,8 +66,8 @@ class FirstPaymentSubscriptionBuilder implements Contract
 
         $this->plan = app(PlanRepository::class)::findOrFail($plan);
 
-        $this->mandatePaymentBuilder = new FirstPaymentBuilder($owner);
-        $this->mandatePaymentBuilder->setFirstPaymentMethod($this->plan->firstPaymentMethod());
+        $this->firstPaymentBuilder = new FirstPaymentBuilder($owner);
+        $this->firstPaymentBuilder->setFirstPaymentMethod($this->plan->firstPaymentMethod());
 
         $this->startSubscription = new StartSubscription($owner, $name, $plan);
     }
@@ -74,10 +76,14 @@ class FirstPaymentSubscriptionBuilder implements Contract
      * Create a new subscription. Returns a redirect to Mollie's checkout screen.
      *
      * @return \Laravel\Cashier\SubscriptionBuilder\RedirectToCheckoutResponse
+     * @throws \Laravel\Cashier\Exceptions\CouponException|\Throwable
      */
     public function create()
     {
-        $actions = [ $this->startSubscription ];
+        $this->validateCoupon();
+
+        $actions = new ActionCollection([$this->startSubscription]);
+        $coupon = $this->startSubscription->coupon();
 
         if($this->isTrial) {
             $taxPercentage = $this->owner->taxPercentage() * 0.01;
@@ -91,9 +97,11 @@ class FirstPaymentSubscriptionBuilder implements Contract
                 $subtotal,
                 $this->plan->firstPaymentDescription()
             );
+        } elseif ($coupon) {
+            $actions[] = new ApplySubscriptionCouponToPayment($this->owner, $coupon, $actions->processedOrderItems());
         }
 
-        $this->mandatePaymentBuilder->inOrderTo($actions)->create();
+        $this->firstPaymentBuilder->inOrderTo($actions->toArray())->create();
 
         return $this->redirectToCheckout();
     }
@@ -174,7 +182,7 @@ class FirstPaymentSubscriptionBuilder implements Contract
      */
     public function getMandatePaymentBuilder()
     {
-        return $this->mandatePaymentBuilder;
+        return $this->firstPaymentBuilder;
     }
 
     /**
@@ -183,5 +191,19 @@ class FirstPaymentSubscriptionBuilder implements Contract
     protected function redirectToCheckout()
     {
         return RedirectToCheckoutResponse::forFirstPaymentSubscriptionBuilder($this);
+    }
+
+    /**
+     * @throws \Laravel\Cashier\Exceptions\CouponException|\Throwable
+     */
+    protected function validateCoupon()
+    {
+        $coupon = $this->startSubscription->coupon();
+
+        if ($coupon) {
+            $coupon->validateFor(
+                $this->startSubscription->builder()->makeSubscription()
+            );
+        }
     }
 }

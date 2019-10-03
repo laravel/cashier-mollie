@@ -221,11 +221,14 @@ class StartSubscriptionTest extends BaseTestCase
 
         // Returns the OrderItem ready for processing right away.
         // Behind the scenes another OrderItem is scheduled for the next billing cycle.
-        $item = $action->execute();
-
+        $items = $action->execute();
+        $item = $items->first();
         $user = $user->fresh();
         $this->assertTrue($user->subscribed('default'));
         $this->assertFalse($user->onTrial());
+
+        $this->assertInstanceOf(OrderItemCollection::class, $items);
+        $this->assertCount(1, $items);
         $this->assertInstanceOf(OrderItem::class, $item);
         $this->assertFalse($item->isProcessed());
         $this->assertCarbon(now(), $item->process_at);
@@ -258,12 +261,15 @@ class StartSubscriptionTest extends BaseTestCase
 
         // Returns the OrderItem ready for processing right away.
         // Behind the scenes another OrderItem is scheduled for the next billing cycle.
-        $item = $action->execute();
-
+        $items = $action->execute();
+        $item = $items->first();
         $user = $user->fresh();
+
 
         $this->assertTrue($user->subscribed('default'));
         $this->assertTrue($user->onTrial());
+        $this->assertInstanceOf(OrderItemCollection::class, $items);
+        $this->assertCount(1, $items);
         $this->assertInstanceOf(OrderItem::class, $item);
         $this->assertFalse($item->isProcessed());
         $this->assertCarbon(now(), $item->process_at);
@@ -304,12 +310,14 @@ class StartSubscriptionTest extends BaseTestCase
 
         // Returns the OrderItem ready for processing right away.
         // Behind the scenes another OrderItem is scheduled for the next billing cycle.
-        $item = $action->execute();
-
+        $items = $action->execute();
+        $item = $items->first();
         $user = $user->fresh();
 
         $this->assertTrue($user->subscribed('default'));
         $this->assertTrue($user->onTrial());
+        $this->assertInstanceOf(OrderItemCollection::class, $items);
+        $this->assertCount(1, $items);
         $this->assertInstanceOf(OrderItem::class, $item);
         $this->assertFalse($item->isProcessed());
         $this->assertCarbon(now(), $item->process_at);
@@ -338,8 +346,11 @@ class StartSubscriptionTest extends BaseTestCase
 
         $this->assertFalse($user->subscribed('default'));
 
-        $action = new StartSubscription($user, 'default', 'monthly-10-1');
-        $action->withCoupon('test-coupon', true);
+        $action = StartSubscription::createFromPayload([
+            'name' => 'default',
+            'plan' => 'monthly-10-1',
+            'coupon' => 'test-coupon',
+        ], $user);
 
         $this->assertEquals(0, RedeemedCoupon::count());
         $this->assertEquals(0, AppliedCoupon::count());
@@ -362,9 +373,9 @@ class StartSubscriptionTest extends BaseTestCase
         $this->assertMoneyEURCents(1000, $subscriptionItem->getTotal());
 
         $subscription = $user->subscription('default');
-        $this->assertEquals(1, $subscription->appliedCoupons()->count());
         $this->assertEquals(1, $subscription->redeemedCoupons()->count());
         $this->assertEquals('test-coupon', $subscription->redeemedCoupons()->first()->name);
+        $this->assertEquals(1, $subscription->appliedCoupons()->count());
         $this->assertEquals(2, $subscription->orderItems()->count());
         $this->assertCarbon(now(), $subscription->cycle_started_at);
         $this->assertCarbon(now()->addMonth(), $subscription->cycle_ends_at);
@@ -386,23 +397,25 @@ class StartSubscriptionTest extends BaseTestCase
 
         $this->assertFalse($user->subscribed('default'));
 
-        $action = new StartSubscription(
-            $user,
-            'default',
-            'monthly-10-1'
-        );
+        $action = StartSubscription::createFromPayload([
+            'name' => 'default',
+            'plan' => 'monthly-10-1',
+            'coupon' => 'test-coupon',
+        ], $user);
 
         $action->withCoupon('test-coupon', true)
                ->trialDays(5);
 
         // Returns the OrderItem ready for processing right away.
         // Behind the scenes another OrderItem is scheduled for the next billing cycle.
-        $item = $action->execute();
-
+        $items = $action->execute();
+        $item = $items->first();
         $user = $user->fresh();
 
         $this->assertTrue($user->subscribed('default'));
         $this->assertTrue($user->onTrial());
+        $this->assertInstanceOf(OrderItemCollection::class, $items);
+        $this->assertCount(1, $items);
         $this->assertInstanceOf(OrderItem::class, $item);
         $this->assertFalse($item->isProcessed());
         $this->assertCarbon(now(), $item->process_at);

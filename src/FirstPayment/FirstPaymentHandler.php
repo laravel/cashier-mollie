@@ -99,15 +99,7 @@ class FirstPaymentHandler
         $orderItems = new OrderItemCollection();
 
         $this->actions->each(function (BaseAction $action) use (&$orderItems) {
-            $actionResult = $action->execute();
-
-            if(!empty($actionResult)) {
-                if(is_a($actionResult, OrderItem::class)) {
-                    $orderItems->push($actionResult);
-                } elseif (is_a($actionResult, OrderItemCollection::class)) {
-                    $orderItems->concat($actionResult);
-                }
-            }
+            $orderItems = $orderItems->concat($action->execute());
         });
 
         return $orderItems;
