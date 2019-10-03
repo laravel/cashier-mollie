@@ -31,15 +31,17 @@ class CouponOrderItemPreprocessorTest extends BaseTestCase
 
         /** @var \Laravel\Cashier\Coupon\Coupon $coupon */
         $coupon = app()->make(CouponRepository::class)->findOrFail('test-coupon');
-        $coupon->redeemFor($subscription);
+        $redeemedCoupon = $coupon->redeemFor($subscription);
         $preprocessor = new CouponOrderItemPreprocessor();
         $this->assertEquals(0, AppliedCoupon::count());
+        $this->assertEquals(1, $redeemedCoupon->times_left);
 
         $result = $preprocessor->handle($item->toCollection());
 
         $this->assertEquals(1, AppliedCoupon::count());
         $this->assertInstanceOf(OrderItemCollection::class, $result);
         $this->assertNotEquals($item->toCollection(), $result);
+        $this->assertEquals(0, $redeemedCoupon->refresh()->times_left);
     }
 
     /** @test */
