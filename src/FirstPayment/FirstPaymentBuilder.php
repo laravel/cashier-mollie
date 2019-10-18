@@ -148,7 +148,8 @@ class FirstPaymentBuilder
      */
     public function setRedirectUrl(string $redirectUrl)
     {
-        $this->redirectUrl = url($redirectUrl);
+        if(!is_null($redirectUrl))
+            $this->redirectUrl = url($redirectUrl);
 
         return $this;
     }

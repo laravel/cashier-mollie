@@ -68,7 +68,7 @@ class FirstPaymentSubscriptionBuilder implements Contract
 
         $this->firstPaymentBuilder = new FirstPaymentBuilder($owner);
         $this->firstPaymentBuilder->setFirstPaymentMethod($this->plan->firstPaymentMethod());
-
+        $this->firstPaymentBuilder->setRedirectUrl($this->plan->firstPaymentRedirectUrl());
         $this->startSubscription = new StartSubscription($owner, $name, $plan);
     }
 
