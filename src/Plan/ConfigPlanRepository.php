@@ -8,7 +8,6 @@ use Illuminate\Support\Str;
 use Laravel\Cashier\Exceptions\PlanNotFoundException;
 use Laravel\Cashier\Order\OrderItemPreprocessorCollection as Preprocessors;
 use Laravel\Cashier\Plan\Contracts\PlanRepository;
-use Laravel\Cashier\Plan\Contracts\Plan as PlanContract;
 
 class ConfigPlanRepository implements PlanRepository
 {

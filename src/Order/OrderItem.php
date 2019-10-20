@@ -55,6 +55,16 @@ class OrderItem extends Model implements InvoicableItem
     }
 
     /**
+     * Return the order for this order item.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
+    }
+
+    /**
      * Get the order item total before taxes.
      *
      * @return integer

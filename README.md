@@ -129,15 +129,16 @@ $result = $user->newSubscription('main', 'premium')->create();
 
 If the customer already has a valid Mollie mandate, the `$result` will be a `Subscription`.
 
-If the customer has no valid Mollie mandate yet, the `$result` will be a `RedirectResponse`, redirecting the customer to
-the Mollie checkout to make the first payment. Once the payment has been received the subscription will start.
+If the customer has no valid Mollie mandate yet, the `$result` will be a `RedirectToCheckoutResponse`, redirecting the
+customer to the Mollie checkout to make the first payment. Once the payment has been received the subscription will
+start.
 
 Here's a basic controller example for creating the subscription:
 
 ```php
 namespace App\Http\Controllers;
 
-use Illuminate\Http\RedirectResponse;
+use Laravel\Cashier\SubscriptionBuilder\RedirectToCheckoutResponse;
 use Illuminate\Support\Facades\Auth;
 
 class CreateSubscriptionController extends Controller
@@ -156,7 +157,7 @@ class CreateSubscriptionController extends Controller
 
             $result = $user->newSubscription($name, $plan)->create();
 
-            if(is_a($result, RedirectResponse::class)) {
+            if(is_a($result, RedirectToCheckoutResponse::class)) {
                 return $result; // Redirect to Mollie checkout
             }
 
