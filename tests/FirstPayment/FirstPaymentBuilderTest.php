@@ -3,6 +3,7 @@
 namespace Laravel\Cashier\Tests\FirstPayment;
 
 use Laravel\Cashier\FirstPayment\Actions\AddBalance;
+use Laravel\Cashier\FirstPayment\Actions\AddGenericOrderItem;
 use Laravel\Cashier\FirstPayment\FirstPaymentBuilder;
 use Laravel\Cashier\Tests\BaseTestCase;
 use Laravel\Cashier\Tests\Fixtures\User;
@@ -127,5 +128,21 @@ class FirstPaymentBuilderTest extends BaseTestCase
         //     $payment->getCheckoutUrl(), // visit this Mollie checkout url and set status to 'paid'
         //     $payment->id // store this in phpunit.xml: MANDATE_PAYMENT_PAID_ID
         // );
+    }
+
+    /** @test */
+    public function parsesRedirectUrlPaymentIdUponPaymentCreation()
+    {
+        $owner = factory(User::class)->create();
+
+        $builder = new FirstPaymentBuilder($owner, [
+            'redirectUrl' => 'https://www.example.com/{payment_id}',
+        ]);
+
+        $payment = $builder->inOrderTo([
+            new AddGenericOrderItem($owner, money(100, 'EUR'), 'Parse redirectUrl test'),
+        ])->create();
+
+        $this->assertStringContainsString($payment->id, $payment->redirectUrl);
     }
 }

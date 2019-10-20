@@ -3,6 +3,7 @@
 namespace Laravel\Cashier\FirstPayment;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\FirstPayment\Actions\ActionCollection;
 use Mollie\Api\Types\SequenceType;
@@ -119,7 +120,17 @@ class FirstPaymentBuilder
      */
     public function create()
     {
-        $this->molliePayment = mollie()->payments()->create($this->getMolliePayload());
+        $payload = $this->getMolliePayload();
+        $this->molliePayment = mollie()->payments()->create($payload);
+
+        $redirectUrl = $payload['redirectUrl'];
+
+        // Parse and update redirectUrl
+        if(Str::contains($redirectUrl, '{payment_id}')) {
+            $redirectUrl = Str::replaceArray('{payment_id}', [$this->molliePayment->id], $redirectUrl);
+            $this->molliePayment->redirectUrl = $redirectUrl;
+            $this->molliePayment = $this->molliePayment->update();
+        }
 
         return $this->molliePayment;
     }
