@@ -66,8 +66,7 @@ class FirstPaymentSubscriptionBuilder implements Contract
 
         $this->plan = app(PlanRepository::class)::findOrFail($plan);
 
-        $this->firstPaymentBuilder = new FirstPaymentBuilder($owner);
-        $this->firstPaymentBuilder->setFirstPaymentMethod($this->plan->firstPaymentMethod());
+        $this->initializeFirstPaymentBuilder($owner);
 
         $this->startSubscription = new StartSubscription($owner, $name, $plan);
     }
@@ -89,7 +88,11 @@ class FirstPaymentSubscriptionBuilder implements Contract
             $taxPercentage = $this->owner->taxPercentage() * 0.01;
             $total = $this->plan->firstPaymentAmount();
 
-            $vat = $total->divide(1 + $taxPercentage)->multiply($taxPercentage);
+            if($total->isZero()) {
+                $vat = $total->subtract($total); // zero VAT
+            } else {
+                $vat = $total->divide(1 + $taxPercentage)->multiply($taxPercentage);
+            }
             $subtotal = $total->subtract($vat);
 
             $actions[] = new AddGenericOrderItem(
@@ -205,5 +208,20 @@ class FirstPaymentSubscriptionBuilder implements Contract
                 $this->startSubscription->builder()->makeSubscription()
             );
         }
+    }
+
+    /**
+     * @param \Illuminate\Database\Eloquent\Model $owner
+     * @return \Laravel\Cashier\FirstPayment\FirstPaymentBuilder
+     */
+    protected function initializeFirstPaymentBuilder(Model $owner)
+    {
+        $this->firstPaymentBuilder = new FirstPaymentBuilder($owner);
+        $this->firstPaymentBuilder->setFirstPaymentMethod($this->plan->firstPaymentMethod());
+        $this->firstPaymentBuilder->setRedirectUrl($this->plan->firstPaymentRedirectUrl());
+        $this->firstPaymentBuilder->setWebhookUrl($this->plan->firstPaymentWebhookUrl());
+        $this->firstPaymentBuilder->setDescription($this->plan->firstPaymentDescription());
+
+        return $this->firstPaymentBuilder;
     }
 }

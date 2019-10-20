@@ -2,6 +2,8 @@
 
 namespace Laravel\Cashier\Tests;
 
+use Laravel\Cashier\Coupon\RedeemedCoupon;
+use Laravel\Cashier\Coupon\RedeemedCouponCollection;
 use Laravel\Cashier\SubscriptionBuilder\FirstPaymentSubscriptionBuilder;
 use Laravel\Cashier\SubscriptionBuilder\MandatedSubscriptionBuilder;
 use Laravel\Cashier\Tests\Fixtures\User;
@@ -55,4 +57,17 @@ class BillableTest extends BaseTestCase
 
         $this->assertInstanceOf(MandatedSubscriptionBuilder::class, $builder);
     }
+
+    /** @test */
+    public function canRetrieveRedeemedCoupons()
+    {
+        $this->withPackageMigrations();
+
+        $user = factory(User::class)->create();
+
+        $redeemedCoupons = $user->redeemedCoupons;
+        $this->assertInstanceOf(RedeemedCouponCollection::class, $redeemedCoupons);
+        $this->assertCount(0, $redeemedCoupons);
+    }
+
 }

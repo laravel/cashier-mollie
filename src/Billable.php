@@ -2,6 +2,7 @@
 
 namespace Laravel\Cashier;
 
+use Laravel\Cashier\Coupon\RedeemedCoupon;
 use Laravel\Cashier\Credit\Credit;
 use Laravel\Cashier\Events\MandateClearedFromBillable;
 use Laravel\Cashier\Order\Order;
@@ -435,5 +436,10 @@ trait Billable
         dispatch(new MandateClearedFromBillable($this, $previousId));
 
         return $this;
+    }
+
+    public function redeemedCoupons()
+    {
+        return $this->morphMany(RedeemedCoupon::class, 'owner');
     }
 }

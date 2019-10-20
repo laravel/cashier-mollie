@@ -32,7 +32,11 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
     /** @test */
     public function createsMandatePaymentForSubscription()
     {
-        config(['cashier.locale' => 'nl_NL']);
+        $firstPayment = config('cashier_plans.defaults.first_payment');
+        $firstPayment["redirect_url"] = "https://foo-redirect-bar.com";
+        $firstPayment["webhook_url"] = "https://foo-webhook-bar.com";
+        config(["cashier_plans.plans.monthly-10-1.first_payment" => $firstPayment]);
+        config(["cashier.locale" => "nl_NL"]);
 
         $builder = $this->getBuilder()
             ->nextPaymentAt(now()->addDays(12))
@@ -50,13 +54,13 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
             "sequenceType" => "first",
             "method" => "ideal",
             "customerId" => $this->user->mollie_customer_id,
-            "description" => config('app.name'),
+            "description" => "Test mandate payment",
             "amount" => [
                 "value" => "0.05",
                 "currency" => "EUR",
             ],
-            "webhookUrl" => config('cashier.first_payment.webhook_url'),
-            "redirectUrl" => config('app.url'),
+            "webhookUrl" => "https://foo-webhook-bar.com",
+            "redirectUrl" => "https://foo-redirect-bar.com",
             "locale" => "nl_NL",
             "metadata" => [
                 "owner" => [

@@ -50,6 +50,11 @@ class FirstPaymentBuilder
     protected $redirectUrl;
 
     /**
+     * @var string
+     */
+    protected $webhookUrl;
+
+    /**
      * @var \Mollie\Api\Resources\Payment|null
      */
     protected $molliePayment;
@@ -67,6 +72,7 @@ class FirstPaymentBuilder
         $this->options = $options;
         $this->description = config('app.name', 'First payment');
         $this->redirectUrl = url(config('cashier.first_payment.redirect_url', config('cashier.redirect_url')));
+        $this->webhookUrl = url(config('cashier.first_payment.webhook_url'));
     }
 
     /**
@@ -96,7 +102,7 @@ class FirstPaymentBuilder
             'locale' => Cashier::getLocale($this->owner),
             'description' => $this->description,
             'amount' => money_to_mollie_array($this->actions->total()),
-            'webhookUrl' => url(config('cashier.first_payment.webhook_url')),
+            'webhookUrl' => $this->webhookUrl,
             'redirectUrl' => $this->redirectUrl,
             'metadata' => [
                 'owner' => [
@@ -149,6 +155,19 @@ class FirstPaymentBuilder
     public function setRedirectUrl(string $redirectUrl)
     {
         $this->redirectUrl = url($redirectUrl);
+
+        return $this;
+    }
+
+    /**
+     * Override the default Mollie webhookUrl. Takes an absolute or relative url.
+     *
+     * @param string $webhookUrl
+     * @return $this
+     */
+    public function setWebhookUrl(string $webhookUrl)
+    {
+        $this->webhookUrl = url($webhookUrl);
 
         return $this;
     }
