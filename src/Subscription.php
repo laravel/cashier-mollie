@@ -11,6 +11,7 @@ use Laravel\Cashier\Order\Contracts\PreprocessesOrderItems;
 use Laravel\Cashier\Coupon\AppliedCoupon;
 use Laravel\Cashier\Coupon\Contracts\AcceptsCoupons;
 use Laravel\Cashier\Coupon\RedeemedCoupon;
+use Laravel\Cashier\Events\SubscriptionCreated;
 use Laravel\Cashier\Events\SubscriptionCancelled;
 use Laravel\Cashier\Events\SubscriptionPlanSwapped;
 use Laravel\Cashier\Events\SubscriptionQuantityUpdated;
@@ -62,6 +63,15 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
         'cycle_started_at',
         'cycle_ends_at',
         'ends_at',
+    ];
+
+    /**
+     * The event map for the model.
+     *
+     * @var array
+     */
+    protected $dispatchesEvents = [
+        'created' => SubscriptionCreated::class,
     ];
 
     /**
