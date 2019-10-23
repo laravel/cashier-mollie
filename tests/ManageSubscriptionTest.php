@@ -5,7 +5,7 @@ namespace Laravel\Cashier\Tests;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Event;
 use Laravel\Cashier\Cashier;
-use Laravel\Cashier\Events\SubscriptionCreated;
+use Laravel\Cashier\Events\SubscriptionStarted;
 use Laravel\Cashier\Events\SubscriptionQuantityUpdated;
 use Laravel\Cashier\Order\OrderItem;
 use Laravel\Cashier\Subscription;
@@ -42,7 +42,7 @@ class ManageSubscriptionTest extends BaseTestCase
 
         $subscription = $user->subscription('main')->fresh();
 
-        Event::assertDispatched(SubscriptionCreated::class, function (SubscriptionCreated $e) use ($subscription) {
+        Event::assertDispatched(SubscriptionStarted::class, function (SubscriptionStarted $e) use ($subscription) {
             $this->assertTrue($e->subscription->is($subscription));
             return true;
         });

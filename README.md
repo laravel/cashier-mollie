@@ -531,8 +531,8 @@ The payment for an order was successful.
 #### `OrderProcessed` event
 The order has been fully processed.
 
-#### `SubscriptionCreated` event
-The subscription is created.
+#### `SubscriptionStarted` event
+The subscription is started.
 
 #### `SubscriptionCancelled` event
 The subscription was cancelled.

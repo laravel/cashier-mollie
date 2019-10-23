@@ -4,7 +4,7 @@ namespace Laravel\Cashier\Events;
 
 use Laravel\Cashier\Subscription;
 
-class SubscriptionCreated
+class SubscriptionStarted
 {
     /**
      * @var \Laravel\Cashier\Subscription
