@@ -9,7 +9,6 @@ use Laravel\Cashier\Tests\Fixtures\User;
 
 $factory->define(RedeemedCoupon::class, function (Faker $faker) {
     return [
-        'id' => 1,
         'name' => 'Test redemeed coupon',
         'model_type' => Subscription::class,
         'model_id' => 1,

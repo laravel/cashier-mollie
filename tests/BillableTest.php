@@ -4,6 +4,7 @@ namespace Laravel\Cashier\Tests;
 
 use Laravel\Cashier\Coupon\RedeemedCoupon;
 use Laravel\Cashier\Coupon\RedeemedCouponCollection;
+use Laravel\Cashier\Subscription;
 use Laravel\Cashier\SubscriptionBuilder\FirstPaymentSubscriptionBuilder;
 use Laravel\Cashier\SubscriptionBuilder\MandatedSubscriptionBuilder;
 use Laravel\Cashier\Tests\Fixtures\User;
@@ -68,6 +69,46 @@ class BillableTest extends BaseTestCase
         $redeemedCoupons = $user->redeemedCoupons;
         $this->assertInstanceOf(RedeemedCouponCollection::class, $redeemedCoupons);
         $this->assertCount(0, $redeemedCoupons);
+    }
+
+    /** @test */
+    public function canRedeemCouponForExistingSubscription()
+    {
+        $this->withPackageMigrations();
+        $this->withConfiguredPlans();
+        $this->withMockedCouponRepository(); // 'test-coupon'
+
+        $user = $this->getMandatedUser();
+        $subscription = $user->newSubscription('default', 'monthly-10-1')->create();
+        $this->assertEquals(0, $user->redeemedCoupons()->count());
+
+        $user = $user->redeemCoupon('test-coupon', 'default', false);
+
+        $this->assertInstanceOf(User::class, $user);
+        $this->assertEquals(1, $user->redeemedCoupons()->count());
+        $this->assertEquals(1, $subscription->redeemedCoupons()->count());
+        $this->assertEquals(0, $subscription->appliedCoupons()->count());
+    }
+
+    /** @test */
+    public function canRedeemCouponAndRevokeOtherCoupons()
+    {
+        $this->withPackageMigrations();
+        $this->withConfiguredPlans();
+        $this->withMockedCouponRepository(); // 'test-coupon'
+
+        $user = $this->getMandatedUser();
+        $subscription = $user->newSubscription('default', 'monthly-10-1')->create();
+        $subscription->redeemedCoupons()->saveMany(factory(RedeemedCoupon::class, 2)->make());
+        $this->assertEquals(2, $subscription->redeemedCoupons()->active()->count());
+        $this->assertEquals(0, $subscription->appliedCoupons()->count());
+
+        $user = $user->redeemCoupon('test-coupon', 'default', true);
+
+        $this->assertInstanceOf(User::class, $user);
+        $this->assertEquals(1, $user->redeemedCoupons()->active()->count());
+        $this->assertEquals(1, $subscription->redeemedCoupons()->active()->count());
+        $this->assertEquals(0, $subscription->appliedCoupons()->count());
     }
 
 }
