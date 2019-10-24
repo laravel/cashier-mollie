@@ -5,6 +5,7 @@ namespace Laravel\Cashier\Tests;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Event;
 use Laravel\Cashier\Cashier;
+use Laravel\Cashier\Events\SubscriptionStarted;
 use Laravel\Cashier\Events\SubscriptionQuantityUpdated;
 use Laravel\Cashier\Order\OrderItem;
 use Laravel\Cashier\Subscription;
@@ -35,7 +36,16 @@ class ManageSubscriptionTest extends BaseTestCase
         $this->assertEquals(0, $user->orderItems()->count());
         $this->assertTrue($user->onGenericTrial());
 
+        Event::fake();
+
         $user->newSubscriptionForMandateId($this->getMandateId(), 'main', 'monthly-10-1')->create();
+
+        $subscription = $user->subscription('main')->fresh();
+
+        Event::assertDispatched(SubscriptionStarted::class, function (SubscriptionStarted $e) use ($subscription) {
+            $this->assertTrue($e->subscription->is($subscription));
+            return true;
+        });
 
         $this->assertEquals(1, count($user->subscriptions));
         $this->assertNotNull($user->mollie_customer_id);

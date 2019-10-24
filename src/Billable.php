@@ -2,6 +2,10 @@
 
 namespace Laravel\Cashier;
 
+use Illuminate\Support\Facades\DB;
+use InvalidArgumentException;
+use Laravel\Cashier\Coupon\Contracts\AcceptsCoupons;
+use Laravel\Cashier\Coupon\Contracts\CouponRepository;
 use Laravel\Cashier\Coupon\RedeemedCoupon;
 use Laravel\Cashier\Credit\Credit;
 use Laravel\Cashier\Events\MandateClearedFromBillable;
@@ -438,6 +442,46 @@ trait Billable
         return $this;
     }
 
+    /**
+     * Redeem a coupon for the billable's subscription. It will be applied to the upcoming Order.
+     *
+     * @param string $coupon
+     * @param string $subscription
+     * @param bool $revokeOtherCoupons
+     * @return $this
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws \Laravel\Cashier\Exceptions\CouponNotFoundException
+     * @throws \Throwable|\Laravel\Cashier\Exceptions\CouponException
+     */
+    public function redeemCoupon($coupon, $subscription = 'default', $revokeOtherCoupons = true)
+    {
+        $subscription = $this->subscription($subscription);
+
+        if (! $subscription) {
+            throw new InvalidArgumentException('Unable to apply coupon. Subscription does not exist.');
+        }
+
+        /** @var \Laravel\Cashier\Coupon\Coupon $coupon */
+        $coupon = app()->make(CouponRepository::class)->findOrFail($coupon);
+        $coupon->validateFor($subscription);
+
+        return DB::transaction(function () use ($coupon, $subscription, $revokeOtherCoupons) {
+            if($revokeOtherCoupons) {
+                $otherCoupons = $subscription->redeemedCoupons()->active()->get();
+                $otherCoupons->each->revoke();
+            }
+
+            RedeemedCoupon::record($coupon, $subscription);
+
+            return $this;
+        });
+    }
+
+    /**
+     * Retrieve the redeemed coupons.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
     public function redeemedCoupons()
     {
         return $this->morphMany(RedeemedCoupon::class, 'owner');

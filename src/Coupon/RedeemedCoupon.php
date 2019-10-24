@@ -141,4 +141,27 @@ class RedeemedCoupon extends Model
     {
         return new RedeemedCouponCollection($models);
     }
+
+    /**
+     * Revoke the redeemed coupon. It will no longer be applied.
+     *
+     * @return self
+     */
+    public function revoke()
+    {
+        return tap($this, function () {
+            $this->times_left = 0;
+            $this->save();
+        });
+    }
+
+    /**
+     * Check whether the RedeemedCoupon applies to the next Order.
+     *
+     * @return bool
+     */
+    public function isActive()
+    {
+        return $this->times_left > 0;
+    }
 }
