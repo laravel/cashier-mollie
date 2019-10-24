@@ -532,7 +532,7 @@ The payment for an order was successful.
 The order has been fully processed.
 
 #### `SubscriptionStarted` event
-The subscription is started.
+A new subscription was started.
 
 #### `SubscriptionCancelled` event
 The subscription was cancelled.
