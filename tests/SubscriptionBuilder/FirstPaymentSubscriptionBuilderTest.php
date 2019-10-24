@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Event;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\Events\FirstPaymentPaid;
 use Laravel\Cashier\Events\OrderProcessed;
+use Laravel\Cashier\Events\SubscriptionStarted;
 use Laravel\Cashier\Exceptions\CouponException;
 use Laravel\Cashier\FirstPayment\Actions\AddGenericOrderItem;
 use Laravel\Cashier\FirstPayment\Actions\StartSubscription;
@@ -148,6 +149,13 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
 
         Event::assertDispatched(OrderProcessed::class);
         Event::assertDispatched(FirstPaymentPaid::class);
+
+        $subscription = $this->user->subscription('default')->fresh();
+
+        Event::assertDispatched(SubscriptionStarted::class, function (SubscriptionStarted $e) use ($subscription) {
+            $this->assertTrue($e->subscription->is($subscription));
+            return true;
+        });
     }
 
     /** @test */
