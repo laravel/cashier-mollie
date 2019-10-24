@@ -7,11 +7,6 @@ use Laravel\Cashier\Tests\BaseTestCase;
 
 class RedeemedCouponTest extends BaseTestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-    }
-
     /** @test */
     public function canBeRevoked()
     {
