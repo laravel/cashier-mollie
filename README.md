@@ -185,6 +185,23 @@ You can provide your own coupon handler by extending
 
 Out of the box, a basic `FixedDiscountHandler` is provided.
 
+#### Redeeming a coupon for an existing subscription
+
+For redeeming a coupon for an existing subscription, use the `redeemCoupon()` method on the billable trait:
+
+    $user->redeemCoupon('your-coupon-code');
+
+This will validate the coupon code and redeem it. The coupon will be applied to the upcoming Order.
+
+Optionally, specify the subscription it should be applied to:
+
+    $user->redeemCoupon('your-coupon-code', 'main');
+    
+By default all other active redeemed coupons for the subscription will be revoked. You can prevent this by setting the
+`$revokeOtherCoupons` flag to false:
+
+    $user->redeemCoupon('your-coupon-code', 'main', false);
+
 ### Checking subscription status
 
 Once a user is subscribed to your application, you may easily check their subscription status using a variety of convenient methods. First, the `subscribed` method returns `true` if the user has an active subscription, even if the subscription is currently within its trial period:
