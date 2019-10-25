@@ -424,6 +424,8 @@ class OrderTest extends BaseTestCase
     /** @test */
     public function findByPaymentIdWorks()
     {
+        $this->assertNull(Order::findByPaymentId('tr_xxxxx1234dummy'));
+
         $order = factory(Order::class)->create(['mollie_payment_id' => 'tr_xxxxx1234dummy']);
         $otherOrder = factory(Order::class)->create(['mollie_payment_id' => 'tr_wrong_order']);
 
