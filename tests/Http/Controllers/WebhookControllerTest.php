@@ -142,6 +142,26 @@ class WebhookControllerTest extends BaseTestCase
         });
     }
 
+    /** @test **/
+    public function skipsIfPaymentStatusUnchanged()
+    {
+        $this->withPackageMigrations();
+        Event::fake();
+
+        factory(Order::class)->create([
+            'mollie_payment_id' => $this->payment_paid_id,
+            'mollie_payment_status' => 'paid',
+        ]);
+
+        $request = $this->getWebhookRequest($this->payment_paid_id);
+
+        $response = $this->controller->handleWebhook($request);
+
+        $this->assertEquals(200, $response->getStatusCode());
+        Event::assertNotDispatched(OrderPaymentPaid::class);
+        Event::assertNotDispatched(OrderPaymentFailed::class);
+    }
+
     /**
      * Get a request that mimics Mollie calling the webhook.
      *

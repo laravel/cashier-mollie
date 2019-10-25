@@ -3,6 +3,7 @@
 namespace Laravel\Cashier\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Laravel\Cashier\Order\Order;
 use Mollie\Api\Types\PaymentStatus;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,7 +21,7 @@ class WebhookController extends BaseWebhookController
 
         if($payment) {
             $order = Order::findByPaymentId($payment->id);
-            if ($order && $order->status !== $payment->status) {
+            if ($order && $order->mollie_payment_status !== $payment->status) {
                 switch ($payment->status) {
                     case PaymentStatus::STATUS_PAID:
                         $order->handlePaymentPaid();
