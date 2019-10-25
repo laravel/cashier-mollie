@@ -421,6 +421,18 @@ class OrderTest extends BaseTestCase
         $this->assertDispatchedOrderProcessed($order);
     }
 
+    /** @test */
+    public function findByPaymentIdWorks()
+    {
+        $order = factory(Order::class)->create(['mollie_payment_id' => 'tr_xxxxx1234dummy']);
+        $otherOrder = factory(Order::class)->create(['mollie_payment_id' => 'tr_wrong_order']);
+
+        $found = Order::findByPaymentId('tr_xxxxx1234dummy');
+
+        $this->assertTrue($found->is($order));
+        $this->assertTrue($found->isNot($otherOrder));
+    }
+
     /**
      * @test
      * @group generate_new_invoice_template
