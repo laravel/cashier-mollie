@@ -302,7 +302,7 @@ class Order extends Model
      */
     public static function findByPaymentId($id)
     {
-        return self::whereMolliePaymentId($id)->first();
+        return self::where('mollie_payment_id', $id)->first();
     }
 
     /**
@@ -314,7 +314,7 @@ class Order extends Model
      */
     public static function findByPaymentIdOrFail($id)
     {
-        return self::whereMolliePaymentId($id)->firstOrFail();
+        return self::where('mollie_payment_id', $id)->firstOrFail();
     }
 
     /**
