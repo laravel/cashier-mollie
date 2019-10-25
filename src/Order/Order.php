@@ -306,6 +306,18 @@ class Order extends Model
     }
 
     /**
+     * Retrieve an Order by the Mollie Payment id or throw an Exception if not found.
+     *
+     * @param $id
+     * @return self
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     */
+    public static function findByPaymentIdOrFail($id)
+    {
+        return self::whereMolliePaymentId($id)->firstOrFail();
+    }
+
+    /**
      * Checks whether credit was used in the Order.
      * The credit applied will be reset to 0 when an Order payment fails.
      *

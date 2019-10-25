@@ -435,6 +435,25 @@ class OrderTest extends BaseTestCase
         $this->assertTrue($found->isNot($otherOrder));
     }
 
+    /** @test */
+    public function findByPaymentIdOrFailThrowsAnExceptionIfNotFound()
+    {
+        $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
+        Order::findByPaymentIdOrFail('tr_xxxxx1234dummy');
+    }
+
+    /** @test */
+    public function findByPaymentIdOrFailWorks()
+    {
+        $order = factory(Order::class)->create(['mollie_payment_id' => 'tr_xxxxx1234dummy']);
+        $otherOrder = factory(Order::class)->create(['mollie_payment_id' => 'tr_wrong_order']);
+
+        $found = Order::findByPaymentId('tr_xxxxx1234dummy');
+
+        $this->assertTrue($found->is($order));
+        $this->assertTrue($found->isNot($otherOrder));
+    }
+
     /**
      * @test
      * @group generate_new_invoice_template
