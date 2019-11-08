@@ -83,6 +83,17 @@ class MandatedSubscriptionBuilderTest extends BaseTestCase
         $this->getBuilder()->withCoupon('test-coupon')->create();
     }
 
+    /** @test */
+    public function testSkipTrialWorks()
+    {
+        $builder = $this->getBuilder()->trialDays(5);
+        $this->assertTrue($builder->makeSubscription()->onTrial());
+
+        $builder->skipTrial();
+        $this->assertFalse($builder->makeSubscription()->onTrial());
+    }
+
+
     /**
      * @return \Laravel\Cashier\SubscriptionBuilder\MandatedSubscriptionBuilder
      */
