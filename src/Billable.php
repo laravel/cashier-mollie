@@ -383,14 +383,25 @@ trait Billable
     }
 
     /**
+     * Retrieve the Mollie Mandate for the billable model.
+     *
      * @return \Mollie\Api\Resources\Mandate|null
+     * @throws \Mollie\Api\Exceptions\ApiException
      */
     public function mollieMandate()
     {
         $id = $this->mollieMandateId();
 
         if(! empty($id)) {
-            return $this->asMollieCustomer()->getMandate($id);
+            $customer = $this->asMollieCustomer();
+
+            try {
+                return $customer->getMandate($id);
+            } catch (ApiException $e) {
+                if (!in_array($e->getCode(), [404, 410])) {
+                    throw $e;
+                }
+            }
         }
 
         return null;
@@ -403,11 +414,7 @@ trait Billable
     {
         $mandate = $this->mollieMandate();
 
-        if(is_null($mandate)) {
-            return false;
-        }
-
-        return $mandate->isValid();
+        return is_null($mandate) ? false : $mandate->isValid();
     }
 
     /**
@@ -443,7 +450,7 @@ trait Billable
     public function clearMollieMandate()
     {
         if(empty($this->mollieMandateId())) {
-            return ;
+            return $this;
         }
 
         $previousId = $this->mollieMandateId();
