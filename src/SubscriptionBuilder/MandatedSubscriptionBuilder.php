@@ -87,9 +87,11 @@ class MandatedSubscriptionBuilder implements Contract
      *
      * @return Subscription
      * \Laravel\Cashier\Exceptions\CouponException
+     * @throws \Laravel\Cashier\Exceptions\InvalidMandateException
      */
     public function create()
     {
+        $this->owner->guardMollieMandate();
         $now = now();
 
         return DB::transaction(function () use ($now) {
@@ -108,7 +110,7 @@ class MandatedSubscriptionBuilder implements Contract
 
             $subscription->scheduleNewOrderItemAt($this->nextPaymentAt);
             $subscription->save();
-            
+
             $this->owner->cancelGenericTrial();
 
             return $subscription;
