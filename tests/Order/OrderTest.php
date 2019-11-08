@@ -448,7 +448,7 @@ class OrderTest extends BaseTestCase
         $order = factory(Order::class)->create(['mollie_payment_id' => 'tr_xxxxx1234dummy']);
         $otherOrder = factory(Order::class)->create(['mollie_payment_id' => 'tr_wrong_order']);
 
-        $found = Order::findByPaymentId('tr_xxxxx1234dummy');
+        $found = Order::findByPaymentIdOrFail('tr_xxxxx1234dummy');
 
         $this->assertTrue($found->is($order));
         $this->assertTrue($found->isNot($otherOrder));
