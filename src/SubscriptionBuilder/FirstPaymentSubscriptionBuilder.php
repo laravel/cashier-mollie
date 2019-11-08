@@ -139,6 +139,19 @@ class FirstPaymentSubscriptionBuilder implements Contract
     }
 
     /**
+     * Force the trial to end immediately.
+     *
+     * @return \Laravel\Cashier\SubscriptionBuilder\Contracts\SubscriptionBuilder|void
+     */
+    public function skipTrial()
+    {
+        $this->isTrial = false;
+        $this->startSubscription->skipTrial();
+
+        return $this;
+    }
+
+    /**
      * Specify the quantity of the subscription.
      *
      * @param  int $quantity

@@ -187,6 +187,25 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
         $this->assertEquals('EUR', $amount['currency']);
     }
 
+    /** @test */
+    public function testSkipTrialRevertsTheTrialAmount()
+    {
+        $trialBuilder = $this->getBuilder();
+
+        $trialBuilder->trialDays(5)->create();
+        $this->assertEquals(
+            '0.05',
+            $trialBuilder->getMandatePaymentBuilder()->getMolliePayload()['amount']['value']
+        );
+
+        $skipTrialBuilder = $this->getBuilder()->trialDays(5)->skipTrial();
+        $skipTrialBuilder->create();
+        $this->assertEquals(
+            '12.00',
+            $skipTrialBuilder->getMandatePaymentBuilder()->getMolliePayload()['amount']['value']
+        );
+    }
+
     /**
      * @return \Laravel\Cashier\SubscriptionBuilder\FirstPaymentSubscriptionBuilder
      */

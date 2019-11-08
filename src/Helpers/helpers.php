@@ -1,6 +1,7 @@
 <?php
 
 use Money\Currencies\ISOCurrencies;
+use Money\Currency;
 use Money\Formatter\DecimalMoneyFormatter;
 use Money\Money;
 use Money\Parser\DecimalMoneyParser;
@@ -92,5 +93,19 @@ if (! function_exists('mollie_object_to_money')) {
     function mollie_object_to_money(object $object)
     {
         return decimal_to_money($object->value, $object->currency);
+    }
+}
+
+if (! function_exists('money_to_decimal')) {
+
+    /**
+     * Format the money as basic decimal
+     *
+     * @param \Money\Money $money
+     * @return string|bool
+     */
+    function money_to_decimal(Money $money)
+    {
+        return (new DecimalMoneyFormatter(new ISOCurrencies()))->format($money);
     }
 }

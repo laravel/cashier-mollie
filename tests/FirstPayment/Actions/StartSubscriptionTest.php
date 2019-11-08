@@ -103,6 +103,34 @@ class StartSubscriptionTest extends BaseTestCase
     }
 
     /** @test */
+    public function canGetPayloadWithSkipTrial()
+    {
+        $action = new StartSubscription(
+            $this->getMandatedUser(true, ['tax_percentage' => 20]),
+            'default',
+            'monthly-10-1'
+        );
+
+        $action->trialUntil(now()->addDays(5))->skipTrial();
+
+        $payload = $action->getPayload();
+
+        $this->assertEquals([
+            'handler' => StartSubscription::class,
+            'description' => 'Monthly payment',
+            'subtotal' => [
+                'value' => '10.00',
+                'currency' => 'EUR',
+            ],
+            'taxPercentage' => 20,
+            'plan' => 'monthly-10-1',
+            'name' => 'default',
+            'quantity' => 1,
+            'skipTrial' => true,
+        ], $payload);
+    }
+
+    /** @test */
     public function canGetPayloadWithCoupon()
     {
         $this->withMockedCouponRepository();
@@ -157,6 +185,18 @@ class StartSubscriptionTest extends BaseTestCase
             'trialDays' => 5,
             'subtotal' => [
                 'value' => '0.00',
+                'currency' => 'EUR',
+            ],
+        ]);
+    }
+
+    /** @test */
+    public function canCreateFromPayloadWithSkipTrial()
+    {
+        $this->assertFromPayloadToPayload([
+            'skipTrial' => true,
+            'subtotal' => [
+                'value' => '10.00',
                 'currency' => 'EUR',
             ],
         ]);

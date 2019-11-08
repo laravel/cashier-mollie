@@ -9,9 +9,10 @@ use Laravel\Cashier\Coupon\RedeemedCoupon;
 use Laravel\Cashier\Order\OrderItem;
 use Laravel\Cashier\Order\OrderItemCollection;
 use Laravel\Cashier\Plan\Contracts\PlanRepository;
+use Laravel\Cashier\SubscriptionBuilder\Contracts\SubscriptionConfigurator;
 use Laravel\Cashier\SubscriptionBuilder\MandatedSubscriptionBuilder;
 
-class StartSubscription extends BaseAction
+class StartSubscription extends BaseAction implements SubscriptionConfigurator
 {
     /** @var string */
     protected $name;
@@ -30,6 +31,9 @@ class StartSubscription extends BaseAction
 
     /** @var null|\Carbon\Carbon */
     protected $trialUntil;
+
+    /** @var bool */
+    protected $skipTrial;
 
     /** @var null|\Laravel\Cashier\SubscriptionBuilder\MandatedSubscriptionBuilder */
     protected $builder;
@@ -88,6 +92,10 @@ class StartSubscription extends BaseAction
             $action->trialDays($payload['trialDays']);
         }
 
+        if(isset($payload['skipTrial']) && $payload['skipTrial']) {
+            $action->skipTrial();
+        }
+
         if(isset($payload['coupon'])) {
             $action->withCoupon($payload['coupon']);
         }
@@ -112,6 +120,7 @@ class StartSubscription extends BaseAction
             'nextPaymentAt' => ! empty($this->nextPaymentAt) ? $this->nextPaymentAt->toIso8601String() : null,
             'trialDays' => $this->trialDays,
             'trialUntil' => ! empty($this->trialUntil) ? $this->trialUntil->toIso8601String(): null,
+            'skipTrial' => $this->skipTrial,
             'coupon' => ! empty($this->coupon) ? $this->coupon->name() : null,
         ]);
     }
@@ -206,6 +215,21 @@ class StartSubscription extends BaseAction
         $this->trialUntil = $trialUntil;
         $this->builder()->trialUntil($trialUntil);
         $this->subtotal = money(0, $this->getCurrency());
+
+        return $this;
+    }
+
+    /**
+     * Force the trial to end immediately.
+     *
+     * @return $this
+     */
+    public function skipTrial()
+    {
+        $this->skipTrial = true;
+        $this->trialUntil = null;
+        $this->builder->skipTrial();
+        $this->subtotal = $this->plan->amount();
 
         return $this;
     }

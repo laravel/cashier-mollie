@@ -4,11 +4,11 @@ namespace Laravel\Cashier;
 
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
-use Laravel\Cashier\Coupon\Contracts\AcceptsCoupons;
 use Laravel\Cashier\Coupon\Contracts\CouponRepository;
 use Laravel\Cashier\Coupon\RedeemedCoupon;
 use Laravel\Cashier\Credit\Credit;
 use Laravel\Cashier\Events\MandateClearedFromBillable;
+use Laravel\Cashier\Exceptions\InvalidMandateException;
 use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Order\OrderItem;
 use Laravel\Cashier\Plan\Contracts\PlanRepository;
@@ -100,22 +100,25 @@ trait Billable
     }
 
     /**
-     * Begin creating a new subscription for an already mandated customer.
+     * Begin creating a new subscription using an existing mandate.
      *
      * @param string $mandateId
      * @param  string $subscription
      * @param  string $plan
      * @return \Laravel\Cashier\SubscriptionBuilder\MandatedSubscriptionBuilder
      * @throws \Laravel\Cashier\Exceptions\PlanNotFoundException
-     * @throws \Throwable
+     * @throws \Throwable|\Laravel\Cashier\Exceptions\InvalidMandateException
      */
     public function newSubscriptionForMandateId($mandateId, $subscription, $plan)
     {
-        return new MandatedSubscriptionBuilder(
-            $this,
-            $subscription,
-            $plan
-        );
+        // The mandateId has changed
+        if($this->mollie_mandate_id !== $mandateId) {
+            $this->mollie_mandate_id = $mandateId;
+            $this->guardMollieMandate();
+            $this->save();
+        }
+
+        return new MandatedSubscriptionBuilder($this, $subscription, $plan);
     }
 
     /**
@@ -380,14 +383,26 @@ trait Billable
     }
 
     /**
+     * Retrieve the Mollie Mandate for the billable model.
+     *
      * @return \Mollie\Api\Resources\Mandate|null
+     * @throws \Mollie\Api\Exceptions\ApiException
      */
     public function mollieMandate()
     {
         $id = $this->mollieMandateId();
 
         if(! empty($id)) {
-            return $this->asMollieCustomer()->getMandate($id);
+            $customer = $this->asMollieCustomer();
+
+            try {
+                return $customer->getMandate($id);
+            } catch (ApiException $e) {
+                // Status 410: mandate was revoked
+                if (! $e->getCode() == 410) {
+                    throw $e;
+                }
+            }
         }
 
         return null;
@@ -400,11 +415,7 @@ trait Billable
     {
         $mandate = $this->mollieMandate();
 
-        if(is_null($mandate)) {
-            return false;
-        }
-
-        return $mandate->isValid();
+        return is_null($mandate) ? false : $mandate->isValid();
     }
 
     /**
@@ -424,12 +435,23 @@ trait Billable
     }
 
     /**
+     * @return bool
+     * @throws \Laravel\Cashier\Exceptions\InvalidMandateException
+     */
+    public function guardMollieMandate()
+    {
+        throw_unless($this->validateMollieMandate(), new InvalidMandateException);
+
+        return true;
+    }
+
+    /**
      * @return \Laravel\Cashier\Billable
      */
     public function clearMollieMandate()
     {
         if(empty($this->mollieMandateId())) {
-            return ;
+            return $this;
         }
 
         $previousId = $this->mollieMandateId();
