@@ -630,12 +630,12 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
     }
 
     /**
-     * Wraps up the current billing cycle, applies modifications to this subscription and starts a new cycle.
+     * Wrap up the current billing cycle, apply modifications to this subscription and start a new cycle.
      *
      * @param \Closure $applyNewSettings
      * @param \Carbon\Carbon|null $now
      * @param bool $invoiceNow
-     * @return mixed
+     * @return \Laravel\Cashier\Subscription
      */
     public function restartCycleWithModifications(\Closure $applyNewSettings, ?Carbon $now = null, $invoiceNow = true)
     {
@@ -676,6 +676,18 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
 
             return $this;
         });
+    }
+
+    /**
+     * Wrap up the current billing cycle and start a new cycle.
+     *
+     * @param \Carbon\Carbon|null $now
+     * @param bool $invoiceNow
+     * @return \Laravel\Cashier\Subscription
+     */
+    public function restartCycle(?Carbon $now = null, $invoiceNow = true)
+    {
+        return $this->restartCycleWithModifications(function() {}, $now, $invoiceNow);
     }
 
     /**
