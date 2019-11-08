@@ -18,7 +18,7 @@ class MandatedSubscriptionBuilderTest extends BaseTestCase
         parent::setUp();
         $this->withPackageMigrations();
         $this->withConfiguredPlans();
-        $this->user = $this->getCustomerUser(true);
+        $this->user = $this->getMandatedUser(true);
     }
 
     /** @test */
