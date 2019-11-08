@@ -398,7 +398,8 @@ trait Billable
             try {
                 return $customer->getMandate($id);
             } catch (ApiException $e) {
-                if (!in_array($e->getCode(), [404, 410])) {
+                // Status 410: mandate was revoked
+                if (! $e->getCode() == 410) {
                     throw $e;
                 }
             }
