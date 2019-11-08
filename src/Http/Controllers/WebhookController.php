@@ -3,8 +3,8 @@
 namespace Laravel\Cashier\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Laravel\Cashier\Order\Order;
+use Mollie\Api\Resources\Payment;
 use Mollie\Api\Types\PaymentStatus;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -20,7 +20,8 @@ class WebhookController extends BaseWebhookController
         $payment = $this->getPaymentById($request->get('id'));
 
         if($payment) {
-            $order = Order::findByPaymentId($payment->id);
+            $order = $this->getOrder($payment);
+
             if ($order && $order->mollie_payment_status !== $payment->status) {
                 switch ($payment->status) {
                     case PaymentStatus::STATUS_PAID:
@@ -36,5 +37,23 @@ class WebhookController extends BaseWebhookController
         }
 
         return new Response(null, 200);
+    }
+
+    /**
+     * @param \Mollie\Api\Resources\Payment $payment
+     * @return \Laravel\Cashier\Order\Order|null
+     */
+    protected function getOrder(Payment $payment)
+    {
+        $order = Order::findByPaymentId($payment->id);
+
+        if(!$order) {
+            if(isset($payment->metadata, $payment->metadata->temporary_mollie_payment_id)) {
+                $uuid = $payment->metadata->temporary_payment_id;
+                $order = Order::findByPaymentId($uuid);
+            }
+        }
+
+        return $order;
     }
 }

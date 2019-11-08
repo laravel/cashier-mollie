@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Str;
 use Laravel\Cashier\Credit\Credit;
 use Laravel\Cashier\Events\BalanceTurnedStale;
 use Laravel\Cashier\Events\OrderCreated;
@@ -19,6 +20,7 @@ use Laravel\Cashier\Order\Contracts\MinimumPayment;
 use Laravel\Cashier\Traits\HasOwner;
 use LogicException;
 use Mollie\Api\Resources\Mandate;
+use Mollie\Api\Types\PaymentStatus;
 
 /**
  * @method static create(array $data)
@@ -145,6 +147,7 @@ class Order extends Model
         $mandate = $this->owner->mollieMandate();
         $this->guardMandate($mandate);
         $minimumPaymentAmount = app(MinimumPayment::class)::forMollieMandate($mandate, $this->getCurrency());
+        $this->update(['mollie_payment_id' => 'temp_' . Str::uuid()]);
 
         DB::transaction(function () use ($minimumPaymentAmount) {
             $owner = $this->owner;
@@ -163,9 +166,13 @@ class Order extends Model
 
             switch(true) {
                 case $totalDue->isZero():
-                    break; // No payment processing required
+                    // No payment processing required
+                    $this->mollie_payment_id = null;
+                    break;
 
                 case $totalDue->lessThan($minimumPaymentAmount):
+                    // No payment processing required
+                    $this->mollie_payment_id = null;
 
                     // Add credit to the owner's balance
                     $credit = Credit::addAmountForOwner($owner, money(-($this->total_due), $this->currency));
@@ -182,7 +189,12 @@ class Order extends Model
                         $owner,
                         "Order " . $this->number,
                         $totalDue,
-                        url(config('cashier.webhook_url'))
+                        url(config('cashier.webhook_url')),
+                        [
+                            'metadata' => [
+                                'temporary_mollie_payment_id' => $this->mollie_payment_id,
+                            ],
+                        ]
                     ))->create();
 
                     $this->mollie_payment_id = $payment->id;
@@ -292,6 +304,29 @@ class Order extends Model
     public function scopeUnprocessed($query, $unprocessed = true)
     {
         return $query->processed(! $unprocessed);
+    }
+
+    /**
+     * Scope the query to only include orders with a specific Mollie payment status.
+     *
+     * @param $query
+     * @param string $status
+     * @return Builder
+     */
+    public function scopePaymentStatus($query, $status)
+    {
+        return $query->where('mollie_payment_status', $status);
+    }
+
+    /**
+     * Scope the query to only include paid orders.
+     *
+     * @param $query
+     * @return Builder
+     */
+    public function scopePaid($query)
+    {
+        return $this->scopePaymentStatus($query, PaymentStatus::STATUS_PAID);
     }
 
     /**
