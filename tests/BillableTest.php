@@ -2,9 +2,10 @@
 
 namespace Laravel\Cashier\Tests;
 
+use Illuminate\Support\Facades\Event;
 use Laravel\Cashier\Coupon\RedeemedCoupon;
 use Laravel\Cashier\Coupon\RedeemedCouponCollection;
-use Laravel\Cashier\Subscription;
+use Laravel\Cashier\Events\MandateClearedFromBillable;
 use Laravel\Cashier\SubscriptionBuilder\FirstPaymentSubscriptionBuilder;
 use Laravel\Cashier\SubscriptionBuilder\MandatedSubscriptionBuilder;
 use Laravel\Cashier\Tests\Fixtures\User;
@@ -109,6 +110,25 @@ class BillableTest extends BaseTestCase
         $this->assertEquals(1, $user->redeemedCoupons()->active()->count());
         $this->assertEquals(1, $subscription->redeemedCoupons()->active()->count());
         $this->assertEquals(0, $subscription->appliedCoupons()->count());
+    }
+
+    /** @test */
+    public function clearMollieMandate()
+    {
+        Event::fake();
+        $this->withPackageMigrations();
+        $user = $this->getUser(true, ['mollie_mandate_id' => 'foo-bar']);
+        $this->assertEquals('foo-bar', $user->mollieMandateId());
+
+        $user->clearMollieMandate();
+
+        $this->assertNull($user->mollieMandateId());
+        Event::assertDispatched(MandateClearedFromBillable::class, function ($e) use ($user) {
+            $this->assertEquals('foo-bar', $e->oldMandateId);
+            $this->assertTrue($e->owner->is($user));
+
+            return true;
+        });
     }
 
 }
