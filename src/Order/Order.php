@@ -25,7 +25,7 @@ use Mollie\Api\Resources\Mandate;
  */
 class Order extends Model
 {
-    use hasOwner;
+    use HasOwner;
     use ConvertsToMoney;
 
     /**
