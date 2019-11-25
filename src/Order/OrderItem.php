@@ -20,7 +20,7 @@ use Laravel\Cashier\Traits\HasOwner;
  */
 class OrderItem extends Model implements InvoicableItem
 {
-    use hasOwner;
+    use HasOwner;
     use FormatsAmount;
     use ConvertsToMoney;
 

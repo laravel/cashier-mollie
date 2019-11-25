@@ -44,7 +44,7 @@ use Money\Money;
  */
 class Subscription extends Model implements InteractsWithOrderItems, PreprocessesOrderItems, AcceptsCoupons
 {
-    use hasOwner;
+    use HasOwner;
 
     /**
      * The attributes that are not mass assignable.

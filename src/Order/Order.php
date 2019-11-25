@@ -27,7 +27,7 @@ use Mollie\Api\Types\PaymentStatus;
  */
 class Order extends Model
 {
-    use hasOwner;
+    use HasOwner;
     use ConvertsToMoney;
 
     /**
