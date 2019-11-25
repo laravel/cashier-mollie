@@ -2,10 +2,13 @@
 
 namespace Laravel\Cashier\Events;
 
+use Illuminate\Queue\SerializesModels;
 use Laravel\Cashier\Subscription;
 
 class SubscriptionPlanSwapped
 {
+    use SerializesModels;
+
     /**
      * @var \Laravel\Cashier\Subscription
      */

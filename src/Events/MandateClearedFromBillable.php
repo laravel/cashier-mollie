@@ -2,8 +2,12 @@
 
 namespace Laravel\Cashier\Events;
 
+use Illuminate\Queue\SerializesModels;
+
 class MandateClearedFromBillable
 {
+    use SerializesModels;
+
     /**
      * @var \Illuminate\Database\Eloquent\Model
      */
@@ -17,7 +21,7 @@ class MandateClearedFromBillable
     /**
      * ClearedMandate constructor.
      *
-     * @param \Illuminate\Database\Eloquent\Model $owner
+     * @param mixed $owner
      * @param string $oldMandateId
      */
     public function __construct($owner, string $oldMandateId)

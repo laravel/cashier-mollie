@@ -282,7 +282,7 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
     {
         $item = $this->scheduledOrderItem;
 
-        if($item->isProcessed(false)) {
+        if($item && $item->isProcessed(false)) {
             $item->delete();
         }
 

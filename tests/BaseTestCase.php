@@ -241,6 +241,11 @@ abstract class BaseTestCase extends TestCase
         ], $overrides));
     }
 
+    /**
+     * @param bool $persist
+     * @param array $overrides
+     * @return User
+     */
     protected function getUser($persist = true, $overrides = [])
     {
         $user = factory(User::class)->make($overrides);

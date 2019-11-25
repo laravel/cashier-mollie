@@ -459,7 +459,7 @@ trait Billable
         $this->fill(['mollie_mandate_id' => null]);
         $this->save();
 
-        dispatch(new MandateClearedFromBillable($this, $previousId));
+        event(new MandateClearedFromBillable($this, $previousId));
 
         return $this;
     }
