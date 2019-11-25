@@ -257,7 +257,7 @@ class OrderItem extends Model implements InvoicableItem
      */
     public function getTaxPercentage()
     {
-        return $this->tax_percentage;
+        return (float) $this->tax_percentage;
     }
 
     /**

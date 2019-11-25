@@ -273,7 +273,7 @@ class Invoice
             });
 
             return [
-                'tax_percentage' => $percentage,
+                'tax_percentage' => (float) $percentage,
                 'raw_over_subtotal' => $raw_over_subtotal,
                 'over_subtotal' => $this->formatAmount(money($raw_over_subtotal, $this->currency)),
                 'raw_total' => $raw_total,
