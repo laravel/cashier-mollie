@@ -6,6 +6,8 @@ use Illuminate\Queue\SerializesModels;
 
 class MandateClearedFromBillable
 {
+    use SerializesModels;
+
     /**
      * @var \Illuminate\Database\Eloquent\Model
      */

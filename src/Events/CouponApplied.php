@@ -2,11 +2,14 @@
 
 namespace Laravel\Cashier\Events;
 
+use Illuminate\Queue\SerializesModels;
 use Laravel\Cashier\Coupon\AppliedCoupon;
 use Laravel\Cashier\Coupon\RedeemedCoupon;
 
 class CouponApplied
 {
+    use SerializesModels;
+
     /**
      * @var \Laravel\Cashier\Coupon\RedeemedCoupon
      */
