@@ -208,7 +208,6 @@ class StartSubscription extends BaseAction implements SubscriptionConfigurator
      *
      * @param  Carbon $trialUntil
      * @return $this
-     * @throws \Throwable|\Laravel\Cashier\Exceptions\PlanNotFoundException
      */
     public function trialUntil(Carbon $trialUntil)
     {
@@ -228,7 +227,7 @@ class StartSubscription extends BaseAction implements SubscriptionConfigurator
     {
         $this->skipTrial = true;
         $this->trialUntil = null;
-        $this->builder->skipTrial();
+        $this->builder()->skipTrial();
         $this->subtotal = $this->plan->amount();
 
         return $this;
