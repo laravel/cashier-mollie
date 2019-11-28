@@ -3,6 +3,8 @@
 namespace Laravel\Cashier\Tests;
 
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Event;
+use Laravel\Cashier\Events\SubscriptionResumed;
 use Laravel\Cashier\Order\OrderItem;
 use Laravel\Cashier\Subscription;
 use Laravel\Cashier\Tests\Fixtures\User;
@@ -74,7 +76,11 @@ class SubscriptionTest extends BaseTestCase
 
         $this->assertFalse($subscription->cancelled());
 
+        Event::fake();
+
         $subscription->resume();
+
+        Event::assertNotDispatched(SubscriptionResumed::class);
     }
 
     /** @test */
@@ -89,7 +95,11 @@ class SubscriptionTest extends BaseTestCase
         $this->assertTrue($subscription->cancelled());
         $this->assertFalse($subscription->onGracePeriod());
 
+        Event::fake();
+
         $subscription->resume();
+
+        Event::assertNotDispatched(SubscriptionResumed::class);
     }
 
     /** @test */

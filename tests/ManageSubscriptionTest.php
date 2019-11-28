@@ -5,6 +5,7 @@ namespace Laravel\Cashier\Tests;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Event;
 use Laravel\Cashier\Cashier;
+use Laravel\Cashier\Events\SubscriptionResumed;
 use Laravel\Cashier\Events\SubscriptionStarted;
 use Laravel\Cashier\Events\SubscriptionQuantityUpdated;
 use Laravel\Cashier\Order\OrderItem;
@@ -147,8 +148,15 @@ class ManageSubscriptionTest extends BaseTestCase
         $subscription->fill(['ends_at' => $oldGracePeriod])->save();
 
         // Resume Subscription
+        Event::fake();
+
         $old_subscription = $subscription->fresh();
         $subscription = $subscription->resume()->fresh();
+
+        Event::assertDispatched(SubscriptionResumed::class, function (SubscriptionResumed $e) use ($subscription) {
+            $this->assertTrue($e->subscription->is($subscription));
+            return true;
+        });
 
         $this->assertTrue($subscription->active());
         $this->assertFalse($subscription->cancelled());
@@ -238,7 +246,14 @@ class ManageSubscriptionTest extends BaseTestCase
         $this->assertEquals(0, OrderItem::count());
 
         // Resume Subscription
+        Event::fake();
+
         $subscription->resume();
+
+        Event::assertDispatched(SubscriptionResumed::class, function (SubscriptionResumed $e) use ($subscription) {
+            $this->assertTrue($e->subscription->is($subscription));
+            return true;
+        });
 
         $this->assertTrue($subscription->active());
         $this->assertFalse($subscription->onGracePeriod());

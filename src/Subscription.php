@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
+use Laravel\Cashier\Events\SubscriptionResumed;
 use Laravel\Cashier\Order\Contracts\InteractsWithOrderItems;
 use Laravel\Cashier\Order\Contracts\PreprocessesOrderItems;
 use Laravel\Cashier\Coupon\AppliedCoupon;
@@ -44,7 +45,7 @@ use Money\Money;
  */
 class Subscription extends Model implements InteractsWithOrderItems, PreprocessesOrderItems, AcceptsCoupons
 {
-    use hasOwner;
+    use HasOwner;
 
     /**
      * The attributes that are not mass assignable.
@@ -320,6 +321,8 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
                 'ends_at' => null,
                 'scheduled_order_item_id' => $item->id,
             ])->save();
+
+            Event::dispatch(new SubscriptionResumed($this));
 
             return $this;
         });

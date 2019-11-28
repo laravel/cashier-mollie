@@ -20,7 +20,7 @@ use Laravel\Cashier\Traits\HasOwner;
  */
 class OrderItem extends Model implements InvoicableItem
 {
-    use hasOwner;
+    use HasOwner;
     use FormatsAmount;
     use ConvertsToMoney;
 
@@ -257,7 +257,7 @@ class OrderItem extends Model implements InvoicableItem
      */
     public function getTaxPercentage()
     {
-        return $this->tax_percentage;
+        return (float) $this->tax_percentage;
     }
 
     /**
