@@ -554,6 +554,9 @@ A new subscription was started.
 #### `SubscriptionCancelled` event
 The subscription was cancelled.
 
+#### `SubscriptionResumed` event
+The subscription was resumed.
+
 #### `SubscriptionPlanSwapped` event
 The subscription plan was swapped.
 
