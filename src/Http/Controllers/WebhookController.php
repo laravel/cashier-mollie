@@ -49,7 +49,7 @@ class WebhookController extends BaseWebhookController
 
         if(!$order) {
             if(isset($payment->metadata, $payment->metadata->temporary_mollie_payment_id)) {
-                $uuid = 'temp_' . $payment->metadata->temporary_payment_id;
+                $uuid = 'temp_' . $payment->metadata->temporary_mollie_payment_id;
                 $order = Order::findByPaymentId($uuid);
             }
         }
