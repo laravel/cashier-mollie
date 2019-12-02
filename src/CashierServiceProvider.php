@@ -21,7 +21,9 @@ class CashierServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->loadRoutesFrom(__DIR__.'/../routes/webhooks.php');
+        if (Cashier::$registersRoutes) {
+            $this->loadRoutesFrom(__DIR__.'/../routes/webhooks.php');
+        }
         $this->mergeConfig();
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'cashier');
 
@@ -66,16 +68,18 @@ class CashierServiceProvider extends ServiceProvider
 
     protected function publishMigrations(string $tag)
     {
-        $prefix = 'migrations/'.date('Y_m_d_His', time());
+        if (Cashier::$runsMigrations) {
+            $prefix = 'migrations/'.date('Y_m_d_His', time());
 
-        $this->publishes([
-            __DIR__.'/../database/migrations/create_applied_coupons_table.php.stub' => database_path($prefix .'_create_applied_coupons_table.php'),
-            __DIR__.'/../database/migrations/create_redeemed_coupons_table.php.stub' => database_path($prefix .'_create_redeemed_coupons_table.php'),
-            __DIR__.'/../database/migrations/create_credits_table.php.stub' => database_path($prefix .'_create_credits_table.php'),
-            __DIR__.'/../database/migrations/create_orders_table.php.stub' => database_path($prefix .'_create_orders_table.php'),
-            __DIR__.'/../database/migrations/create_order_items_table.php.stub' => database_path($prefix .'_create_order_items_table.php'),
-            __DIR__.'/../database/migrations/create_subscriptions_table.php.stub' => database_path($prefix .'_create_subscriptions_table.php'),
-        ], $tag);
+            $this->publishes([
+                __DIR__.'/../database/migrations/create_applied_coupons_table.php.stub' => database_path($prefix.'_create_applied_coupons_table.php'),
+                __DIR__.'/../database/migrations/create_redeemed_coupons_table.php.stub' => database_path($prefix.'_create_redeemed_coupons_table.php'),
+                __DIR__.'/../database/migrations/create_credits_table.php.stub' => database_path($prefix.'_create_credits_table.php'),
+                __DIR__.'/../database/migrations/create_orders_table.php.stub' => database_path($prefix.'_create_orders_table.php'),
+                __DIR__.'/../database/migrations/create_order_items_table.php.stub' => database_path($prefix.'_create_order_items_table.php'),
+                __DIR__.'/../database/migrations/create_subscriptions_table.php.stub' => database_path($prefix.'_create_subscriptions_table.php'),
+            ], $tag);
+        }
     }
 
     protected function publishConfig(string $tag)
