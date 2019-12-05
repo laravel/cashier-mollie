@@ -209,6 +209,17 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
     }
 
     /**
+     * Swap the subscription to a new plan, and invoice immediately.
+     *
+     * @param string $plan
+     * @return $this
+     */
+    public function swapAndInvoice($plan)
+    {
+        return $this->swap($plan, true);
+    }
+
+    /**
      * Schedule this subscription to be swapped to another plan once the current cycle has completed.
      *
      * @param string $plan
@@ -541,6 +552,18 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
     public function incrementQuantity(int $count = 1, $invoiceNow = true)
     {
         return $this->updateQuantity($this->quantity + $count, $invoiceNow);
+    }
+
+    /**
+     * Increment the quantity of the subscription, and invoice immediately.
+     *
+     * @param int $count
+     * @return \Laravel\Cashier\Subscription
+     * @throws \Throwable
+     */
+    public function incrementAndInvoice($count = 1)
+    {
+        return $this->incrementQuantity($count, true);
     }
 
     /**

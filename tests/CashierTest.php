@@ -4,6 +4,7 @@ namespace Laravel\Cashier\Tests;
 
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Cashier\Cashier;
+use Laravel\Cashier\CashierServiceProvider;
 use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Order\OrderItem;
 use Laravel\Cashier\Subscription;
@@ -11,12 +12,25 @@ use Laravel\Cashier\Tests\Fixtures\User;
 
 class CashierTest extends BaseTestCase
 {
+    /**
+     * @inheritDoc
+     */
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->withPackageMigrations();
         $this->withConfiguredPlans();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+        Cashier::useCurrencyLocale('de_DE');
+        Cashier::useCurrency('eur');
     }
 
     /** @test */
@@ -173,5 +187,15 @@ class CashierTest extends BaseTestCase
 
         $this->assertEquals('usd', Cashier::usesCurrency());
         $this->assertEquals('$', Cashier::usesCurrencySymbol());
+    }
+
+    /** @test */
+    public function canOverrideDefaultCurrencyLocale()
+    {
+        $this->assertEquals('de_DE', Cashier::usesCurrencyLocale());
+
+        Cashier::useCurrencyLocale('nl_NL');
+
+        $this->assertEquals('nl_NL', Cashier::usesCurrencyLocale());
     }
 }
