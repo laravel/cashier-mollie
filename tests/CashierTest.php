@@ -12,12 +12,25 @@ use Laravel\Cashier\Tests\Fixtures\User;
 
 class CashierTest extends BaseTestCase
 {
+    /**
+     * @inheritDoc
+     */
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->withPackageMigrations();
         $this->withConfiguredPlans();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+        Cashier::useCurrencyLocale('de_DE');
+        Cashier::useCurrency('eur');
     }
 
     /** @test */
