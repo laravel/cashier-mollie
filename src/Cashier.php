@@ -27,6 +27,13 @@ class Cashier
     protected static $currencySymbol = '€';
 
     /**
+     * The current currency symbol.
+     *
+     * @var string
+     */
+    protected static $currencyLocale = 'de_DE';
+
+    /**
      * The custom currency formatter.
      *
      * @var callable
@@ -90,6 +97,17 @@ class Cashier
     }
 
     /**
+     * Set the currency locale to be used when formatting currency.
+     *
+     * @param  string  $locale
+     * @return void
+     */
+    public static function useCurrencyLocale($locale)
+    {
+        static::$currencyLocale = $locale;
+    }
+
+    /**
      * Guess the currency symbol for the given currency.
      *
      * @param  string  $currency
@@ -133,6 +151,16 @@ class Cashier
     }
 
     /**
+     * Get the currency locale currently in use.
+     *
+     * @return string
+     */
+    public static function usesCurrencyLocale()
+    {
+        return static::$currencyLocale;
+    }
+
+    /**
      * Set the custom currency formatter.
      *
      * @param  callable  $callback
@@ -155,7 +183,7 @@ class Cashier
             return call_user_func(static::$formatCurrencyUsing, $money);
         }
 
-        $numberFormatter = new \NumberFormatter('de_DE', \NumberFormatter::CURRENCY);
+        $numberFormatter = new \NumberFormatter(static::$currencyLocale, \NumberFormatter::CURRENCY);
         $moneyFormatter = new IntlMoneyFormatter($numberFormatter, new ISOCurrencies);
 
         return $moneyFormatter->format($money);

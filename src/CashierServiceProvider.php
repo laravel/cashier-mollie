@@ -34,6 +34,9 @@ class CashierServiceProvider extends ServiceProvider
             $this->publishConfig('cashier-configs');
             $this->publishViews('cashier-views');
         }
+
+        $this->configureCurrency();
+        $this->configureCurrencyLocale();
     }
 
     /**
@@ -96,5 +99,21 @@ class CashierServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/../resources/views' => $this->app->basePath('resources/views/vendor/cashier'),
         ], $tag);
+    }
+
+    protected function configureCurrency()
+    {
+        $currency = config('cashier.currency', false);
+        if($currency) {
+            Cashier::useCurrency($currency);
+        }
+    }
+
+    protected function configureCurrencyLocale()
+    {
+        $locale = config('cashier.currency_locale', false);
+        if($locale) {
+            Cashier::useCurrencyLocale($locale);
+        }
     }
 }
