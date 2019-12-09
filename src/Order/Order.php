@@ -260,8 +260,13 @@ class Order extends Model
 
         if(method_exists($owner, 'getExtraBillingInformation')) {
             $extra_information = $owner->getExtraBillingInformation();
-            if($extra_information) {
-                $invoice->setExtraInformation([$extra_information]);
+
+            if(! empty($extra_information)) {
+                $extra_information = explode("\n", $extra_information);
+
+                if(is_array($extra_information) && ! empty($extra_information)) {
+                    $invoice->setExtraInformation($extra_information);
+                }
             }
         }
 
