@@ -58,15 +58,17 @@ class FirstPaymentSubscriptionBuilder implements Contract
      * @param mixed $owner
      * @param string $name
      * @param string $plan
+     * @param array $paymentOptions
+     * @throws \Laravel\Cashier\Exceptions\PlanNotFoundException
      */
-    public function __construct(Model $owner, string $name, string $plan)
+    public function __construct(Model $owner, string $name, string $plan, $paymentOptions = [])
     {
         $this->owner = $owner;
         $this->name = $name;
 
         $this->plan = app(PlanRepository::class)::findOrFail($plan);
 
-        $this->initializeFirstPaymentBuilder($owner);
+        $this->initializeFirstPaymentBuilder($owner, $paymentOptions);
 
         $this->startSubscription = new StartSubscription($owner, $name, $plan);
     }
@@ -225,11 +227,12 @@ class FirstPaymentSubscriptionBuilder implements Contract
 
     /**
      * @param \Illuminate\Database\Eloquent\Model $owner
+     * @param array $paymentOptions
      * @return \Laravel\Cashier\FirstPayment\FirstPaymentBuilder
      */
-    protected function initializeFirstPaymentBuilder(Model $owner)
+    protected function initializeFirstPaymentBuilder(Model $owner, $paymentOptions = [])
     {
-        $this->firstPaymentBuilder = new FirstPaymentBuilder($owner);
+        $this->firstPaymentBuilder = new FirstPaymentBuilder($owner, $paymentOptions);
         $this->firstPaymentBuilder->setFirstPaymentMethod($this->plan->firstPaymentMethod());
         $this->firstPaymentBuilder->setRedirectUrl($this->plan->firstPaymentRedirectUrl());
         $this->firstPaymentBuilder->setWebhookUrl($this->plan->firstPaymentWebhookUrl());

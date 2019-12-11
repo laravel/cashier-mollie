@@ -195,7 +195,7 @@ class OrderTest extends BaseTestCase
     /** @test */
     public function canGetInvoice()
     {
-        $user = factory(User::class)->create(['extra_billing_information' => 'Some dummy extra billing information']);
+        $user = factory(User::class)->create(['extra_billing_information' => "Some dummy\nextra billing information"]);
         $items = factory(OrderItem::class, 2)->states(['unlinked', 'EUR'])->create([
             'owner_id' => $user->id,
             'owner_type' => User::class,
@@ -215,7 +215,7 @@ class OrderTest extends BaseTestCase
         $this->assertEquals('2017-0000-0001', $invoice->id());
         $this->assertEquals($date, $invoice->date());
         $this->assertCount(2, $invoice->items());
-        $this->assertEquals('Some dummy extra billing information', $invoice->extraInformation(''));
+        $this->assertEquals(collect(['Some dummy', 'extra billing information']), $invoice->extraInformation());
 
         $this->assertMoneyEURCents(500, $invoice->rawStartingBalance());
         $this->assertMoneyEURCents(500, $invoice->rawUsedBalance());

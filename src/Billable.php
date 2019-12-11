@@ -57,11 +57,13 @@ trait Billable
      *
      * @param string $subscription
      * @param string $plan
+     * @param array $firstPaymentOptions
      * @return \Laravel\Cashier\SubscriptionBuilder\Contracts\SubscriptionBuilder
+     * @throws \Laravel\Cashier\Exceptions\InvalidMandateException
      * @throws \Laravel\Cashier\Exceptions\PlanNotFoundException
      * @throws \Throwable
      */
-    public function newSubscription($subscription, $plan)
+    public function newSubscription($subscription, $plan, $firstPaymentOptions = [])
     {
         if(! empty($this->mollie_mandate_id)) {
 
@@ -83,7 +85,7 @@ trait Billable
             }
         }
 
-        return $this->newSubscriptionViaMollieCheckout($subscription, $plan);
+        return $this->newSubscriptionViaMollieCheckout($subscription, $plan, $firstPaymentOptions);
     }
 
     /**
@@ -92,12 +94,13 @@ trait Billable
      *
      * @param $subscription
      * @param $plan
+     * @param array $firstPaymentOptions
      * @return \Laravel\Cashier\SubscriptionBuilder\FirstPaymentSubscriptionBuilder
      * @throws \Laravel\Cashier\Exceptions\PlanNotFoundException
      */
-    public function newSubscriptionViaMollieCheckout($subscription, $plan)
+    public function newSubscriptionViaMollieCheckout($subscription, $plan, $firstPaymentOptions = [])
     {
-        return new FirstPaymentSubscriptionBuilder($this, $subscription, $plan);
+        return new FirstPaymentSubscriptionBuilder($this, $subscription, $plan, $firstPaymentOptions);
     }
 
     /**
