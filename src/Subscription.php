@@ -264,7 +264,7 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
      *
      * @param \Carbon\Carbon $endsAt
      * @param string $reason
-     * @return mixed
+     * @return $this
      */
     public function cancelAt(Carbon $endsAt, $reason = SubscriptionCancellationReason::UNKNOWN)
     {
@@ -280,6 +280,17 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
 
             return $this;
         });
+    }
+
+    /**
+     * Cancel the subscription immediately.
+     *
+     * @param string $reason
+     * @return $this
+     */
+    public function cancelNow($reason = SubscriptionCancellationReason::UNKNOWN)
+    {
+        return $this->cancelAt(now(), $reason);
     }
 
     /**

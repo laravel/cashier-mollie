@@ -33,7 +33,6 @@ class SubscriptionTest extends BaseTestCase
     /** @test */
     public function canAccessOrderItems()
     {
-
         $subscription = factory(Subscription::class)->create();
 
         $items = $subscription->orderItems()->save(
@@ -220,7 +219,76 @@ class SubscriptionTest extends BaseTestCase
         $this->assertSame("1000", $item_3->unit_price);
         $this->assertSame("0", $item_3->tax_percentage);
         $this->assertSame(null, $item_3->order_id);
-
-
     }
+
+    /** @test */
+    public function cancelWorks()
+    {
+        $cycle_ends_at = now()->addWeek();
+        $user = factory(User::class)->create();
+        $subscription = $user->subscriptions()->save(factory(Subscription::class)->make([
+            'cycle_ends_at' => $cycle_ends_at,
+        ]));
+
+        $this->assertFalse($subscription->onTrial());
+        $this->assertFalse($subscription->cancelled());
+        $this->assertTrue($subscription->active());
+        $this->assertFalse($subscription->onGracePeriod());
+
+        $subscription->cancel();
+
+        $this->assertCarbon($cycle_ends_at, $subscription->ends_at);
+        $this->assertNull($subscription->cycle_ends_at);
+        $this->assertFalse($subscription->onTrial());
+        $this->assertTrue($subscription->cancelled());
+        $this->assertTrue($subscription->active());
+        $this->assertTrue($subscription->onGracePeriod());
+    }
+
+    /** @test */
+    public function cancelAtWorks()
+    {
+        $user = factory(User::class)->create();
+        $subscription = $user->subscriptions()->save(factory(Subscription::class)->make([
+            'cycle_ends_at' => now()->addWeek()])
+        );
+
+        $this->assertFalse($subscription->onTrial());
+        $this->assertFalse($subscription->cancelled());
+        $this->assertTrue($subscription->active());
+        $this->assertFalse($subscription->onGracePeriod());
+
+        $subscription->cancelAt(now()->addDays(2));
+
+        $this->assertCarbon(now()->addDays(2), $subscription->ends_at);
+        $this->assertNull($subscription->cycle_ends_at);
+        $this->assertFalse($subscription->onTrial());
+        $this->assertTrue($subscription->cancelled());
+        $this->assertTrue($subscription->active());
+        $this->assertTrue($subscription->onGracePeriod());
+    }
+
+    /** @test */
+    public function cancelNowWorks()
+    {
+        $user = factory(User::class)->create();
+        $subscription = $user->subscriptions()->save(factory(Subscription::class)->make([
+            'cycle_ends_at' => now()->addWeek()])
+        );
+
+        $this->assertFalse($subscription->onTrial());
+        $this->assertFalse($subscription->cancelled());
+        $this->assertTrue($subscription->active());
+        $this->assertFalse($subscription->onGracePeriod());
+
+        $subscription->cancelNow();
+
+        $this->assertCarbon(now(), $subscription->ends_at);
+        $this->assertNull($subscription->cycle_ends_at);
+        $this->assertFalse($subscription->onTrial());
+        $this->assertTrue($subscription->cancelled());
+        $this->assertFalse($subscription->active());
+        $this->assertFalse($subscription->onGracePeriod());
+    }
+
 }
