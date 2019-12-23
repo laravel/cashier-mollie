@@ -156,19 +156,21 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
     public function getCycleProgressAttribute($now = null, $precision = 5)
     {
         $now = $now ?: now();
+        $cycle_started_at = $this->cycle_started_at->copy();
+        $cycle_ends_at = $this->cancelled() ? $this->ends_at->copy() : $this->cycle_ends_at->copy();
 
-        // completed
-        if($this->cycle_ends_at->lessThanOrEqualTo($now)) {
+        // Cycle completed
+        if($cycle_ends_at->lessThanOrEqualTo($now)) {
             return 1;
         }
 
-        // not yet started
-        if($this->cycle_started_at->greaterThanOrEqualTo($now)) {
+        // Cycle not yet started
+        if($cycle_started_at->greaterThanOrEqualTo($now)) {
             return 0;
         }
 
-        $total_cycle_seconds = $this->cycle_started_at->diffInSeconds($this->cycle_ends_at);
-        $seconds_progressed = $this->cycle_started_at->diffInSeconds($now);
+        $total_cycle_seconds = $cycle_started_at->diffInSeconds($cycle_ends_at);
+        $seconds_progressed = $cycle_started_at->diffInSeconds($now);
 
         return round($seconds_progressed / $total_cycle_seconds, $precision);
     }

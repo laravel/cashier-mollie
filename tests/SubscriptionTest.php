@@ -291,4 +291,22 @@ class SubscriptionTest extends BaseTestCase
         $this->assertFalse($subscription->onGracePeriod());
     }
 
+    /** @test */
+    public function resumingACancelledSubscriptionResetsCycleEndsAt()
+    {
+        $this->withConfiguredPlans();
+        $user = factory(User::class)->create();
+
+        /** @var Subscription $subscription */
+        $subscription = $user->subscriptions()->save(factory(Subscription::class)->make([
+            'ends_at' => now()->addWeek(),
+        ]));
+
+        $this->assertTrue($subscription->cancelled());
+
+        $subscription->resume();
+
+        $this->assertFalse($subscription->cancelled());
+        $this->assertCarbon(now()->addWeek(), $subscription->cycle_ends_at);
+    }
 }
