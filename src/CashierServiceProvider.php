@@ -14,7 +14,7 @@ use Mollie\Laravel\MollieServiceProvider;
 
 class CashierServiceProvider extends ServiceProvider
 {
-    const PACKAGE_VERSION = '1.10.0';
+    const PACKAGE_VERSION = '1.10.1';
 
     /**
      * Bootstrap the application services.
