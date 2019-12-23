@@ -198,7 +198,14 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
      */
     public function swap(string $plan, $invoiceNow = true)
     {
+        /** @var Plan $newPlan */
         $newPlan = app(PlanRepository::class)::findOrFail($plan);
+
+        if($this->cancelled()) {
+            $this->cycle_ends_at = $this->ends_at;
+            $this->ends_at = null;
+        }
+
         $applyNewSettings = function() use ($newPlan) {
             $this->plan = $newPlan->name();
         };

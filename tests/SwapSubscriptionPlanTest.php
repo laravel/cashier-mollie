@@ -92,6 +92,24 @@ class SwapSubscriptionPlanTest extends BaseTestCase
     }
 
     /** @test */
+    public function swappingACancelledSubscriptionResumesIt()
+    {
+        $subscription = $this->getUser()->subscriptions()->save(
+            factory(Subscription::class)->make([
+                'ends_at' => now()->addWeek(),
+                'plan' => 'monthly-20-1',
+            ])
+        );
+        $subscription->cancel();
+
+        $this->assertTrue($subscription->cancelled());
+
+        $subscription->swap('weekly-20-1', false);
+
+        $this->assertFalse($subscription->cancelled());
+    }
+
+    /** @test */
     public function canSwapNextCycle()
     {
         $user = $this->getUserWithZeroBalance();
@@ -155,6 +173,10 @@ class SwapSubscriptionPlanTest extends BaseTestCase
         return $user;
     }
 
+    /**
+     * @param $user
+     * @return Subscription
+     */
     protected function getSubscriptionForUser($user)
     {
         return $user->subscriptions()->save(factory(Subscription::class)->make([
