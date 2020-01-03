@@ -624,6 +624,64 @@ all of the previous, including applying the credited balance to the Order.
 This does not apply to the `$subscription->swapNextCycle('other-plan')`, which simply waits for the next billing cycle
 to update the subscription plan. A common use case for this is downgrading the plan at the end of the billing cycle. 
 
+### How can I load coupons and/or plans from database?
+
+Because Cashier Mollie uses contracts a lot it's quite easy to extend Cashier Mollie and use your own implementations.
+You can quite easily load coupons/plans from database, a file or even a JSON API.
+
+For example a simple implementation of plans from the database:
+
+Firstly you create your own implementation of the plan repository and implement `Laravel\Cashier\Plan\Contracts\PlanRepository`.
+Implement the methods according to your needs and make sure you'll return a `Laravel\Cashier\Plan\Contracts\Plan`.
+
+```php
+use App\Plan;
+use Laravel\Cashier\Exceptions\PlanNotFoundException;
+use Laravel\Cashier\Plan\Contracts\PlanRepository;
+
+class DatabasePlanRepository implements PlanRepository
+{
+    public static function find(string $name)
+    {
+        $plan = Plan::where('name', $name)->first();
+
+        if (is_null($plan)) {
+            return null;
+        }
+
+        // Return a \Laravel\Cashier\Plan\Plan by creating one from the database values
+        return $plan->populateCashierPlan();
+
+        // Or if your model implements the contract: \Laravel\Cashier\Plan\Contracts\Plan
+        return $plan;
+    }
+
+    public static function findOrFail(string $name)
+    {
+        if (($result = self::find($name)) === null) {
+            throw new PlanNotFoundException;
+        }
+
+        return $result;
+    }
+}
+```
+
+Then you just have to bind your implementation to the Laravel/Illuminate container by registering the binding in a service provider
+
+```php
+class AppServiceProvider extends ServiceProvider
+{
+    public function register()
+    {
+        $this->app->bind(\Laravel\Cashier\Plan\Contracts\PlanRepository::class, DatabasePlanRepository::class);
+    }
+}
+```
+
+Cashier Mollie will now use your implementation of the PlanRepository. For coupons this is basically the same,
+just make sure you implement the CouponRepository contract and bind the contract to your own implementation.
+
 ## Testing
 
 Cashier Mollie is tested against Mollie's test API.
