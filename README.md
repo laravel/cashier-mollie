@@ -650,7 +650,7 @@ class DatabasePlanRepository implements PlanRepository
         }
 
         // Return a \Laravel\Cashier\Plan\Plan by creating one from the database values
-        return $plan->populateCashierPlan();
+        return $plan->buildCashierPlan();
 
         // Or if your model implements the contract: \Laravel\Cashier\Plan\Contracts\Plan
         return $plan;
