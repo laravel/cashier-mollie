@@ -123,7 +123,7 @@ subscription:
 
 ```php
 $user = User::find(1);
-// Make sure to configure the 'premium' plan in config/cashier.php
+// Make sure to configure the 'premium' plan in config/cashier_plans.php
 $result = $user->newSubscription('main', 'premium')->create();
 ```
 
