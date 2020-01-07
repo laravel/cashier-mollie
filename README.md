@@ -667,6 +667,45 @@ class DatabasePlanRepository implements PlanRepository
 }
 ```
 
+<details>
+    <summary>Example Plan model (app/Plan.php) with buildCashierPlan and returns a `\Laravel\Cashier\Plan\Plan`</summary>
+    
+    ```php
+    <?php
+    
+    namespace App;
+    
+    use Laravel\Cashier\Plan\Plan as CashierPlan;
+    use Illuminate\Database\Eloquent\Model;
+    
+    class Plan extends Model
+    {
+        /**
+         * Builds a Cashier plan from the current model.
+         *
+         * @returns \Laravel\Cashier\Plan\Plan
+         */
+        public function buildCashierPlan(): CashierPlan
+        {
+            $plan = new CashierPlan($this->name);
+            
+            return $plan->setAmount(mollie_array_to_money($this->amount))
+                ->setInterval($this->interval)
+                ->setDescription($this->description)
+                ->setFirstPaymentMethod($this->first_payment_method)
+                ->setFirstPaymentAmount(mollie_array_to_money($this->first_payment_amount))
+                ->setFirstPaymentDescription($this->first_payment_description)
+                ->setFirstPaymentRedirectUrl($this->first_payment_redirect_url)
+                ->setFirstPaymentWebhookUrl($this->first_payment_webhook_url)
+                ->setOrderItemPreprocessors(Preprocessors::fromArray($this->order_item_preprocessors));
+        }
+    }
+    ```
+    
+    Nnote: In this case you'll need to add accessors for all the values (like amount, interval, fist_payment_method etc.)
+    to make sure you'll use the values from your defaults (config/cashier_plans.php > defaults).
+</details>
+
 Then you just have to bind your implementation to the Laravel/Illuminate container by registering the binding in a service provider
 
 ```php
