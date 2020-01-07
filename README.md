@@ -627,7 +627,7 @@ to update the subscription plan. A common use case for this is downgrading the p
 ### How can I load coupons and/or plans from database?
 
 Because Cashier Mollie uses contracts a lot it's quite easy to extend Cashier Mollie and use your own implementations.
-You can quite easily load coupons/plans from database, a file or even a JSON API.
+You can load coupons/plans from database, a file or even a JSON API.
 
 For example a simple implementation of plans from the database:
 
