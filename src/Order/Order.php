@@ -82,7 +82,7 @@ class Order extends Model
             $order = static::create(array_merge([
                 'owner_id' => $owner->id,
                 'owner_type' => get_class($owner),
-                'number' => (new OrderNumberGenerator)->generate(),
+                'number' => static::numberGenerator()->generate(),
                 'currency' => $currency,
                 'subtotal' => $items->sum('subtotal'),
                 'tax' => $items->sum('tax'),
@@ -468,6 +468,14 @@ class Order extends Model
     }
 
     /**
+     * @return string
+     */
+    public function getCurrency()
+    {
+        return $this->currency;
+    }
+
+    /**
      * @param \Mollie\Api\Resources\Mandate $mandate
      * @throws \Laravel\Cashier\Exceptions\InvalidMandateException
      */
@@ -479,10 +487,10 @@ class Order extends Model
     }
 
     /**
-     * @return string
+     * @return \Laravel\Cashier\Order\OrderNumberGenerator
      */
-    public function getCurrency()
+    protected static function numberGenerator()
     {
-        return $this->currency;
+        return app()->make(config('cashier.order_number_generator.model'));
     }
 }
