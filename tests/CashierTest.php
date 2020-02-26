@@ -66,13 +66,15 @@ class CashierTest extends BaseTestCase
                 'process_at' => now()->addHour(),
             ]) // should NOT process this (future)
         );
+
         $subscription1->orderItems()->saveMany(
             factory(OrderItem::class, 2)->states(['unprocessed', 'EUR'])->make([
                 'owner_id' => 1,
                 'owner_type' => User::class,
                 'process_at' => now()->subHour(),
             ])
-        );
+        ); // should process these two
+
         $subscription1->orderItems()->save(
             factory(OrderItem::class)->states('processed')->make()
         ); // should NOT process this (already processed)
@@ -83,7 +85,7 @@ class CashierTest extends BaseTestCase
                 'owner_type' => User::class,
                 'process_at' => now()->subHours(2),
             ])
-        );
+        ); // should process this one
 
         $this->assertEquals(0, Order::count());
         $this->assertOrderItemCounts($user1, 1, 3);
@@ -93,7 +95,7 @@ class CashierTest extends BaseTestCase
 
         $this->assertEquals(1, $user1->orders()->count());
         $this->assertEquals(1, $user2->orders()->count());
-        $this->assertOrderItemCounts($user1, 4, 3); // processed 3, scheduled 3
+        $this->assertOrderItemCounts($user1, 3, 3); // processed 3, scheduled 3
         $this->assertOrderItemCounts($user2, 1, 1); // processed 1, scheduled 1
     }
 
