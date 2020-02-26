@@ -135,7 +135,7 @@ class OrderItem extends Model implements InvoicableItem
      */
     public function scopeDue($query)
     {
-        return $query->whereDate('process_at', '<=', now());
+        return $query->where('process_at', '<=', now());
     }
 
     /**
