@@ -123,7 +123,7 @@ class OrderItemTest extends BaseTestCase
             'process_at' => now()->subHour(),
         ]);
         factory(OrderItem::class, 3)->create([
-            'process_at' => now()->addDay(),
+            'process_at' => now()->addMinutes(5),
         ]);
 
         $this->assertEquals(2, OrderItem::due()->count());
