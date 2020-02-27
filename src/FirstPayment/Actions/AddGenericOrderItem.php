@@ -18,7 +18,7 @@ class AddGenericOrderItem extends BaseAction
     {
         $this->owner = $owner;
         $this->taxPercentage = $this->owner->taxPercentage();
-        $this->subtotal = $subtotal;
+        $this->unitPrice = $subtotal;
         $this->currency = $subtotal->getCurrency()->getCode();
         $this->description = $description;
     }

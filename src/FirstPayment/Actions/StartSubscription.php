@@ -57,9 +57,9 @@ class StartSubscription extends BaseAction implements SubscriptionConfigurator
 
         $this->plan = app(PlanRepository::class)::findOrFail($plan);
 
-        $this->subtotal = $this->plan->amount();
+        $this->unitPrice = $this->plan->amount();
         $this->description = $this->plan->description();
-        $this->currency = $this->subtotal->getCurrency()->getCode();
+        $this->currency = $this->unitPrice->getCurrency()->getCode();
 
         $this->couponRepository = app()->make(CouponRepository::class);
     }
@@ -150,7 +150,7 @@ class StartSubscription extends BaseAction implements SubscriptionConfigurator
             'process_at' => now(),
             'description' => $this->getDescription(),
             'currency' => $this->getCurrency(),
-            'unit_price' => $this->subtotal->getAmount(),
+            'unit_price' => $this->getUnitPrice()->getAmount(),
             'tax_percentage' => $this->getTaxPercentage(),
             'quantity' => $this->quantity,
         ];
@@ -202,7 +202,7 @@ class StartSubscription extends BaseAction implements SubscriptionConfigurator
     {
         $this->trialDays = $trialDays;
         $this->builder()->trialDays($trialDays);
-        $this->subtotal = money(0, $this->getCurrency());
+        $this->unitPrice = money(0, $this->getCurrency());
 
         return $this;
     }
@@ -217,7 +217,7 @@ class StartSubscription extends BaseAction implements SubscriptionConfigurator
     {
         $this->trialUntil = $trialUntil;
         $this->builder()->trialUntil($trialUntil);
-        $this->subtotal = money(0, $this->getCurrency());
+        $this->unitPrice = money(0, $this->getCurrency());
 
         return $this;
     }
@@ -232,7 +232,7 @@ class StartSubscription extends BaseAction implements SubscriptionConfigurator
         $this->skipTrial = true;
         $this->trialUntil = null;
         $this->builder()->skipTrial();
-        $this->subtotal = $this->plan->amount();
+        $this->unitPrice = $this->plan->amount();
 
         return $this;
     }

@@ -14,7 +14,7 @@ abstract class BaseAction
     protected $currency;
 
     /** @var \Money\Money */
-    protected $subtotal;
+    protected $unitPrice;
 
     /** var float */
     protected $taxPercentage = 0;
@@ -92,9 +92,17 @@ abstract class BaseAction
     /**
      * @return \Money\Money
      */
+    public function getUnitPrice()
+    {
+        return $this->unitPrice;
+    }
+
+    /**
+     * @return \Money\Money
+     */
     public function getSubtotal()
     {
-        return $this->subtotal->multiply($this->quantity);
+        return $this->getUnitPrice()->multiply($this->quantity);
     }
 
     /**
