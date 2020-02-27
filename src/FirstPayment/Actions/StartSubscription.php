@@ -150,7 +150,7 @@ class StartSubscription extends BaseAction implements SubscriptionConfigurator
             'process_at' => now(),
             'description' => $this->getDescription(),
             'currency' => $this->getCurrency(),
-            'unit_price' => $this->getSubtotal()->getAmount(),
+            'unit_price' => $this->subtotal->getAmount(),
             'tax_percentage' => $this->getTaxPercentage(),
             'quantity' => $this->quantity,
         ];

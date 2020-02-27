@@ -404,6 +404,52 @@ class StartSubscriptionTest extends BaseTestCase
     }
 
     /** @test */
+    public function canStartSubscriptionWithQuantityNoTrial()
+    {
+        $user = $this->getMandatedUser();
+
+        $this->assertFalse($user->subscribed('default'));
+
+        $action = new StartSubscription(
+            $user,
+            'default',
+            'monthly-10-1'
+        );
+
+        $action->quantity(5);
+
+        // Returns the OrderItem ready for processing right away.
+        // Behind the scenes another OrderItem is scheduled for the next billing cycle.
+        $items = $action->execute();
+        $item = $items->first();
+        $user = $user->fresh();
+
+        $this->assertTrue($user->subscribed('default'));
+        $this->assertFalse($user->onTrial());
+        $this->assertInstanceOf(OrderItemCollection::class, $items);
+        $this->assertCount(1, $items);
+        $this->assertInstanceOf(OrderItem::class, $item);
+        $this->assertFalse($item->isProcessed());
+        $this->assertCarbon(now(), $item->process_at);
+        $this->assertEquals(1000, $item->unit_price);
+        $this->assertEquals(5, $item->quantity);
+        $this->assertEquals(5000, $item->total);
+
+        $subscription = $user->subscription('default');
+        $this->assertEquals(5, $subscription->quantity);
+        $this->assertEquals(2, $subscription->orderItems()->count());
+        $this->assertCarbon(now(), $subscription->cycle_started_at);
+        $this->assertCarbon(now()->addMonth(), $subscription->cycle_ends_at);
+
+        $scheduledItem = $subscription->orderItems()->orderByDesc('process_at')->first();
+        $this->assertCarbon(now()->addMonth(), $scheduledItem->process_at);
+        $this->assertEquals(5, $scheduledItem->quantity);
+        $this->assertEquals(1000, $scheduledItem->unit_price);
+        $this->assertEquals(5, $scheduledItem->quantity);
+        $this->assertEquals(5 * 1000, $scheduledItem->total);
+    }
+
+    /** @test */
     public function canStartSubscriptionWithQuantityAndTrialUntil()
     {
         $user = $this->getMandatedUser();
@@ -416,7 +462,7 @@ class StartSubscriptionTest extends BaseTestCase
             'monthly-10-1'
         );
 
-        $action->quantity(10)->trialUntil(now()->addDays(5));
+        $action->quantity(5)->trialUntil(now()->addDays(5));
 
         // Returns the OrderItem ready for processing right away.
         // Behind the scenes another OrderItem is scheduled for the next billing cycle.
@@ -432,23 +478,23 @@ class StartSubscriptionTest extends BaseTestCase
         $this->assertFalse($item->isProcessed());
         $this->assertCarbon(now(), $item->process_at);
         $this->assertEquals(0, $item->total);
-        $this->assertEquals(10, $item->quantity);
+        $this->assertEquals(5, $item->quantity);
 
         $subscription = $user->subscription('default');
-        $this->assertEquals(10, $subscription->quantity);
+        $this->assertEquals(5, $subscription->quantity);
         $this->assertEquals(2, $subscription->orderItems()->count());
         $this->assertCarbon(now(), $subscription->cycle_started_at);
         $this->assertCarbon(now()->addDays(5), $subscription->cycle_ends_at);
 
         $scheduledItem = $subscription->orderItems()->orderByDesc('process_at')->first();
         $this->assertCarbon(now()->addDays(5), $scheduledItem->process_at);
-        $this->assertEquals(10, $scheduledItem->quantity);
+        $this->assertEquals(5, $scheduledItem->quantity);
 
         $this->assertCarbon(
             now()->addDays(5),
             $user->subscriptions()->first()->trial_ends_at
         );
-        $this->assertEquals(10 * 1000, $scheduledItem->total);
+        $this->assertEquals(5 * 1000, $scheduledItem->total);
     }
 
     /** @test */
