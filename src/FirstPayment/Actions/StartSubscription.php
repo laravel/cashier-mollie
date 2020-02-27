@@ -96,6 +96,10 @@ class StartSubscription extends BaseAction implements SubscriptionConfigurator
             $action->skipTrial();
         }
 
+        if(isset($payload['quantity'])) {
+            $action->quantity($payload['quantity']);
+        }
+
         if(isset($payload['coupon'])) {
             $action->withCoupon($payload['coupon']);
         }
@@ -244,6 +248,7 @@ class StartSubscription extends BaseAction implements SubscriptionConfigurator
     {
         throw_if($quantity < 1, new \LogicException('Subscription quantity must be at least 1.'));
         $this->quantity = $quantity;
+        $this->builder()->quantity($quantity);
 
         return $this;
     }
