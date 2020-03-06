@@ -2,7 +2,6 @@
 
 namespace Laravel\Cashier\Tests\Http\Controllers;
 
-use Illuminate\Foundation\Testing\TestResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Laravel\Cashier\Events\OrderPaymentFailed;
