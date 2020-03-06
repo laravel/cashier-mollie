@@ -175,7 +175,7 @@ class WebhookControllerTest extends BaseTestCase
 
     protected function makeTestResponse($response)
     {
-        if(class_exists('\Illuminate\Foundation\Testing\TestResponse::class')) {
+        if(class_exists('\Illuminate\Foundation\Testing\TestResponse')) {
             // Prior to Laravel v7
             return new \Illuminate\Foundation\Testing\TestResponse($response);
         }
