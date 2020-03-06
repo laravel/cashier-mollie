@@ -84,7 +84,8 @@ class WebhookControllerTest extends BaseTestCase
 
         $request = $this->getWebhookRequest($this->payment_failed_id);
 
-        $response = new TestResponse($this->controller->handleWebhook($request));
+        $response = $this->makeTestResponse($this->controller->handleWebhook($request));
+
         $response->assertStatus(200);
 
         $order = $order->fresh();
@@ -171,5 +172,16 @@ class WebhookControllerTest extends BaseTestCase
     protected function getWebhookRequest($id)
     {
         return Request::create('/', 'POST', ['id' => $id]);
+    }
+
+    protected function makeTestResponse($response)
+    {
+        if(class_exists('\Illuminate\Foundation\Testing\TestResponse::class')) {
+            // Prior to Laravel v7
+            return new \Illuminate\Foundation\Testing\TestResponse($response);
+        }
+
+        // Laravel v7
+        return new \Illuminate\Testing\TestResponse($response);
     }
 }
