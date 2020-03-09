@@ -61,7 +61,15 @@ Once you have pulled in the package:
 
 6. Prepare the billable model (typically the default Laravel User model):
     
-    - Add the `Laravel\Cashier\Billable` trait.
+    - Add the `Laravel\Cashier\Billable` trait. 
+    Ensure to add `trial_ends_at` as a date mutator:
+    ```php
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'trial_ends_at'
+    ];
+    ```
     
     - Optionally, override the method `mollieCustomerFields()` to configure what billable model fields are stored while creating the Mollie Customer.
     Out of the box the `mollieCustomerFields()` method uses the default Laravel User model fields:
