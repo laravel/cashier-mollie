@@ -30,7 +30,5 @@ class CashierRun extends Command
     {
         $orders = Cashier::run();
         $this->info('Created ' . $orders->count() . ' orders.');
-
-        return $orders;
     }
 }
