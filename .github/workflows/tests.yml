@@ -1,0 +1,70 @@
+name: tests
+
+on:
+    push:
+    pull_request:
+    schedule:
+        - cron: '0 0 * * *'
+
+jobs:
+    tests:
+
+        runs-on: ubuntu-latest
+        env:
+            MOLLIE_KEY: ${{ secrets.MOLLIE_KEY }}
+            MANDATED_CUSTOMER_DIRECTDEBIT: ${{ secrets.MANDATED_CUSTOMER_DIRECTDEBIT }}
+            MANDATED_CUSTOMER_DIRECTDEBIT_MANDATE_ID: ${{ secrets.MANDATED_CUSTOMER_DIRECTDEBIT_MANDATE_ID }}
+            MANDATE_PAYMENT_PAID_ID: ${{ secrets.MANDATE_PAYMENT_PAID_ID }}
+            SUBSCRIPTION_MANDATE_PAYMENT_PAID_ID: ${{ secrets.SUBSCRIPTION_MANDATE_PAYMENT_PAID_ID }}
+            PAYMENT_PAID_ID: ${{ secrets.PAYMENT_PAID_ID }}
+            PAYMENT_FAILED_ID: ${{ secrets.PAYMENT_FAILED_ID }}
+        strategy:
+            fail-fast: true
+            matrix:
+                php: [7.2, 7.3, 7.4]
+                laravel: [^6.0, ^7.0]
+                include:
+                    - laravel: ^6.0
+                      testbench: ^4.0
+                    - laravel: ^7.0
+                      testbench: ^5.0
+                    - php: 7.4
+                      laravel: ^7.0
+                      coverage: 1
+
+        name: PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }}
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+
+            - name: Cache dependencies
+              uses: actions/cache@v1
+              with:
+                  path: ~/.composer/cache/files
+                  key: dependencies-laravel-${{ matrix.laravel }}-php-${{ matrix.php }}-testbench-${{ matrix.testbench }}-composer-${{ hashFiles('composer.json') }}
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php }}
+                  extensions: json, intl, mbstring, zip, dom, curl, libxml, xml, xmlwriter
+                  coverage: xdebug
+
+            - name: Install dependencies
+              run: |
+                  composer require "illuminate/support:${{ matrix.laravel }}" \
+                      "illuminate/database:${{ matrix.laravel }}" \
+                      "orchestra/testbench:${{ matrix.testbench }}" \
+                      --no-interaction --no-update --no-suggest \
+                  && composer install --prefer-dist --no-interaction --no-suggest
+
+            - name: Execute tests without coverage
+              if: contains(matrix, 'coverage') != true
+              run: vendor/bin/phpunit
+
+            - name: Execute tests with coverage
+              if: contains(matrix, 'coverage') && matrix.coverage == 1
+              run: |
+                  vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover \
+                  && php vendor/bin/ocular code-coverage:upload --format=php-clover coverage.clover
