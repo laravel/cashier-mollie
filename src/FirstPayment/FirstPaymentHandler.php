@@ -53,7 +53,7 @@ class FirstPaymentHandler
             ]);
         });
 
-        event(new MandateUpdated($this->owner));
+        event(new MandateUpdated($this->owner, $this->payment));
 
         return $order;
     }

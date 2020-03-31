@@ -66,8 +66,11 @@ class FirstPaymentHandlerTest extends BaseTestCase
         $this->assertNotNull($owner->mollie_mandate_id);
         $this->assertEquals($payment->mandateId, $owner->mollie_mandate_id);
 
-        Event::assertDispatched(MandateUpdated::class, function(MandateUpdated $e) use ($owner) {
-            return $e->owner->is($owner);
+        Event::assertDispatched(MandateUpdated::class, function(MandateUpdated $e) use ($owner, $payment) {
+            $this->assertTrue($e->owner->is($owner));
+            $this->assertSame($e->payment->id, $payment->id);
+
+            return true;
         });
     }
 }
