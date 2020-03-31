@@ -153,7 +153,7 @@ class CreateSubscriptionController extends Controller
 
         $name = ucfirst($plan) . ' membership';
 
-        if(!$user->subscribed($name, $plan)) {
+        if (!$user->subscribed($name, $plan)) {
 
             $result = $user->newSubscription($name, $plan)->create();
 
@@ -171,8 +171,9 @@ class CreateSubscriptionController extends Controller
 
 In order to always enforce a redirect to the Mollie checkout page, use the `newSubscriptionViaMollieCheckout` method
 instead of `newSubscription`:
-
+```php
     $redirect = $user->newSubscriptionViaMollieCheckout('main', 'premium')->create(); // make sure to configure the 'premium' plan in config/cashier.php
+```
 
 ### Coupons
 
@@ -188,19 +189,21 @@ Out of the box, a basic `FixedDiscountHandler` is provided.
 #### Redeeming a coupon for an existing subscription
 
 For redeeming a coupon for an existing subscription, use the `redeemCoupon()` method on the billable trait:
-
+```php
     $user->redeemCoupon('your-coupon-code');
+```
 
 This will validate the coupon code and redeem it. The coupon will be applied to the upcoming Order.
 
 Optionally, specify the subscription it should be applied to:
-
+```php
     $user->redeemCoupon('your-coupon-code', 'main');
-    
+```
 By default all other active redeemed coupons for the subscription will be revoked. You can prevent this by setting the
 `$revokeOtherCoupons` flag to false:
-
+```php
     $user->redeemCoupon('your-coupon-code', 'main', false);
+```
 
 ### Checking subscription status
 
@@ -345,9 +348,9 @@ if ($user->subscription('main')->onGracePeriod()) {
 ### Resuming Subscriptions
 
 If a user has cancelled their subscription and you wish to resume it, use the `resume` method. The user **must** still be on their grace period in order to resume a subscription:
-
+```php
     $user->subscription('main')->resume();
-
+```
 If the user cancels a subscription and then resumes that subscription before the subscription has fully expired, they will not be billed immediately. Instead, their subscription will be re-activated, and they will be billed on the original billing cycle.
 
 ### Updating Customer payment mandates
