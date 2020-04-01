@@ -153,7 +153,7 @@ class Order extends Model
             $owner = $this->owner;
 
             // Process user balance, if any
-            if($owner->hasCredit($this->currency)) {
+            if($this->getTotal()->getAmount() > 0 && $owner->hasCredit($this->currency)) {
                 $total = $this->getTotal();
                 $this->balance_before = $owner->credit($this->currency)->value;
 
