@@ -144,10 +144,8 @@ class Order extends Model
      */
     public function processPayment()
     {
-        $mandate = $this->owner->mollieMandate();
-        $this->guardMandate($mandate);
-        $minimumPaymentAmount = app(MinimumPayment::class)::forMollieMandate($mandate, $this->getCurrency());
-        $this->update(['mollie_payment_id' => 'temp_' . Str::uuid()]);
+        $minimumPaymentAmount = $this->ensureValidMandateAndMinimumPaymentAmountWhenTotalPositive();
+        $this->update(['mollie_payment_id' => 'temp_'.Str::uuid()]);
 
         DB::transaction(function () use ($minimumPaymentAmount) {
             $owner = $this->owner;
@@ -492,5 +490,22 @@ class Order extends Model
     protected static function numberGenerator()
     {
         return app()->make(config('cashier.order_number_generator.model'));
+    }
+
+    /**
+     * @return \Money\Money
+     * @throws InvalidMandateException
+     */
+    private function ensureValidMandateAndMinimumPaymentAmountWhenTotalPositive(): \Money\Money
+    {
+        // If the total amount is below 0 checking for a mandate doesn't make sense.
+        if ((int) $this->getTotal()->getAmount() > 0) {
+            $mandate = $this->owner->mollieMandate();
+            $this->guardMandate($mandate);
+            $minimumPaymentAmount = app(MinimumPayment::class)::forMollieMandate($mandate, $this->getCurrency());
+        } else {
+            $minimumPaymentAmount = money(0, $this->getCurrency());
+        }
+        return $minimumPaymentAmount;
     }
 }
