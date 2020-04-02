@@ -383,6 +383,57 @@ class OrderTest extends BaseTestCase
         });
     }
 
+    /**
+     * @test
+     */
+    public function canCreateOrderFromOrderItemsWhenTotalValueIsNegativeAndOwnerHasNoMandate()
+    {
+        Carbon::setTestNow(Carbon::parse('2018-01-01'));
+        Event::fake();
+        $user = factory(User::class)->create(); // user without subscription/mandate
+
+        factory(OrderItem::class, 2)->create([
+            'orderable_type' => null,
+            'orderable_id' => null,
+            'process_at' => now()->subMinute(), // sub minute so we're sure it's ready to be processed
+            'owner_id' => $user->id,
+            'owner_type' => get_class($user),
+            'currency' => 'EUR',
+            'quantity' => 1,
+            'unit_price' => -12345, // includes vat
+            'tax_percentage' => 21.5,
+        ]);
+
+        $order = Order::createFromItems(OrderItem::all());
+
+        $this->assertEquals(2, $order->items()->count());
+
+        $this->assertEquals($user->id, $order->owner_id);
+        $this->assertEquals(User::class, $order->owner_type);
+        $this->assertEquals('EUR', $order->currency);
+        $this->assertEquals(-24690, $order->subtotal);
+        $this->assertMoneyEURCents(-24690, $order->getSubtotal());
+        $this->assertEquals(-5308, $order->tax);
+        $this->assertMoneyEURCents(-5308, $order->getTax());
+        $this->assertEquals(-29998, $order->total);
+        $this->assertMoneyEURCents(-29998, $order->getTotal());
+        $this->assertEquals('2018-0000-0001', $order->number);
+        $this->assertNull($order->mollie_payment_id);
+
+        Event::assertDispatched(OrderCreated::class, function ($e) use ($order) {
+            return $e->order->is($order);
+        });
+
+        $order->processPayment();
+
+        $this->assertDispatchedOrderProcessed($order);
+
+        $this->assertNull($order->mollie_payment_id);
+        $this->assertEquals(null, $order->mollie_payment_status);
+
+        $this->assertMoneyEURCents(29998, $user->credit('EUR')->money());
+    }
+
     /** @test */
     public function canCreateProcessedOrderFromItems()
     {
