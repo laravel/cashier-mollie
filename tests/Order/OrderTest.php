@@ -3,6 +3,8 @@
 namespace Laravel\Cashier\Tests\Order;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Event;
 use Laravel\Cashier\Order\Contracts\MinimumPayment;
 use Laravel\Cashier\Events\BalanceTurnedStale;
@@ -73,6 +75,34 @@ class OrderTest extends BaseTestCase
 
         $this->assertNotNull($order->mollie_payment_id);
         $this->assertEquals('open', $order->mollie_payment_status);
+    }
+
+    /** @test */
+    public function canCreateFromOrderItemsWithCustomPolymorphicRelation()
+    {
+        Relation::morphMap([
+            'user' => User::class, // Model with Billable trait
+            'order' => Order::class,
+        ]);
+
+        $user = $this->getMandatedUser(true, ['id' => 2]);
+        $subscription = $this->createMonthlySubscription();
+
+        $subscription->orderItems()->saveMany(
+            factory(OrderItem::class, 2)->make([
+                'process_at' => now()->subMinute(), // sub minute so we're sure it's ready to be processed
+                'owner_id' => $user->id,
+                'owner_type' => $user->getMorphClass(),
+                'currency' => 'EUR',
+                'quantity' => 1,
+                'unit_price' => 12345, // includes vat
+                'tax_percentage' => 21.5,
+            ])
+        );
+
+        $order = Order::createFromItems(OrderItem::all());
+
+        $this->assertEquals((new User())->getMorphClass(), $order->owner_type);
     }
 
     /** @test */
