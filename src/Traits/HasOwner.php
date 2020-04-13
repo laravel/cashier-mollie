@@ -26,6 +26,6 @@ trait HasOwner
     {
         return $query
             ->where('owner_id', $owner->id)
-            ->where('owner_type', get_class($owner));
+            ->where('owner_type', $owner->getMorphClass());
     }
 }

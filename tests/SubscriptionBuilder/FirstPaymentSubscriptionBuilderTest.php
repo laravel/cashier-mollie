@@ -65,7 +65,7 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
             "locale" => "nl_NL",
             "metadata" => [
                 "owner" => [
-                    "type" => get_class($this->user),
+                    "type" => $this->user->getMorphClass(),
                     "id" => 1,
                 ],
                 "actions" => [

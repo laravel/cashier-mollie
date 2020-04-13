@@ -3,13 +3,14 @@
 namespace Laravel\Cashier\Database\Factories;
 
 use Faker\Generator as Faker;
+use Illuminate\Database\Eloquent\Model;
 use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Tests\Fixtures\User;
 
 $factory->define(Order::class, function (Faker $faker) {
     return [
         'owner_id' => 1,
-        'owner_type' => User::class,
+        'owner_type' => Model::getActualClassNameForMorph(User::class),
         'currency' => 'EUR',
         'subtotal' => 123,
         'tax' => 0,

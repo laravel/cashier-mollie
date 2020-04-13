@@ -81,7 +81,7 @@ class Order extends Model
 
             $order = static::create(array_merge([
                 'owner_id' => $owner->id,
-                'owner_type' => get_class($owner),
+                'owner_type' => $owner->getMorphClass(),
                 'number' => static::numberGenerator()->generate(),
                 'currency' => $currency,
                 'subtotal' => $items->sum('subtotal'),

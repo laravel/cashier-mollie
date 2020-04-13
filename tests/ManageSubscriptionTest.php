@@ -77,7 +77,7 @@ class ManageSubscriptionTest extends BaseTestCase
         $this->assertTrue($scheduled_order_item->is($user->subscription('main')->orderItems()->first()));
         $this->assertEquals('EUR', $scheduled_order_item->currency);
         $this->assertEquals($user->id, $scheduled_order_item->owner_id);
-        $this->assertEquals(get_class($user), $scheduled_order_item->owner_type);
+        $this->assertEquals($user->getMorphClass(), $scheduled_order_item->owner_type);
         $this->assertCarbon(now(), $scheduled_order_item->process_at, 5);
         $this->assertEquals(1, $scheduled_order_item->quantity);
         $this->assertEquals(1000, $scheduled_order_item->unit_price);
@@ -111,7 +111,7 @@ class ManageSubscriptionTest extends BaseTestCase
         $scheduled_order_item = $subscription->scheduled_order_item;
         $this->assertEquals('EUR', $scheduled_order_item->currency);
         $this->assertEquals($user->id, $scheduled_order_item->owner_id);
-        $this->assertEquals(get_class($user), $scheduled_order_item->owner_type);
+        $this->assertEquals($user->getMorphClass(), $scheduled_order_item->owner_type);
         $this->assertCarbon(now()->addMonth(), $scheduled_order_item->process_at);
         $this->assertEquals(1000, $scheduled_order_item->unit_price);
         $this->assertEquals(10, $scheduled_order_item->tax_percentage);
