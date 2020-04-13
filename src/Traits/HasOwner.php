@@ -2,6 +2,8 @@
 
 namespace Laravel\Cashier\Traits;
 
+use Illuminate\Database\Eloquent\Model;
+
 trait HasOwner
 {
     /**
@@ -18,7 +20,7 @@ trait HasOwner
      * Scope a query to only records for a specific owner.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param mixed $owner
+     * @param Model $owner
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
