@@ -39,15 +39,20 @@ class Interval
             return $lastBillingCycle->modify('+' . $this->configuration);
         }
 
+        $subscriptionDayOfMonth = $subscriptionCreationDate->day;
         $carbonAddPeriodMethodName = 'add' . ucfirst($this->period()) . 'WithoutOverflow';
-        $nextBillingCycleAt = $lastBillingCycle->$carbonAddPeriodMethodName($this->value());
+        $nextBillingCycleDate = $lastBillingCycle->$carbonAddPeriodMethodName($this->value());
 
         // Always set the next billing day to the original day of month of the initial subscription
-        if ($this->isFixed() && $subscriptionCreationDate->isLastOfMonth()) {
-            $nextBillingCycleAt = $nextBillingCycleAt->endOfMonth();
+        if ($this->isFixed()) {
+            if ($subscriptionCreationDate->isLastOfMonth()) {
+                $nextBillingCycleDate = $nextBillingCycleDate->endOfMonth();
+            } elseif ($subscriptionDayOfMonth > $nextBillingCycleDate->day) {
+                $nextBillingCycleDate = $this->calculateAlternativeBillingDate($nextBillingCycleDate, $subscriptionDayOfMonth);
+            }
         }
 
-        return $nextBillingCycleAt;
+        return $nextBillingCycleDate;
     }
 
     /**
@@ -81,5 +86,24 @@ class Interval
     {
         $fixed = Arr::get($this->configuration, 'fixed');
         return is_bool($fixed) ? $fixed : false;
+    }
+
+    /**
+     * Fix subscription dates for intervals which would be overridden in february
+     *
+     * e.g. 2020-01-30 + 1 month = 2020-02-29 + 1 month = 2020-03-29 -> correct date would be 2020-03-30
+     *
+     * @param Carbon $nextBillingCycleDate
+     * @param int $subscriptionDayOfMonth
+     * @return Carbon
+     */
+    private function calculateAlternativeBillingDate(Carbon $nextBillingCycleDate, int $subscriptionDayOfMonth)
+    {
+        $resetBillingCycleDate = $nextBillingCycleDate->day($subscriptionDayOfMonth);
+        if ($resetBillingCycleDate->isSameMonth($nextBillingCycleDate)) {
+            $nextBillingCycleDate = $resetBillingCycleDate->subMonth()->endOfMonth();
+        }
+
+        return $nextBillingCycleDate;
     }
 }

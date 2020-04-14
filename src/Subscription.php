@@ -467,7 +467,7 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
             $next_cycle_ends_at = $subscription->plan()
                 ->interval()
                 ->getNextSubscriptionCycle($subscription->cycle_ends_at, $subscription->created_at);
-            
+
             $subscription->cycle_started_at = $subscription->cycle_ends_at;
             $subscription->cycle_ends_at = $next_cycle_ends_at;
 
