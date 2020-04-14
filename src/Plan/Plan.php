@@ -27,8 +27,9 @@ class Plan implements PlanContract
     /**
      * The billing frequency.
      *
-     * @var string
+     * @var Interval
      * @example 1 month
+     * @example ['value' => 1, 'period' => 'month', 'fixed' => true]
      */
     protected $interval;
 
@@ -206,21 +207,18 @@ class Plan implements PlanContract
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function interval()
+    public function interval(): Interval
     {
         return $this->interval;
     }
 
     /**
-     * @param string $interval
+     * @param string|array $interval
      * @return $this
      */
-    public function setInterval(string $interval)
+    public function setInterval($interval)
     {
-        $this->interval = $interval;
+        $this->interval = new Interval($interval);
 
         return $this;
     }

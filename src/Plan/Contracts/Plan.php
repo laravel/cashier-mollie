@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Laravel\Cashier\Plan\Contracts;
 
 use Laravel\Cashier\Order\OrderItemPreprocessorCollection;
+use Laravel\Cashier\Plan\Interval;
 use Money\Money;
 
 interface Plan
@@ -25,10 +26,7 @@ interface Plan
      */
     public function description();
 
-    /**
-     * @return string
-     */
-    public function interval();
+    public function interval(): Interval;
 
     /**
      * @return string
