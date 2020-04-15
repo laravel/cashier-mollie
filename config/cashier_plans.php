@@ -2,6 +2,7 @@
 
 use Laravel\Cashier\Coupon\CouponOrderItemPreprocessor as ProcessCoupons;
 use Laravel\Cashier\Order\PersistOrderItemsPreprocessor as PersistOrderItems;
+use Laravel\Cashier\Plan\Interval\Interval;
 
 return [
 
@@ -59,8 +60,9 @@ return [
 
             /**
              * The length of the billing cycle.
+             * @example new \Laravel\Cashier\Plan\Interval\FixedInterval(['period' => 'month', 'value' => 1])
              */
-            'interval' => '1 month',
+            'interval' => new Interval('1 month'),
 
             /**
              * The text to appear on the invoice.

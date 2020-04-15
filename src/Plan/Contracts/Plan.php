@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Laravel\Cashier\Plan\Contracts;
 
 use Laravel\Cashier\Order\OrderItemPreprocessorCollection;
-use Laravel\Cashier\Plan\Interval;
+use Laravel\Cashier\Plan\Interval\Contracts\Interval;
 use Money\Money;
 
 interface Plan

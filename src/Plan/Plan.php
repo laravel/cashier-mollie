@@ -6,6 +6,7 @@ namespace Laravel\Cashier\Plan;
 
 use Laravel\Cashier\Order\OrderItemPreprocessorCollection;
 use Laravel\Cashier\Plan\Contracts\Plan as PlanContract;
+use Laravel\Cashier\Plan\Interval\Contracts\Interval;
 use Money\Money;
 
 class Plan implements PlanContract
@@ -28,8 +29,6 @@ class Plan implements PlanContract
      * The billing frequency.
      *
      * @var Interval
-     * @example 1 month
-     * @example ['value' => 1, 'period' => 'month', 'fixed' => true]
      */
     protected $interval;
 
@@ -213,12 +212,12 @@ class Plan implements PlanContract
     }
 
     /**
-     * @param string|array $interval
+     * @param Interval $interval
      * @return $this
      */
-    public function setInterval($interval)
+    public function setInterval(Interval $interval)
     {
-        $this->interval = new Interval($interval);
+        $this->interval = $interval;
 
         return $this;
     }
