@@ -6,10 +6,6 @@ use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Laravel\Cashier\Subscription;
 
-/**
- * Fix the billing cycle to the subscribed day of month and year e.g. 10th of each month or if day is the last of the
- * month always set the next cycle to the last of the next month.
- */
 class FixedInterval extends BaseInterval
 {
     /** @var array $configuration */
@@ -27,11 +23,18 @@ class FixedInterval extends BaseInterval
         $this->configuration = $this->validateConfiguration($configuration);
     }
 
-    public function getNextSubscriptionCycle(Subscription $subscription): Carbon
+
+    public function getNextSubscriptionCycle(Subscription $subscription = null): Carbon
     {
-        $lastBillingCycle = $subscription->cycle_ends_at->copy();
-        $subscriptionCreatedAt = $subscription->created_at;
-        $subscriptionDayOfMonth = $subscriptionCreatedAt->day;
+        if ($subscription instanceof Subscription) {
+            $lastBillingCycle = $subscription->cycle_ends_at->copy();
+            $subscriptionCreatedAt = $subscription->created_at;
+        } else {
+            $lastBillingCycle = now();
+            $subscriptionCreatedAt = now();
+        }
+
+        $subscriptionDayOfMonth = $lastBillingCycle->day;
 
         $nextBillingCycleDate = $this->addPeriodWithoutOverflow(
             $lastBillingCycle,

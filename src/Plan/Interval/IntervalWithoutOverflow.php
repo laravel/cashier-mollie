@@ -16,9 +16,13 @@ class IntervalWithoutOverflow extends BaseInterval
         $this->configuration = $this->validateConfiguration($configuration);
     }
 
-    public function getNextSubscriptionCycle(Subscription $subscription): Carbon
+    public function getNextSubscriptionCycle(Subscription $subscription = null): Carbon
     {
-        $lastBillingCycle = $subscription->cycle_ends_at->copy();
+        $lastBillingCycle = now();
+
+        if ($subscription instanceof Subscription) {
+            $lastBillingCycle = $subscription->cycle_ends_at->copy();;
+        }
 
         $nextBillingCycleDate = $this->addPeriodWithoutOverflow(
             $lastBillingCycle,

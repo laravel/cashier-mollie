@@ -7,5 +7,5 @@ use Laravel\Cashier\Subscription;
 
 interface Interval
 {
-    public function getNextSubscriptionCycle(Subscription $subscription): Carbon;
+    public function getNextSubscriptionCycle(Subscription $subscription = null): Carbon;
 }
