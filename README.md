@@ -485,7 +485,7 @@ Route::middleware('auth')->get('/download-invoice/{orderId}', function($orderId)
 
     return (request()->user()->downloadInvoice($orderId));
 });
-
+```
 
 ### Refunding Charges
 
