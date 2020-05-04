@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Laravel\Cashier\FirstPayment\Actions\ActionCollection;
 use Laravel\Cashier\FirstPayment\Actions\AddGenericOrderItem;
 use Laravel\Cashier\FirstPayment\Actions\ApplySubscriptionCouponToPayment;
+use Laravel\Cashier\FirstPayment\Actions\BaseAction;
 use Laravel\Cashier\FirstPayment\Actions\StartSubscription;
 use Laravel\Cashier\FirstPayment\FirstPaymentBuilder;
 use Laravel\Cashier\Plan\Contracts\PlanRepository;
@@ -53,6 +54,13 @@ class FirstPaymentSubscriptionBuilder implements Contract
     protected $isTrial = false;
 
     /**
+     * Applied Payment actions
+     *
+     * @var ActionCollection
+     */
+    protected $actions;
+
+    /**
      * Create a new subscription builder instance.
      *
      * @param mixed $owner
@@ -71,6 +79,7 @@ class FirstPaymentSubscriptionBuilder implements Contract
         $this->initializeFirstPaymentBuilder($owner, $paymentOptions);
 
         $this->startSubscription = new StartSubscription($owner, $name, $plan);
+        $this->actions = new ActionCollection();
     }
 
     /**
@@ -83,7 +92,7 @@ class FirstPaymentSubscriptionBuilder implements Contract
     {
         $this->validateCoupon();
 
-        $actions = new ActionCollection([$this->startSubscription]);
+        $this->addAction($this->startSubscription, true);
         $coupon = $this->startSubscription->coupon();
 
         if($this->isTrial) {
@@ -97,16 +106,20 @@ class FirstPaymentSubscriptionBuilder implements Contract
             }
             $subtotal = $total->subtract($vat);
 
-            $actions[] = new AddGenericOrderItem(
+            $this->addAction(new AddGenericOrderItem(
                 $this->owner,
                 $subtotal,
                 $this->plan->firstPaymentDescription()
-            );
+            ));
         } elseif ($coupon) {
-            $actions[] = new ApplySubscriptionCouponToPayment($this->owner, $coupon, $actions->processedOrderItems());
+            $this->addAction(new ApplySubscriptionCouponToPayment(
+                $this->owner,
+                $coupon,
+                $this->actions->processedOrderItems()
+            ));
         }
 
-        $this->firstPaymentBuilder->inOrderTo($actions->toArray())->create();
+        $this->firstPaymentBuilder->inOrderTo($this->actions->toArray())->create();
 
         return $this->redirectToCheckout();
     }
@@ -201,6 +214,17 @@ class FirstPaymentSubscriptionBuilder implements Contract
     public function getMandatePaymentBuilder()
     {
         return $this->firstPaymentBuilder;
+    }
+
+    public function addAction(BaseAction $action, $prepend = false)
+    {
+        if ($prepend) {
+            $this->actions->prepend($action);
+        } else {
+            $this->actions->add($action);
+        }
+
+        return $this;
     }
 
     /**

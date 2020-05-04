@@ -15,6 +15,7 @@ use Laravel\Cashier\SubscriptionBuilder\FirstPaymentSubscriptionBuilder;
 use Laravel\Cashier\SubscriptionBuilder\RedirectToCheckoutResponse;
 use Laravel\Cashier\Tests\BaseTestCase;
 use Mollie\Api\Resources\Payment;
+use Money\Money;
 
 class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
 {
@@ -204,6 +205,30 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
             '12.00',
             $skipTrialBuilder->getMandatePaymentBuilder()->getMolliePayload()['amount']['value']
         );
+    }
+
+    public function testAddingAdditionalActionsAreAddedToPayloadAndPaymentAmount()
+    {
+        $builder = $this->getBuilder();
+        $discount = money(-550, 'EUR');
+        $discountText = 'First Payment Custom Discount';
+
+        $builder->addAction(new AddGenericOrderItem($this->user, $discount, $discountText));
+
+        $response = $builder->create();
+        $payload = $builder->getMandatePaymentBuilder()->getMolliePayload();
+
+        $this->assertCount(2, $payload['metadata']);
+        $this->assertEquals(
+            '5.40',
+            $payload['amount']['value']
+        );
+        $this->assertEquals([
+            "handler" => AddGenericOrderItem::class,
+            "description" => $discountText,
+            "subtotal" => money_to_mollie_array($discount),
+            "taxPercentage" => 20,
+        ], $payload['metadata']['actions'][1]);
     }
 
     /**
