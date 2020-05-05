@@ -216,7 +216,12 @@ class FirstPaymentSubscriptionBuilder implements Contract
         return $this->firstPaymentBuilder;
     }
 
-    public function addAction(BaseAction $action, $prepend = false)
+    /**
+     * @param BaseAction $action
+     * @param bool $prepend
+     * @return $this
+     */
+    public function addAction(BaseAction $action, bool $prepend = false)
     {
         if ($prepend) {
             $this->actions->prepend($action);
