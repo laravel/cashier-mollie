@@ -9,12 +9,12 @@ use Laravel\Cashier\Coupon\RedeemedCoupon;
 use Laravel\Cashier\Credit\Credit;
 use Laravel\Cashier\Events\MandateClearedFromBillable;
 use Laravel\Cashier\Exceptions\InvalidMandateException;
-use Laravel\Cashier\Order\Invoice;
 use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Order\OrderItem;
 use Laravel\Cashier\Plan\Contracts\PlanRepository;
 use Laravel\Cashier\SubscriptionBuilder\FirstPaymentSubscriptionBuilder;
 use Laravel\Cashier\SubscriptionBuilder\MandatedSubscriptionBuilder;
+use Laravel\Cashier\Traits\ManagesInvoices;
 use Laravel\Cashier\Traits\PopulatesMollieCustomerFields;
 use Mollie\Api\Exceptions\ApiException;
 use Mollie\Api\Resources\Customer;
@@ -24,6 +24,7 @@ use Money\Money;
 trait Billable
 {
     use PopulatesMollieCustomerFields;
+    use ManagesInvoices;
 
     /**
      * Get all of the subscriptions for the billable model.
@@ -376,22 +377,6 @@ trait Billable
     public function invoices()
     {
         return $this->orders->invoices();
-    }
-
-    /**
-     * Create an invoice download response.
-     *
-     * @param $orderId
-     * @param null|array $data
-     * @param string $view
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function downloadInvoice($orderId, $data = [], $view = Invoice::DEFAULT_VIEW)
-    {
-        /** @var Order $order */
-        $order = $this->orders()->where('id', $orderId)->firstOrFail();
-
-        return $order->invoice()->download($data, $view);
     }
 
     /**

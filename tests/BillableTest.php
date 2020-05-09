@@ -130,5 +130,4 @@ class BillableTest extends BaseTestCase
             return true;
         });
     }
-
 }

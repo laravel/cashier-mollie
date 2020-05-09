@@ -1,14 +1,14 @@
 <?php
 
-namespace Laravel\Cashier\FirstPayment;
+namespace Laravel\Cashier\OneOffPayment;
 
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Cashier\Cashier;
-use Laravel\Cashier\FirstPayment\Actions\ActionCollection;
+use Laravel\Cashier\Order\OrderItemCollection;
 use Laravel\Cashier\Traits\ParsesAndUpdatesRedirectUrls;
 use Mollie\Api\Types\SequenceType;
 
-class FirstPaymentBuilder
+class OneOffPaymentBuilder
 {
     use ParsesAndUpdatesRedirectUrls;
 
@@ -20,11 +20,11 @@ class FirstPaymentBuilder
     protected $owner;
 
     /**
-     * A collection of BaseAction items. These actions will be executed by the FirstPaymentHandler
+     * A collection of BaseAction items. These actions will be executed by the OneOffPaymentHandler
      *
-     * @var ActionCollection
+     * @var OrderItemCollection
      */
-    protected $actions;
+    protected $items;
 
     /**
      * Overrides the Mollie Payment payload
@@ -34,9 +34,9 @@ class FirstPaymentBuilder
     protected $options;
 
     /**
-     * The Mollie PaymentMethod
+     * The Mollie PaymentMethods you wish to allow
      *
-     * @var string
+     * @var array<\Mollie\Api\Types\PaymentMethod>
      */
     protected $method;
 
@@ -58,12 +58,7 @@ class FirstPaymentBuilder
     protected $webhookUrl;
 
     /**
-     * @var \Mollie\Api\Resources\Payment|null
-     */
-    protected $molliePayment;
-
-    /**
-     * FirstPaymentBuilder constructor.
+     * OneOffPaymentBuilder constructor.
      *
      * @param \Illuminate\Database\Eloquent\Model $owner
      * @param array $options Overrides the Mollie Payment payload
@@ -71,22 +66,22 @@ class FirstPaymentBuilder
     public function __construct(Model $owner, array $options = [])
     {
         $this->owner = $owner;
-        $this->actions = new ActionCollection;
+        $this->items = new OrderItemCollection;
         $this->options = $options;
-        $this->description = config('app.name', 'First payment');
-        $this->redirectUrl = url(config('cashier.first_payment.redirect_url', config('cashier.redirect_url')));
-        $this->webhookUrl = url(config('cashier.first_payment.webhook_url'));
+        $this->description = config('app.name', 'One off payment');
+        $this->redirectUrl = url(config('cashier.one_off_payment.redirect_url', config('cashier.redirect_url')));
+        $this->webhookUrl = url(config('cashier.one_off_payment.webhook_url'));
     }
 
     /**
      * Define actions to be executed once the payment has been paid.
      *
-     * @param array $actions
+     * @param OrderItemCollection $items
      * @return $this
      */
-    public function inOrderTo(array $actions = [])
+    public function forItems(OrderItemCollection $items)
     {
-        $this->actions = new ActionCollection($actions);
+        $this->items = $items;
 
         return $this;
     }
@@ -99,43 +94,43 @@ class FirstPaymentBuilder
     public function getMolliePayload()
     {
         return array_filter(array_merge([
-            'sequenceType' => SequenceType::SEQUENCETYPE_FIRST,
+            'sequenceType' => SequenceType::SEQUENCETYPE_ONEOFF,
             'method' => $this->method,
             'customerId' => $this->owner->asMollieCustomer()->id,
             'locale' => Cashier::getLocale($this->owner),
             'description' => $this->description,
-            'amount' => money_to_mollie_array($this->actions->total()),
+            'amount' => money_to_mollie_array($this->items->total()),
             'webhookUrl' => $this->webhookUrl,
             'redirectUrl' => $this->redirectUrl,
             'metadata' => [
                 'owner' => [
-                    'type' => get_class($this->owner),
-                    'id' => $this->owner->id,
+                    'type' => $this->owner->getMorphClass(),
+                    'id' => $this->owner->getKey(),
                 ],
-                'actions' => $this->actions->toMolliePayload(),
+                'items' => $this->items->toArray(),
             ],
         ], $this->options));
     }
 
     /**
+     * Create a new payment at Mollie for the specified Order Items and redirect the user
+     *
      * @return \Mollie\Api\Resources\Payment
      */
     public function create()
     {
         $payload = $this->getMolliePayload();
 
-        $this->molliePayment = mollie()->payments()->create($payload);
+        $payment = mollie()->payments()->create($payload);
 
-        $this->molliePayment = $this->parseAndUpdateRedirectUrl($this->molliePayment, $payload['redirectUrl']);
-
-        return $this->molliePayment;
+        return $this->parseAndUpdateRedirectUrl($payment, $payload['redirectUrl']);
     }
 
     /**
-     * @param string $method
-     * @return FirstPaymentBuilder
+     * @param array $method
+     * @return OneOffPaymentBuilder
      */
-    public function setFirstPaymentMethod(?string $method)
+    public function setPaymentMethods(array $method = [])
     {
         $this->method = $method;
 
@@ -144,7 +139,7 @@ class FirstPaymentBuilder
 
     /**
      * @param string $description
-     * @return FirstPaymentBuilder
+     * @return OneOffPaymentBuilder
      */
     public function setDescription(string $description)
     {
@@ -177,13 +172,5 @@ class FirstPaymentBuilder
         $this->webhookUrl = url($webhookUrl);
 
         return $this;
-    }
-
-    /**
-     * @return \Mollie\Api\Resources\Payment|null
-     */
-    public function getMolliePayment()
-    {
-        return $this->molliePayment;
     }
 }

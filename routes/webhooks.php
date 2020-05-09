@@ -12,4 +12,9 @@ Route::namespace('\Laravel\Cashier\Http\Controllers')->group(function () {
         'FirstPaymentWebhookController@handleWebhook'
     );
 
+    Route::name('webhooks.mollie.one_off_payment')->post(
+        'webhooks/mollie/one-off-payment',
+        'OneOffPaymentWebhookController@handleWebhook'
+    );
+
 });
