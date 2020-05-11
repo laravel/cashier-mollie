@@ -146,7 +146,7 @@ class Plan implements PlanContract
     }
 
     /**
-     * @return string
+     * @return array
      */
     public function firstPaymentMethod()
     {
@@ -154,10 +154,10 @@ class Plan implements PlanContract
     }
 
     /**
-     * @param string $firstPaymentMethod
+     * @param array $firstPaymentMethod
      * @return $this
      */
-    public function setFirstPaymentMethod(?string $firstPaymentMethod)
+    public function setFirstPaymentMethod(?array $firstPaymentMethod)
     {
         $this->firstPaymentMethod = $firstPaymentMethod;
 

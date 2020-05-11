@@ -136,10 +136,10 @@ class FirstPaymentBuilder
     }
 
     /**
-     * @param string $method
+     * @param array $method
      * @return FirstPaymentBuilder
      */
-    public function setFirstPaymentMethod(?string $method)
+    public function setFirstPaymentMethod(?array $method)
     {
         $this->method = $method;
 
