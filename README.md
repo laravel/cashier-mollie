@@ -485,7 +485,7 @@ Route::middleware('auth')->get('/download-invoice/{orderId}', function($orderId)
 
     return (request()->user()->downloadInvoice($orderId));
 });
-
+```
 
 ### Refunding Charges
 
@@ -505,7 +505,7 @@ __Use these with care:__
 
 ```php
 $credit = $user->credit('EUR');
-$user->addCredit(new Amount(10, 'EUR'); // add €10.00
+$user->addCredit(new Amount(10, 'EUR')); // add €10.00
 $user->hasCredit('EUR');
 ```
 
