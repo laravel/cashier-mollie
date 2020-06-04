@@ -32,7 +32,7 @@ if (! function_exists('money')) {
      */
     function money(int $value, string $currency)
     {
-        return new Money($value, new \Money\Currency($currency));
+        return new Money($value, new Currency($currency));
     }
 }
 
@@ -48,7 +48,7 @@ if (! function_exists('decimal_to_money')) {
     {
         $moneyParser = new DecimalMoneyParser(new ISOCurrencies());
 
-        return $moneyParser->parse($value, $currency);
+        return $moneyParser->parse($value, new Currency($currency));
     }
 }
 
