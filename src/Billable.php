@@ -2,6 +2,7 @@
 
 namespace Laravel\Cashier;
 
+use Dompdf\Options;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 use Laravel\Cashier\Coupon\Contracts\CouponRepository;
@@ -384,14 +385,15 @@ trait Billable
      * @param $orderId
      * @param null|array $data
      * @param string $view
+     * @param \Dompdf\Options $options
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function downloadInvoice($orderId, $data = [], $view = Invoice::DEFAULT_VIEW)
+    public function downloadInvoice($orderId, $data = [], $view = Invoice::DEFAULT_VIEW, Options $options = null)
     {
         /** @var Order $order */
         $order = $this->orders()->where('id', $orderId)->firstOrFail();
 
-        return $order->invoice()->download($data, $view);
+        return $order->invoice()->download($data, $view, $options);
     }
 
     /**
