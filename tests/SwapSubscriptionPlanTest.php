@@ -138,6 +138,7 @@ class SwapSubscriptionPlanTest extends BaseTestCase
         $this->assertCarbon($cycle_should_end_at, $new_order_item->process_at, 1); // based on previous plan's cycle
         $this->assertEquals(2200, $new_order_item->total);
         $this->assertEquals(200, $new_order_item->tax);
+        $this->assertEquals('Twice as expensive monthly subscription', $new_order_item->description);
 
         $this->assertFalse($user->fresh()->hasCredit());
 
