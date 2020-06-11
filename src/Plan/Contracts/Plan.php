@@ -54,10 +54,10 @@ interface Plan
     public function firstPaymentMethod();
 
     /**
-     * @param array $firstPaymentMethod
+     * @param array|string $firstPaymentMethod
      * @return Plan
      */
-    public function setFirstPaymentMethod(?array $firstPaymentMethod);
+    public function setFirstPaymentMethod($firstPaymentMethod);
 
     /**
      * The description for the mandate payment order item.
