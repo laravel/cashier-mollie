@@ -419,7 +419,7 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
                 'unit_price' => (int) $plan->amount()->getAmount(),
                 'quantity' => $this->quantity ?: 1,
                 'tax_percentage' => $this->tax_percentage,
-                'description' => $this->plan()->description(),
+                'description' => $plan()->description(),
             ],
             $item_overrides
         ));
