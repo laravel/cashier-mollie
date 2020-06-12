@@ -160,12 +160,12 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
         $cycle_ends_at = $this->cancelled() ? $this->ends_at->copy() : $this->cycle_ends_at->copy();
 
         // Cycle completed
-        if($cycle_ends_at->lessThanOrEqualTo($now)) {
+        if ($cycle_ends_at->lessThanOrEqualTo($now)) {
             return 1;
         }
 
         // Cycle not yet started
-        if($cycle_started_at->greaterThanOrEqualTo($now)) {
+        if ($cycle_started_at->greaterThanOrEqualTo($now)) {
             return 0;
         }
 
@@ -202,12 +202,12 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
         $newPlan = app(PlanRepository::class)::findOrFail($plan);
         $previousPlan = $this->plan;
 
-        if($this->cancelled()) {
+        if ($this->cancelled()) {
             $this->cycle_ends_at = $this->ends_at;
             $this->ends_at = null;
         }
 
-        $applyNewSettings = function() use ($newPlan) {
+        $applyNewSettings = function () use ($newPlan) {
             $this->plan = $newPlan->name();
         };
 
@@ -315,13 +315,13 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
     {
         $item = $this->scheduledOrderItem;
 
-        if($item && $item->isProcessed(false)) {
+        if ($item && $item->isProcessed(false)) {
             $item->delete();
         }
 
         $this->fill(['scheduled_order_item_id' => null]);
 
-        if($save) {
+        if ($save) {
             $this->save();
         }
 
@@ -402,16 +402,16 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
      */
     public function scheduleNewOrderItemAt(Carbon $process_at, $item_overrides = [], $fill_link = true, Plan $plan = null)
     {
-        if($this->scheduled_order_item_id)
-        {
+        if ($this->scheduled_order_item_id) {
             throw new LogicException('Cannot schedule a new subscription order item if there is already one scheduled.');
         }
 
-        if(is_null($plan)) {
+        if (is_null($plan)) {
             $plan = $this->plan();
         }
 
-        $item = $this->orderItems()->create(array_merge([
+        $item = $this->orderItems()->create(array_merge(
+            [
                 'owner_id' => $this->owner_id,
                 'owner_type' => $this->owner_type,
                 'process_at' => $process_at,
@@ -420,7 +420,8 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
                 'quantity' => $this->quantity ?: 1,
                 'tax_percentage' => $this->tax_percentage,
                 'description' => $this->plan()->description(),
-            ], $item_overrides
+            ],
+            $item_overrides
         ));
 
         if ($fill_link) {
@@ -459,7 +460,7 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
         $plan_swapped = false;
         $previousPlan = null;
 
-        if(! empty($subscription->next_plan)) {
+        if (! empty($subscription->next_plan)) {
             $plan_swapped = true;
             $previousPlan = $subscription->plan;
             $subscription->plan = $subscription->next_plan;
@@ -619,7 +620,7 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
 
         $oldQuantity = $this->quantity;
 
-        $this->restartCycleWithModifications(function() use ($quantity) {
+        $this->restartCycleWithModifications(function () use ($quantity) {
             $this->quantity = $quantity;
         }, now(), $invoiceNow);
 
@@ -668,7 +669,7 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
     protected function reimburseUnusedTime(?Carbon $now = null)
     {
         $now = $now ?: now();
-        if($this->onTrial()) {
+        if ($this->onTrial()) {
             return null;
         }
 
@@ -701,11 +702,10 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
             // Apply new subscription settings
             call_user_func($applyNewSettings);
 
-            if($this->onTrial()) {
+            if ($this->onTrial()) {
 
                 // Reschedule next cycle's OrderItem using the new subscription settings
                 $orderItems[] = $this->scheduleNewOrderItemAt($this->trial_ends_at);
-
             } else { // Start a new billing cycle using the new subscription settings
 
                 // Reset the billing cycle
@@ -718,7 +718,7 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
 
             $this->save();
 
-            if($invoiceNow) {
+            if ($invoiceNow) {
                 $order = Order::createFromItems($orderItems);
                 $order->processPayment();
             }
@@ -736,7 +736,8 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
      */
     public function restartCycle(?Carbon $now = null, $invoiceNow = true)
     {
-        return $this->restartCycleWithModifications(function() {}, $now, $invoiceNow);
+        return $this->restartCycleWithModifications(function () {
+        }, $now, $invoiceNow);
     }
 
     /**
