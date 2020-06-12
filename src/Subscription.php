@@ -200,6 +200,7 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
     {
         /** @var Plan $newPlan */
         $newPlan = app(PlanRepository::class)::findOrFail($plan);
+        $previousPlan = $this->plan;
 
         if($this->cancelled()) {
             $this->cycle_ends_at = $this->ends_at;
@@ -212,7 +213,7 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
 
         $this->restartCycleWithModifications($applyNewSettings, now(), $invoiceNow);
 
-        Event::dispatch(new SubscriptionPlanSwapped($this));
+        Event::dispatch(new SubscriptionPlanSwapped($this, $previousPlan));
 
         return $this;
     }
@@ -456,9 +457,11 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
         /** @var Subscription scheduled_order_item_id */
         $subscription = $item->orderable;
         $plan_swapped = false;
+        $previousPlan = null;
 
         if(! empty($subscription->next_plan)) {
             $plan_swapped = true;
+            $previousPlan = $subscription->plan;
             $subscription->plan = $subscription->next_plan;
             $subscription->next_plan = null;
         }
@@ -482,7 +485,7 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
         });
 
         if($plan_swapped) {
-            Event::dispatch(new SubscriptionPlanSwapped($subscription));
+            Event::dispatch(new SubscriptionPlanSwapped($subscription, $previousPlan));
         }
 
         return $item;
