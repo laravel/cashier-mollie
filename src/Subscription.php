@@ -419,8 +419,14 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
                 'unit_price' => (int) $plan->amount()->getAmount(),
                 'quantity' => $this->quantity ?: 1,
                 'tax_percentage' => $this->tax_percentage,
+<<<<<<< HEAD
                 'description' => $plan->description(),
             ], $item_overrides
+=======
+                'description' => $plan()->description(),
+            ],
+            $item_overrides
+>>>>>>> get description from available plan to reslove conflict
         ));
 
         if ($fill_link) {
