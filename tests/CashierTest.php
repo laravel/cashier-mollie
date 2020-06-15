@@ -200,4 +200,32 @@ class CashierTest extends BaseTestCase
 
         $this->assertEquals('nl_NL', Cashier::usesCurrencyLocale());
     }
+
+    /** @test */
+    public function canOverrideFirstPaymentWebhookUrl()
+    {
+        $this->assertEquals('mandate-webhook', Cashier::firstPaymentWebhookUrl());
+
+        config(['cashier.first_payment.webhook_url' => 'https://www.example.com/webhook/mollie']);
+
+        $this->assertEquals('webhook/mollie', Cashier::firstPaymentWebhookUrl());
+
+        config(['cashier.first_payment.webhook_url' => 'webhook/cashier']);
+
+        $this->assertEquals('webhook/cashier', Cashier::firstPaymentWebhookUrl());
+    }
+
+    /** @test */
+    public function canOverrideWebhookUrl()
+    {
+        $this->assertEquals('webhook', Cashier::webhookUrl());
+
+        config(['cashier.webhook_url' => 'https://www.example.com/webhook/mollie']);
+
+        $this->assertEquals('webhook/mollie', Cashier::webhookUrl());
+
+        config(['cashier.webhook_url' => 'webhook/cashier']);
+
+        $this->assertEquals('webhook/cashier', Cashier::webhookUrl());
+    }
 }

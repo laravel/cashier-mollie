@@ -207,6 +207,26 @@ class Cashier
     }
 
     /**
+     * Get the webhook relative url.
+     *
+     * @return string
+     */
+    public static function webhookUrl()
+    {
+        return self::pathFromUrl(config('cashier.webhook_url'));
+    }
+
+    /**
+     * Get the first payment webhook relative url.
+     *
+     * @return string
+     */
+    public static function firstPaymentWebhookUrl()
+    {
+        return self::pathFromUrl(config('cashier.first_payment.webhook_url'));
+    }
+
+    /**
      * Configure Cashier to not register its migrations.
      *
      * @return static
@@ -228,5 +248,18 @@ class Cashier
         static::$registersRoutes = false;
 
         return new static;
+    }
+
+    /**
+     * Get path from url.
+     *
+     * @param string $url
+     * @return string
+     */
+    protected static function pathFromUrl($url)
+    {
+        $url_parts = parse_url($url);
+
+        return preg_replace('/^\//', '', $url_parts['path']);
     }
 }
