@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Laravel\Cashier\Plan;
 
+use Laravel\Cashier\FirstPayment\Traits\PaymentMethodString;
 use Laravel\Cashier\Order\OrderItemPreprocessorCollection;
 use Laravel\Cashier\Plan\Contracts\Plan as PlanContract;
-use Laravel\Cashier\Traits\PaymentMethodString;
 use Money\Money;
 
 class Plan implements PlanContract

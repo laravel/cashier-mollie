@@ -6,12 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\FirstPayment\Actions\ActionCollection;
-use Laravel\Cashier\Traits\PaymentMethodString;
+use Laravel\Cashier\FirstPayment\Traits\PaymentMethodString;
 use Mollie\Api\Types\SequenceType;
 
 class FirstPaymentBuilder
 {
-
     use PaymentMethodString;
 
     /**
