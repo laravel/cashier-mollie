@@ -1,14 +1,16 @@
 <?php
 
+use Laravel\Cashier\Cashier;
+
 Route::namespace('\Laravel\Cashier\Http\Controllers')->group(function () {
 
     Route::name('webhooks.mollie.default')->post(
-        'webhooks/mollie',
+        Cashier::webhookUrl(),
         'WebhookController@handleWebhook'
     );
 
     Route::name('webhooks.mollie.first_payment')->post(
-        'webhooks/mollie/first-payment',
+        Cashier::firstPaymentWebhookUrl(),
         'FirstPaymentWebhookController@handleWebhook'
     );
 
