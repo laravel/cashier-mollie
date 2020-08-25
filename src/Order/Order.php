@@ -144,10 +144,9 @@ class Order extends Model
      */
     public function processPayment()
     {
-        $minimumPaymentAmount = $this->ensureValidMandateAndMinimumPaymentAmountWhenTotalPositive();
         $this->update(['mollie_payment_id' => 'temp_'.Str::uuid()]);
 
-        DB::transaction(function () use ($minimumPaymentAmount) {
+        DB::transaction(function () {
             $owner = $this->owner;
 
             // Process user balance, if any
@@ -160,6 +159,7 @@ class Order extends Model
                 $this->total_due = $total->subtract($creditUsed)->getAmount();
             }
 
+            $minimumPaymentAmount = $this->ensureValidMandateAndMinimumPaymentAmountWhenTotalDuePositive();
             $totalDue = money($this->total_due, $this->currency);
 
             switch(true) {
@@ -444,6 +444,14 @@ class Order extends Model
     /**
      * @return \Money\Money
      */
+    public function getTotalDue()
+    {
+        return $this->toMoney($this->total_due);
+    }
+
+    /**
+     * @return \Money\Money
+     */
     public function getBalanceBefore()
     {
         return $this->toMoney($this->balance_before);
@@ -496,10 +504,10 @@ class Order extends Model
      * @return \Money\Money
      * @throws InvalidMandateException
      */
-    private function ensureValidMandateAndMinimumPaymentAmountWhenTotalPositive(): \Money\Money
+    private function ensureValidMandateAndMinimumPaymentAmountWhenTotalDuePositive(): \Money\Money
     {
-        // If the total amount is below 0 checking for a mandate doesn't make sense.
-        if ((int) $this->getTotal()->getAmount() > 0) {
+        // If the total due amount is below 0 checking for a mandate doesn't make sense.
+        if ((int) $this->getTotalDue()->getAmount() > 0) {
             $mandate = $this->owner->mollieMandate();
             $this->guardMandate($mandate);
             $minimumPaymentAmount = app(MinimumPayment::class)::forMollieMandate($mandate, $this->getCurrency());
