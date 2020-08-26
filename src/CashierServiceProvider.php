@@ -34,6 +34,7 @@ class CashierServiceProvider extends ServiceProvider
             $this->publishMigrations('cashier-migrations');
             $this->publishConfig('cashier-configs');
             $this->publishViews('cashier-views');
+            $this->publishTranslations('cashier-translations');
         }
 
         $this->configureCurrency();
@@ -99,6 +100,13 @@ class CashierServiceProvider extends ServiceProvider
     {
         $this->publishes([
             __DIR__.'/../resources/views' => $this->app->basePath('resources/views/vendor/cashier'),
+        ], $tag);
+    }
+
+    protected function publishTranslations(string $tag)
+    {
+        $this->publishes([
+            __DIR__.'/../resources/lang' => $this->app->basePath('resources/lang/vendor/cashier'),
         ], $tag);
     }
 
