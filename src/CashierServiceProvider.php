@@ -26,6 +26,7 @@ class CashierServiceProvider extends ServiceProvider
         }
         $this->mergeConfig();
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'cashier');
+        $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'cashier');
 
         mollie()->addVersionString('MollieLaravelCashier/' . self::PACKAGE_VERSION);
 
