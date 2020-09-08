@@ -41,10 +41,11 @@
         "nesbot/carbon": "^2.0"
     },
     "require-dev": {
+        "laravel/legacy-factories": "^1.0",
         "mockery/mockery": "^1.0",
         "orchestra/testbench": "^4.0|^5.0|^6.0",
         "phpunit/phpunit": "^8.3|^9.0",
-        "vlucas/phpdotenv": "^3.3|^4.0"
+        "vlucas/phpdotenv": "^3.3|^4.0|^5.0"
     },
     "autoload": {
         "files": [

@@ -38,6 +38,7 @@ before_script:
 before_install:
   - travis_retry composer self-update
   - travis_retry composer require "illuminate/support:${LARAVEL}" "illuminate/database:${LARAVEL}" "orchestra/testbench:${TESTBENCH}" --no-interaction --no-update
+  - if [[ $LARAVEL != '8.0.*' ]]; then composer remove laravel/legacy-factories --dev --no-interaction --no-update; fi
 
 
 install:
