@@ -469,8 +469,8 @@ class OrderTest extends BaseTestCase
         $this->assertMoneyEURCents(5308, $order->getTax());
         $this->assertEquals(29998, $order->total);
         $this->assertMoneyEURCents(29998, $order->getTotal());
-        $this->assertEquals(0, $order->total_due);
-        $this->assertMoneyEURCents(0, $order->getTotalDue());
+        $this->assertEquals(29998, $order->refresh()->total_due);
+        $this->assertMoneyEURCents(29998, $order->getTotalDue());
         $this->assertEquals('2018-0000-0001', $order->number);
         $this->assertNull($order->mollie_payment_id);
 
