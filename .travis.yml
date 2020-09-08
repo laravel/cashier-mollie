@@ -42,7 +42,7 @@ before_install:
 
 
 install:
-  - travis_retry composer update --prefer-dist --no-interaction --no-suggest
+  - travis_retry composer update --no-interaction --no-suggest
 
 
 script:
