@@ -329,7 +329,9 @@ class Order extends Model
      */
     public function scopePaid($query)
     {
-        return $this->scopePaymentStatus($query, PaymentStatus::STATUS_PAID);
+        return $this
+            ->scopePaymentStatus($query, PaymentStatus::STATUS_PAID)
+            ->orWhere('total_due', '=', 0);
     }
 
     /**
