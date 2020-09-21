@@ -19,7 +19,13 @@ Laravel Cashier provides an expressive, fluent interface to subscriptions using 
 
 ## Installation
 
-You can pull this package in using composer:
+First, make sure to add the Mollie key to your `.env` file. You can obtain an API key from the [Mollie dashboard](https://www.mollie.com/dashboard/developers/api-keys):
+
+```dotenv
+MOLLIE_KEY="test_xxxxxxxxxxx"
+```
+
+Next, pull this package in using composer:
 
 ```bash
 composer require laravel/cashier-mollie "^1.0"
@@ -43,10 +49,10 @@ Once you have pulled in the package:
 
 3. Run the migrations: `php artisan migrate`
 
-4. Set the `MOLLIE_KEY` in your .env file. You can obtain an API key from the [Mollie dashboard](https://www.mollie.com/dashboard/developers/api-keys):
+4. Ensure you have properly configured the `MOLLIE_KEY` in your .env file. You can obtain an API key from the [Mollie dashboard](https://www.mollie.com/dashboard/developers/api-keys):
 
     ```dotenv
-   MOLLIE_KEY="test_xxxxxxxxxxx"
+   MOLLIE_KEY="test_xxxxxxxxxxxxxxxxxxxxxx"
     ```
 
 5. Prepare the configuration files:
