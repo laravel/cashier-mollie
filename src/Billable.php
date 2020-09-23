@@ -168,6 +168,7 @@ trait Billable
         if(empty($this->mollie_customer_id)) {
             return $this->createAsMollieCustomer();
         }
+
         return mollie()->customers()->get($this->mollie_customer_id);
     }
 
