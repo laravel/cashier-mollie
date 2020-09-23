@@ -20,17 +20,4 @@ class MinimumPayment implements MinimumPaymentContract
                 ->minimumAmount
         );
     }
-
-    /**
-     * @param string $mandateId
-     * @param string $currency
-     * @return \Money\Money
-     */
-    public static function forMollieMandateId(string $mandateId, string $currency)
-    {
-        return static::forMollieMandate(
-            mollie()->mandates()->get($mandateId),
-            $currency
-        );
-    }
 }
