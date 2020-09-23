@@ -26,7 +26,7 @@ class WebhookControllerTest extends BaseTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->controller = new WebhookController;
+        $this->controller = $this->app->make(WebhookController::class);
         $this->payment_paid_id = env('PAYMENT_PAID_ID');
         $this->payment_failed_id = env('PAYMENT_FAILED_ID');
         $this->assertNotNull($this->payment_paid_id);

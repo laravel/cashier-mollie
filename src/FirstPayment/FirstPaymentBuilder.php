@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\FirstPayment\Actions\ActionCollection;
+use Laravel\Cashier\Mollie\Contracts\CreateMolliePayment;
 use Mollie\Api\Types\SequenceType;
 
 class FirstPaymentBuilder
@@ -121,7 +122,10 @@ class FirstPaymentBuilder
     public function create()
     {
         $payload = $this->getMolliePayload();
-        $this->molliePayment = mollie()->payments()->create($payload);
+
+        /** @var CreateMolliePayment $createMolliePayment */
+        $createMolliePayment = app()->make(CreateMolliePayment::class);
+        $this->molliePayment = $createMolliePayment->execute($payload);
 
         $redirectUrl = $payload['redirectUrl'];
 

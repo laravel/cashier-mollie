@@ -2,6 +2,7 @@
 
 namespace Laravel\Cashier;
 
+use Laravel\Cashier\Mollie\Contracts\GetMollieMethodMinimumAmount;
 use Laravel\Cashier\Order\Contracts\MinimumPayment as MinimumPaymentContract;
 use Mollie\Api\Resources\Mandate;
 
@@ -14,10 +15,9 @@ class MinimumPayment implements MinimumPaymentContract
      */
     public static function forMollieMandate(Mandate $mandate, $currency)
     {
-        return mollie_object_to_money(
-            mollie()
-                ->methods()->get($mandate->method, ['currency' => $currency])
-                ->minimumAmount
-        );
+        /** @var GetMollieMethodMinimumAmount $getMinimumAmount */
+        $getMinimumAmount = app()->make(GetMollieMethodMinimumAmount::class);
+
+        return $getMinimumAmount->execute($mandate->method, $currency);
     }
 }

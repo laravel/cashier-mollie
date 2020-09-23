@@ -10,6 +10,9 @@ use Laravel\Cashier\Coupon\RedeemedCoupon;
 use Laravel\Cashier\Credit\Credit;
 use Laravel\Cashier\Events\MandateClearedFromBillable;
 use Laravel\Cashier\Exceptions\InvalidMandateException;
+use Laravel\Cashier\Mollie\Contracts\CreateMollieCustomer;
+use Laravel\Cashier\Mollie\Contracts\GetMollieCustomer;
+use Laravel\Cashier\Mollie\Contracts\GetMollieMandate;
 use Laravel\Cashier\Order\Invoice;
 use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Order\OrderItem;
@@ -150,7 +153,9 @@ trait Billable
     {
         $options = array_merge($this->mollieCustomerFields(), $override_options);
 
-        $customer = mollie()->customers()->create($options);
+        /** @var CreateMollieCustomer $createMollieCustomer */
+        $createMollieCustomer = app()->make(CreateMollieCustomer::class);
+        $customer = $createMollieCustomer->execute($options);
 
         $this->mollie_customer_id = $customer->id;
         $this->save();
@@ -169,7 +174,10 @@ trait Billable
             return $this->createAsMollieCustomer();
         }
 
-        return mollie()->customers()->get($this->mollie_customer_id);
+        /** @var GetMollieCustomer $getMollieCustomer */
+        $getMollieCustomer = app()->make(GetMollieCustomer::class);
+
+        return $getMollieCustomer->execute($this->mollie_customer_id);
     }
 
     /**
@@ -413,13 +421,16 @@ trait Billable
      */
     public function mollieMandate()
     {
-        $id = $this->mollieMandateId();
+        $mandateId = $this->mollieMandateId();
 
-        if(! empty($id)) {
+        if(! empty($mandateId)) {
             $customer = $this->asMollieCustomer();
 
             try {
-                return $customer->getMandate($id);
+                /** @var GetMollieMandate $getMollieMandate */
+                $getMollieMandate = app()->make(GetMollieMandate::class);
+
+                return $getMollieMandate->execute($customer->id, $mandateId);
             } catch (ApiException $e) {
                 // Status 410: mandate was revoked
                 if (! $e->getCode() == 410) {
