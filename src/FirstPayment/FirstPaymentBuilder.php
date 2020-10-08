@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\FirstPayment\Actions\ActionCollection;
 use Laravel\Cashier\Mollie\Contracts\CreateMolliePayment;
+use Laravel\Cashier\Mollie\Contracts\UpdateMolliePayment;
 use Mollie\Api\Types\SequenceType;
 
 class FirstPaymentBuilder
@@ -133,7 +134,10 @@ class FirstPaymentBuilder
         if(Str::contains($redirectUrl, '{payment_id}')) {
             $redirectUrl = Str::replaceArray('{payment_id}', [$this->molliePayment->id], $redirectUrl);
             $this->molliePayment->redirectUrl = $redirectUrl;
-            $this->molliePayment = $this->molliePayment->update();
+
+            /** @var UpdateMolliePayment $updateMolliePayment */
+            $updateMolliePayment = app()->make(UpdateMolliePayment::class);
+            $this->molliePayment = $updateMolliePayment->execute($this->molliePayment);
         }
 
         return $this->molliePayment;

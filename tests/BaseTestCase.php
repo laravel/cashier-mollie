@@ -5,15 +5,14 @@ namespace Laravel\Cashier\Tests;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Support\Collection;
-use Laravel\Cashier\Coupon\Contracts\CouponHandler;
 use Laravel\Cashier\Coupon\Contracts\CouponRepository;
 use Laravel\Cashier\Coupon\Coupon;
 use Laravel\Cashier\Coupon\FixedDiscountHandler;
 use Laravel\Cashier\Tests\Database\Migrations\CreateUsersTable;
-use Laravel\Cashier\Tests\FirstPayment\Actions\StartSubscriptionTest;
 use Laravel\Cashier\Tests\Fixtures\User;
 use Mockery;
 use Mollie\Api\MollieApiClient;
+use Mollie\Laravel\Wrappers\MollieApiWrapper;
 use Money\Money;
 use Orchestra\Testbench\TestCase;
 
@@ -31,6 +30,8 @@ abstract class BaseTestCase extends TestCase
 
         config(['cashier.webhook_url' => 'https://www.example.com/webhook']);
         config(['cashier.first_payment.webhook_url' => 'https://www.example.com/mandate-webhook']);
+
+        $this->mock(MollieApiWrapper::class, null); // TODO temporary check
     }
 
     /**

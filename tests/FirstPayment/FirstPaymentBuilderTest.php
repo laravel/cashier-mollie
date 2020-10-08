@@ -5,8 +5,10 @@ namespace Laravel\Cashier\Tests\FirstPayment;
 use Laravel\Cashier\FirstPayment\Actions\AddBalance;
 use Laravel\Cashier\FirstPayment\Actions\AddGenericOrderItem;
 use Laravel\Cashier\FirstPayment\FirstPaymentBuilder;
+use Laravel\Cashier\Mollie\Contracts\CreateMolliePayment;
 use Laravel\Cashier\Tests\BaseTestCase;
 use Laravel\Cashier\Tests\Fixtures\User;
+use Mollie\Api\MollieApiClient;
 use Mollie\Api\Resources\Payment;
 use Mollie\Api\Types\SequenceType;
 
@@ -82,10 +84,8 @@ class FirstPaymentBuilderTest extends BaseTestCase
                 ],
             ],
         ];
+
         $this->assertEquals($payload, $check_payload);
-
-
-
         $this->assertNotEmpty($customerId);
         $this->assertEquals(0, $owner->orderItems()->count());
         $this->assertEquals(0, $owner->orders()->count());
@@ -116,18 +116,20 @@ class FirstPaymentBuilderTest extends BaseTestCase
             ),
         ]);
 
+        $this->mock(CreateMolliePayment::class, function (CreateMolliePayment $mock) {
+            $payment = new Payment(new MollieApiClient);
+
+            return $mock->shouldReceive('execute')
+                ->once()
+                ->andReturn($payment);
+        });
+
         $payment = $builder->create();
 
         $this->assertEquals(0, $owner->orderItems()->count());
         $this->assertEquals(0, $owner->orders()->count());
 
         $this->assertInstanceOf(Payment::class, $payment);
-
-        // For creating a new paid first payment, use:
-        // dd(
-        //     $payment->getCheckoutUrl(), // visit this Mollie checkout url and set status to 'paid'
-        //     $payment->id // store this in phpunit.xml: MANDATE_PAYMENT_PAID_ID
-        // );
     }
 
     /** @test */
@@ -139,10 +141,20 @@ class FirstPaymentBuilderTest extends BaseTestCase
             'redirectUrl' => 'https://www.example.com/{payment_id}',
         ]);
 
+        $this->mock(CreateMolliePayment::class, function (CreateMolliePayment $mock) {
+            $payment = new Payment(new MollieApiClient);
+            $payment->redirectUrl = 'https://www.example.com/{payment_id}';
+            $payment->id = 'tr_unique_id';
+
+            return $mock->shouldReceive('execute')
+                ->once()
+                ->andReturn($payment);
+        });
+
         $payment = $builder->inOrderTo([
             new AddGenericOrderItem($owner, money(100, 'EUR'), 'Parse redirectUrl test'),
         ])->create();
 
-        $this->assertStringContainsString($payment->id, $payment->redirectUrl);
+        $this->assertEquals('https://www.example.com/tr_unique_id', $payment->redirectUrl);
     }
 }

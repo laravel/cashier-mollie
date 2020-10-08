@@ -16,6 +16,7 @@ trait RegistersMollieInteractions
             Contracts\GetMollieMandate::class => GetMollieMandate::class,
             Contracts\GetMolliePayment::class => GetMolliePayment::class,
             Contracts\GetMollieMethodMinimumAmount::class => GetMollieMethodMinimumAmount::class,
+            Contracts\UpdateMolliePayment::class => UpdateMolliePayment::class,
         ]);
 
        $interactions->each(function ($concrete, $abstract) use ($app) {
