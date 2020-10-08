@@ -34,26 +34,8 @@ class MandatedSubscriptionBuilderTest extends BaseTestCase
     public function testWithCouponNoTrial()
     {
         $this->withMockedCouponRepository();
-        $this->mock(GetMollieMandate::class, function ($mock) {
-            $mandate = new Mandate(new MollieApiClient);
-            $mandate->id = 'mdt_unique_mandate_id';
-            $mandate->status = 'valid';
-            $mandate->method = 'directdebit';
-
-            return $mock->shouldReceive('execute')
-                ->with('cst_unique_customer_id', 'mdt_unique_mandate_id')
-                ->once()
-                ->andReturn($mandate);
-        });
-        $this->mock(GetMollieCustomer::class, function ($mock) {
-            $customer = new Customer(new MollieApiClient);
-            $customer->id = 'cst_unique_customer_id';
-
-            return $mock->shouldReceive('execute')
-                ->with('cst_unique_customer_id')
-                ->once()
-                ->andReturn($customer);
-        });
+        $this->withMockedGetMollieMandate();
+        $this->withMockedGetMollieCustomer();
         $now = Carbon::parse('2019-01-01');
         $this->withTestNow($now);
 
@@ -79,26 +61,8 @@ class MandatedSubscriptionBuilderTest extends BaseTestCase
     public function testWithCouponAndTrial()
     {
         $this->withMockedCouponRepository();
-        $this->mock(GetMollieMandate::class, function ($mock) {
-            $mandate = new Mandate(new MollieApiClient);
-            $mandate->id = 'mdt_unique_mandate_id';
-            $mandate->status = 'valid';
-            $mandate->method = 'directdebit';
-
-            return $mock->shouldReceive('execute')
-                ->with('cst_unique_customer_id', 'mdt_unique_mandate_id')
-                ->once()
-                ->andReturn($mandate);
-        });
-        $this->mock(GetMollieCustomer::class, function ($mock) {
-            $customer = new Customer(new MollieApiClient);
-            $customer->id = 'cst_unique_customer_id';
-
-            return $mock->shouldReceive('execute')
-                ->with('cst_unique_customer_id')
-                ->once()
-                ->andReturn($customer);
-        });
+        $this->withMockedGetMollieMandate();
+        $this->withMockedGetMollieCustomer();
         $now = Carbon::parse('2019-01-01');
         $this->withTestNow($now);
 
@@ -129,26 +93,8 @@ class MandatedSubscriptionBuilderTest extends BaseTestCase
     {
         $this->expectException(CouponException::class);
         $this->withMockedCouponRepository(null, new InvalidatingCouponHandler);
-        $this->mock(GetMollieMandate::class, function ($mock) {
-            $mandate = new Mandate(new MollieApiClient);
-            $mandate->id = 'mdt_unique_mandate_id';
-            $mandate->status = 'valid';
-            $mandate->method = 'directdebit';
-
-            return $mock->shouldReceive('execute')
-                ->with('cst_unique_customer_id', 'mdt_unique_mandate_id')
-                ->once()
-                ->andReturn($mandate);
-        });
-        $this->mock(GetMollieCustomer::class, function ($mock) {
-            $customer = new Customer(new MollieApiClient);
-            $customer->id = 'cst_unique_customer_id';
-
-            return $mock->shouldReceive('execute')
-                ->with('cst_unique_customer_id')
-                ->once()
-                ->andReturn($customer);
-        });
+        $this->withMockedGetMollieMandate();
+        $this->withMockedGetMollieCustomer();
         $this->getBuilder()->withCoupon('test-coupon')->create();
     }
 
@@ -173,5 +119,27 @@ class MandatedSubscriptionBuilderTest extends BaseTestCase
             'default',
             'monthly-10-1'
         );
+    }
+
+    protected function withMockedGetMollieCustomer(): void
+    {
+        $this->mock(GetMollieCustomer::class, function ($mock) {
+            $customer = new Customer(new MollieApiClient);
+            $customer->id = 'cst_unique_customer_id';
+
+            return $mock->shouldReceive('execute')->with('cst_unique_customer_id')->once()->andReturn($customer);
+        });
+    }
+
+    protected function withMockedGetMollieMandate(): void
+    {
+        $this->mock(GetMollieMandate::class, function ($mock) {
+            $mandate = new Mandate(new MollieApiClient);
+            $mandate->id = 'mdt_unique_mandate_id';
+            $mandate->status = 'valid';
+            $mandate->method = 'directdebit';
+
+            return $mock->shouldReceive('execute')->with('cst_unique_customer_id', 'mdt_unique_mandate_id')->once()->andReturn($mandate);
+        });
     }
 }
