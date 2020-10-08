@@ -190,7 +190,7 @@ class BillableTest extends BaseTestCase
     {
         $this->mock(GetMollieMandate::class, function ($mock) {
             $mandate = new Mandate(new MollieApiClient);
-            $mandate->id = 'mdt_unique_revoked_mandate_id';
+            $mandate->id = 'mdt_unique_mandate_id';
             $mandate->status = 'valid';
             $mandate->method = 'directdebit';
 
