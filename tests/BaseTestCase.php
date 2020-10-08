@@ -340,7 +340,7 @@ abstract class BaseTestCase extends TestCase
         }
 
         return $this->mock(CouponRepository::class, function ($mock) use ($coupon) {
-            $mock->shouldReceive('findOrFail')->with($coupon->name())->andReturn($coupon);
+            return $mock->shouldReceive('findOrFail')->with($coupon->name())->andReturn($coupon);
         });
     }
 

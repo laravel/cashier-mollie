@@ -70,13 +70,7 @@ trait Billable
     public function newSubscription($subscription, $plan, $firstPaymentOptions = [])
     {
         if(! empty($this->mollie_mandate_id)) {
-
-            $mandate = null;
-
-            try {
-                $mandate = $this->asMollieCustomer()->getMandate($this->mollie_mandate_id);
-            } catch (ApiException $e) {} // A revoked mandate may no longer exist, so throws an exception
-
+            $mandate = $this->mollieMandate();
             $planModel = app(PlanRepository::class)::findOrFail($plan);
             $method = MandateMethod::getForFirstPaymentMethod($planModel->firstPaymentMethod());
 
