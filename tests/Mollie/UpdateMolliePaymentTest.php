@@ -5,14 +5,13 @@ namespace Laravel\Cashier\Tests\Mollie;
 
 use Illuminate\Support\Str;
 use Laravel\Cashier\Mollie\Contracts\UpdateMolliePayment;
-use Laravel\Cashier\Tests\BaseTestCase;
 use Mollie\Api\Resources\Payment;
 
-class UpdateMolliePaymentTest extends BaseTestCase
+class UpdateMolliePaymentTest extends BaseMollieInteractionTest
 {
     /**
      * @test
-     * @group integration
+     * @group mollie_integration
      */
     public function testExecute()
     {

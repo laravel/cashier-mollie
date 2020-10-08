@@ -5,10 +5,13 @@ namespace Laravel\Cashier\Tests\FirstPayment;
 use Laravel\Cashier\FirstPayment\Actions\AddBalance;
 use Laravel\Cashier\FirstPayment\Actions\AddGenericOrderItem;
 use Laravel\Cashier\FirstPayment\FirstPaymentBuilder;
+use Laravel\Cashier\Mollie\Contracts\CreateMollieCustomer;
 use Laravel\Cashier\Mollie\Contracts\CreateMolliePayment;
+use Laravel\Cashier\Mollie\GetMollieCustomer;
 use Laravel\Cashier\Tests\BaseTestCase;
 use Laravel\Cashier\Tests\Fixtures\User;
 use Mollie\Api\MollieApiClient;
+use Mollie\Api\Resources\Customer;
 use Mollie\Api\Resources\Payment;
 use Mollie\Api\Types\SequenceType;
 
@@ -18,6 +21,13 @@ class FirstPaymentBuilderTest extends BaseTestCase
     {
         parent::setUp();
         $this->withPackageMigrations();
+        $customer = new Customer(new MollieApiClient);
+        $customer->id = 'cst_unique_customer_id';
+
+        $this->mock(CreateMollieCustomer::class, function ($mock) use ($customer) {
+            return $mock->shouldReceive('execute')
+                ->andReturn($customer);
+        });
     }
 
     /** @test */

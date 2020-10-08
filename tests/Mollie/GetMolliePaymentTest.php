@@ -4,14 +4,13 @@ declare(strict_types=1);
 namespace Laravel\Cashier\Tests\Mollie;
 
 use Laravel\Cashier\Mollie\Contracts\GetMolliePayment;
-use Laravel\Cashier\Tests\BaseTestCase;
 use Mollie\Api\Resources\Payment;
 
-class GetMolliePaymentTest extends BaseTestCase
+class GetMolliePaymentTest extends BaseMollieInteractionTest
 {
     /**
      * @test
-     * @group integration
+     * @group mollie_integration
      */
     public function testExecute()
     {

@@ -4,14 +4,13 @@ declare(strict_types=1);
 namespace Laravel\Cashier\Tests\Mollie;
 
 use Laravel\Cashier\Mollie\Contracts\GetMollieMandate;
-use Laravel\Cashier\Tests\BaseTestCase;
 use Mollie\Api\Resources\Mandate;
 
-class GetMollieMandateTest extends BaseTestCase
+class GetMollieMandateTest extends BaseMollieInteractionTest
 {
     /**
      * @test
-     * @group integration
+     * @group mollie_integration
      */
     public function testExecute()
     {

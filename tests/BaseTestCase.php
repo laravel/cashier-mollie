@@ -18,6 +18,8 @@ use Orchestra\Testbench\TestCase;
 
 abstract class BaseTestCase extends TestCase
 {
+    protected $interactWithMollieAPI = false;
+
     /**
      * Setup the test environment.
      */
@@ -31,7 +33,10 @@ abstract class BaseTestCase extends TestCase
         config(['cashier.webhook_url' => 'https://www.example.com/webhook']);
         config(['cashier.first_payment.webhook_url' => 'https://www.example.com/mandate-webhook']);
 
-        $this->mock(MollieApiWrapper::class, null); // TODO temporary check
+        if(! $this->interactWithMollieAPI) {
+            // Disable the Mollie API
+            $this->mock(MollieApiWrapper::class, null);
+        }
     }
 
     /**
@@ -231,14 +236,14 @@ abstract class BaseTestCase extends TestCase
     protected function getMandatedUser($persist = true, $overrides = [])
     {
         return $this->getCustomerUser($persist, array_merge([
-            'mollie_mandate_id' => $this->getMandateId(),
+            'mollie_mandate_id' => 'mdt_unique_mandate_id',
         ], $overrides));
     }
 
     protected function getCustomerUser($persist = true, $overrides = [])
     {
         return $this->getUser($persist, array_merge([
-            'mollie_customer_id' => $this->getMandatedCustomerId(),
+            'mollie_customer_id' => 'cst_unique_customer_id',
         ], $overrides));
     }
 
