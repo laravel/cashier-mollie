@@ -4,6 +4,10 @@ namespace Laravel\Cashier\Tests\Order;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Event;
+use Laravel\Cashier\Mollie\Contracts\CreateMolliePayment;
+use Laravel\Cashier\Mollie\Contracts\GetMollieCustomer;
+use Laravel\Cashier\Mollie\Contracts\GetMollieMandate;
+use Laravel\Cashier\Mollie\Contracts\GetMollieMethodMinimumAmount;
 use Laravel\Cashier\Order\Contracts\MinimumPayment;
 use Laravel\Cashier\Events\BalanceTurnedStale;
 use Laravel\Cashier\Events\OrderCreated;
@@ -16,7 +20,12 @@ use Laravel\Cashier\Order\OrderItemCollection;
 use Laravel\Cashier\Subscription;
 use Laravel\Cashier\Tests\BaseTestCase;
 use Laravel\Cashier\Tests\Fixtures\User;
+use Mollie\Api\MollieApiClient;
+use Mollie\Api\Resources\Customer;
+use Mollie\Api\Resources\Mandate;
+use Mollie\Api\Resources\Payment;
 use Mollie\Api\Types\PaymentStatus;
+use Mollie\Laravel\Wrappers\MollieApiWrapper;
 
 class OrderTest extends BaseTestCase
 {
@@ -28,11 +37,54 @@ class OrderTest extends BaseTestCase
     }
 
     /** @test */
-    public function canCreateFromOrderItems()
+    public function canCreateFromOrderItemsAndProcess()
     {
         Carbon::setTestNow(Carbon::parse('2018-01-01'));
         Event::fake();
-        $user = $this->getMandatedUser(true, ['id' => 2]);
+
+        $this->mock(GetMollieMandate::class, function ($mock) {
+            $mandate = new Mandate(new MollieApiClient);
+            $mandate->id = 'mdt_unique_mandate_id';
+            $mandate->status = 'valid';
+            $mandate->method = 'directdebit';
+
+            return $mock->shouldReceive('execute')
+                ->with('cst_unique_customer_id', 'mdt_unique_mandate_id')
+                ->once()
+                ->andReturn($mandate);
+        });
+
+        $this->mock(GetMollieCustomer::class, function ($mock) {
+            $customer = new Customer(new MollieApiClient);
+            $customer->id = 'cst_unique_customer_id';
+
+            return $mock->shouldReceive('execute')
+                ->with('cst_unique_customer_id')
+                ->once()
+                ->andReturn($customer);
+        });
+
+        $this->mock(GetMollieMethodMinimumAmount::class, function ($mock) {
+            return $mock->shouldReceive('execute')
+                ->with('directdebit', 'EUR')
+                ->once()
+                ->andReturn(money(10, 'EUR'));
+        });
+
+        $this->mock(CreateMolliePayment::class, function ($mock) {
+            $payment = new Payment(new MollieApiClient);
+            $payment->id = 'tr_unique_payment_id';
+
+            return $mock->shouldReceive('execute')
+                ->once()
+                ->andReturn($payment);
+        });
+
+        $user = $this->getMandatedUser(true, [
+            'id' => 2,
+            'mollie_mandate_id' => 'mdt_unique_mandate_id',
+            'mollie_customer_id' => 'cst_unique_customer_id',
+        ]);
         $subscription = $this->createMonthlySubscription();
 
         $subscription->orderItems()->saveMany(
@@ -71,7 +123,7 @@ class OrderTest extends BaseTestCase
 
         $this->assertDispatchedOrderProcessed($order);
 
-        $this->assertNotNull($order->mollie_payment_id);
+        $this->assertEquals('tr_unique_payment_id', $order->mollie_payment_id);
         $this->assertEquals('open', $order->mollie_payment_status);
     }
 
@@ -252,7 +304,49 @@ class OrderTest extends BaseTestCase
     {
         Event::fake();
 
-        $user = $this->getMandatedUser(true);
+        $this->mock(GetMollieMandate::class, function ($mock) {
+            $mandate = new Mandate(new MollieApiClient);
+            $mandate->id = 'mdt_unique_mandate_id';
+            $mandate->status = 'valid';
+            $mandate->method = 'directdebit';
+
+            return $mock->shouldReceive('execute')
+                ->with('cst_unique_customer_id', 'mdt_unique_mandate_id')
+                ->once()
+                ->andReturn($mandate);
+        });
+
+        $this->mock(GetMollieCustomer::class, function ($mock) {
+            $customer = new Customer(new MollieApiClient);
+            $customer->id = 'cst_unique_customer_id';
+
+            return $mock->shouldReceive('execute')
+                ->with('cst_unique_customer_id')
+                ->once()
+                ->andReturn($customer);
+        });
+
+        $this->mock(GetMollieMethodMinimumAmount::class, function ($mock) {
+            return $mock->shouldReceive('execute')
+                ->with('directdebit', 'EUR')
+                ->once()
+                ->andReturn(money(10, 'EUR'));
+        });
+
+        $this->mock(CreateMolliePayment::class, function ($mock) {
+            $payment = new Payment(new MollieApiClient);
+            $payment->id = 'tr_unique_payment_id';
+
+            return $mock->shouldReceive('execute')
+                ->once()
+                ->andReturn($payment);
+        });
+
+        $user = $this->getMandatedUser(true, [
+            'id' => 2,
+            'mollie_mandate_id' => 'mdt_unique_mandate_id',
+            'mollie_customer_id' => 'cst_unique_customer_id',
+        ]);
 
         $order = $user->orders()->save(factory(Order::class)->make([
             'total' => 1025,
@@ -268,14 +362,6 @@ class OrderTest extends BaseTestCase
         $this->assertNotNull($order->mollie_payment_id);
         $this->assertEquals('open', $order->mollie_payment_status);
 
-        $payment = mollie()->payments()->get($order->mollie_payment_id);
-        $this->assertEquals($this->getMandatedCustomerId(), $payment->customerId);
-        $this->assertEquals("10.25", $payment->amount->value);
-        $this->assertEquals("EUR", $payment->amount->currency);
-        $this->assertEquals("directdebit", $payment->method);
-        $this->assertEquals("recurring", $payment->sequenceType);
-        $this->assertEquals('https://www.example.com/webhook', $payment->webhookUrl);
-
         $this->assertDispatchedOrderProcessed($order);
     }
 
@@ -284,13 +370,40 @@ class OrderTest extends BaseTestCase
     {
         Event::fake();
 
-        $this->mock(MinimumPayment::class, function($mock) {
-            $mock
-                ->shouldReceive('forMollieMandate')
+        $this->mock(GetMollieMandate::class, function ($mock) {
+            $mandate = new Mandate(new MollieApiClient);
+            $mandate->id = 'mdt_unique_mandate_id';
+            $mandate->status = 'valid';
+            $mandate->method = 'directdebit';
+
+            return $mock->shouldReceive('execute')
+                ->with('cst_unique_customer_id', 'mdt_unique_mandate_id')
+                ->once()
+                ->andReturn($mandate);
+        });
+
+        $this->mock(GetMollieCustomer::class, function ($mock) {
+            $customer = new Customer(new MollieApiClient);
+            $customer->id = 'cst_unique_customer_id';
+
+            return $mock->shouldReceive('execute')
+                ->with('cst_unique_customer_id')
+                ->once()
+                ->andReturn($customer);
+        });
+
+        $this->mock(GetMollieMethodMinimumAmount::class, function ($mock) {
+            return $mock->shouldReceive('execute')
+                ->with('directdebit', 'EUR')
+                ->once()
                 ->andReturn(money(100, 'EUR'));
         });
 
-        $user = $this->getMandatedUser(true);
+        $user = $this->getMandatedUser(true, [
+            'id' => 2,
+            'mollie_mandate_id' => 'mdt_unique_mandate_id',
+            'mollie_customer_id' => 'cst_unique_customer_id',
+        ]);
         $subscription = $user->subscriptions()->save(factory(Subscription::class)->make([
             'plan' => 'monthly-10-1',
         ]));

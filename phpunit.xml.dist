@@ -23,6 +23,7 @@
     <groups>
         <exclude>
             <group>generate_new_invoice_template</group>
+            <group>mollie_integration</group>
         </exclude>
     </groups>
     <php>

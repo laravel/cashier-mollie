@@ -5,6 +5,7 @@ namespace Laravel\Cashier;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Cashier\Console\Commands\CashierInstall;
 use Laravel\Cashier\Console\Commands\CashierRun;
+use Laravel\Cashier\Mollie\RegistersMollieInteractions;
 use Laravel\Cashier\Order\Contracts\MinimumPayment as MinimumPaymentContract;
 use Laravel\Cashier\Coupon\ConfigCouponRepository;
 use Laravel\Cashier\Coupon\Contracts\CouponRepository;
@@ -14,6 +15,8 @@ use Mollie\Laravel\MollieServiceProvider;
 
 class CashierServiceProvider extends ServiceProvider
 {
+    use RegistersMollieInteractions;
+
     const PACKAGE_VERSION = '1.14.0';
 
     /**
@@ -45,6 +48,7 @@ class CashierServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->register(MollieServiceProvider::class);
+        $this->registerMollieInteractions($this->app);
         $this->app->bind(PlanRepository::class, ConfigPlanRepository::class);
         $this->app->singleton(CouponRepository::class, function () {
             return new ConfigCouponRepository(

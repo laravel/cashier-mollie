@@ -13,6 +13,9 @@ use Laravel\Cashier\Traits\HasOwner;
  * @property InteractsWithOrderItems orderable
  * @property \Carbon\Carbon process_at
  * @property int quantity
+ * @property string currency
+ * @property int unit_price
+ * @property float tax_percentage
  * @property string orderable_type
  * @property mixed orderable_id
  * @method static create(array $array)
