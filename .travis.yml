@@ -29,7 +29,7 @@ matrix:
     env: COVERAGE=1 LARAVEL='8.0.*' TESTBENCH='6.0.*'
   exclude:
   - php: 7.2
-    env: Laravel='8.0.*' TESTBENCH='6.0.*'
+    env: LARAVEL='8.0.*' TESTBENCH='6.0.*'
   - php: 7.4
     env: LARAVEL='8.0.*' TESTBENCH='6.0.*'
 
