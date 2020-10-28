@@ -70,7 +70,7 @@ class Order extends Model
                 throw new LogicException('Creating an order requires items to have a single currency.');
             }
 
-            if($items->owners()->unique('id')->count() > 1) {
+            if($items->owners()->count() > 1) {
                 throw new LogicException('Creating an order requires items to have a single owner.');
             }
 
