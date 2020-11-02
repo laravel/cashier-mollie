@@ -183,7 +183,7 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
             ]));
 
             return $mock->shouldReceive('execute')
-                ->with('tr_unique_payment_id')
+                ->with('tr_unique_payment_id', [])
                 ->once()
                 ->andReturn($payment);
         });
@@ -206,7 +206,7 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
         $this->assertNull($this->user->mollie_mandate_id);
 
         $response = $this->post(route('webhooks.mollie.first_payment', [
-            'id' => 'tr_unique_payment_id'
+            'id' => 'tr_unique_payment_id',
         ]));
 
         $response->assertStatus(200);

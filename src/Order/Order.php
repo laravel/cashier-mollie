@@ -23,6 +23,8 @@ use Mollie\Api\Resources\Mandate;
 use Mollie\Api\Types\PaymentStatus;
 
 /**
+ * @property int amount_refunded
+ * @property int amount_charged_back
  * @method static create(array $data)
  */
 class Order extends Model
@@ -473,6 +475,22 @@ class Order extends Model
     public function getCreditUsed()
     {
         return $this->toMoney($this->credit_used);
+    }
+
+    /**
+     * @return \Money\Money
+     */
+    public function getAmountRefunded()
+    {
+        return $this->toMoney($this->amount_refunded);
+    }
+
+    /**
+     * @return \Money\Money
+     */
+    public function getAmountChargedBack()
+    {
+        return $this->toMoney($this->amount_charged_back);
     }
 
     /**

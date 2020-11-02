@@ -28,7 +28,7 @@ class WebhookControllerTest extends BaseTestCase
 
         $this->mock(GetMolliePayment::class, function (GetMolliePayment $mock) use ($id) {
             return $mock->shouldReceive('execute')
-                ->with($id)
+                ->with($id, [])
                 ->once()
                 ->andReturn(new Payment(new MollieApiClient));
         });
@@ -42,7 +42,7 @@ class WebhookControllerTest extends BaseTestCase
         $wrongId = 'sub_xxxxxxxxxxx';
         $this->mock(GetMolliePayment::class, function(GetMolliePayment $mock) use ($wrongId) {
             return $mock->shouldReceive('execute')
-                ->with($wrongId)
+                ->with($wrongId, [])
                 ->once()
                 ->andThrow(new ApiException);
         });
@@ -57,7 +57,7 @@ class WebhookControllerTest extends BaseTestCase
         $wrongId = 'sub_xxxxxxxxxxx';
         $this->mock(GetMolliePayment::class, function(GetMolliePayment $mock) use ($wrongId) {
             return $mock->shouldReceive('execute')
-                ->with($wrongId)
+                ->with($wrongId, [])
                 ->once()
                 ->andThrow(new ApiException);
         });
@@ -76,7 +76,7 @@ class WebhookControllerTest extends BaseTestCase
 
         $this->mock(GetMolliePayment::class, function(GetMolliePayment $mock) use ($id) {
             return $mock->shouldReceive('execute')
-                ->with($id)
+                ->with($id, [])
                 ->once()
                 ->andThrow(new ApiException);
         });
@@ -121,7 +121,7 @@ class WebhookControllerTest extends BaseTestCase
 
             return $mock
                 ->shouldReceive('execute')
-                ->with($paymentId)
+                ->with($paymentId, [])
                 ->once()
                 ->andReturn($payment);
         });
@@ -184,7 +184,7 @@ class WebhookControllerTest extends BaseTestCase
 
             return $mock
                 ->shouldReceive('execute')
-                ->with($paymentId)
+                ->with($paymentId, [])
                 ->once()
                 ->andReturn($payment);
         });
@@ -222,7 +222,7 @@ class WebhookControllerTest extends BaseTestCase
 
             return $mock
                 ->shouldReceive('execute')
-                ->with($paymentId)
+                ->with($paymentId, [])
                 ->once()
                 ->andReturn($payment);
         });

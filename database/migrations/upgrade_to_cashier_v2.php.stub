@@ -1,0 +1,34 @@
+<?php
+
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
+
+class UpgradeToCashierV2 extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::table('orders', function (Blueprint $table) {
+            $table->unsignedInteger('amount_refunded')->default(0);
+            $table->unsignedInteger('amount_charged_back')->default(0);
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        //Requires "doctrine/dbal" in composer.json
+        //Schema::table('orders', function (Blueprint $table) {
+        //    $table->dropColumn(['amount_refunded', 'amount_charged_back']);
+        //});
+    }
+}

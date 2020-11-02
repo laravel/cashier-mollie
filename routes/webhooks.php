@@ -14,4 +14,9 @@ Route::namespace('\Laravel\Cashier\Http\Controllers')->group(function () {
         'FirstPaymentWebhookController@handleWebhook'
     );
 
+    Route::name('webhooks.mollie.aftercare')->post(
+        Cashier::aftercareWebhookUrl(),
+        'AftercareWebhookController@handleWebhook'
+    );
+
 });

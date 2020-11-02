@@ -9,6 +9,12 @@ return [
     'webhook_url' => 'webhooks/mollie',
 
     /**
+     * The default aftercare webhook url is called by Mollie on refunds and chargebacks. You can use either a relative or
+     * absolute url.
+     */
+    'aftercare_webhook_url' => 'webhooks/mollie/aftercare',
+
+    /**
      * The default locale passed to Mollie for configuring the checkout screen. Set to null to let Mollie handle it for
      * you.
      * @link https://docs.mollie.com/reference/v2/payments-api/create-payment#parameters

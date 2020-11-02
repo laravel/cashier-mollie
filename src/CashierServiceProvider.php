@@ -3,7 +3,7 @@
 namespace Laravel\Cashier;
 
 use Illuminate\Support\ServiceProvider;
-use Laravel\Cashier\Console\Commands\CashierInstall;
+use Laravel\Cashier\Console\Commands\CashierUpdate;
 use Laravel\Cashier\Console\Commands\CashierRun;
 use Laravel\Cashier\Mollie\RegistersMollieInteractions;
 use Laravel\Cashier\Order\Contracts\MinimumPayment as MinimumPaymentContract;
@@ -36,6 +36,7 @@ class CashierServiceProvider extends ServiceProvider
             $this->publishMigrations('cashier-migrations');
             $this->publishConfig('cashier-configs');
             $this->publishViews('cashier-views');
+            $this->publishUpdate('cashier-update');
         }
 
         $this->configureCurrency();
@@ -59,8 +60,9 @@ class CashierServiceProvider extends ServiceProvider
         $this->app->bind(MinimumPaymentContract::class, MinimumPayment::class);
 
         $this->commands([
-            CashierInstall::class,
+            CashierUpdate::class,
             CashierRun::class,
+            CashierUpdate::class,
         ]);
 
         $this->app->register(EventServiceProvider::class);
@@ -85,6 +87,18 @@ class CashierServiceProvider extends ServiceProvider
                 __DIR__.'/../database/migrations/create_orders_table.php.stub' => database_path($prefix.'_create_orders_table.php'),
                 __DIR__.'/../database/migrations/create_order_items_table.php.stub' => database_path($prefix.'_create_order_items_table.php'),
                 __DIR__.'/../database/migrations/create_subscriptions_table.php.stub' => database_path($prefix.'_create_subscriptions_table.php'),
+                __DIR__.'/../database/migrations/upgrade_to_cashier_v2.php.stub' => database_path($prefix.'_upgrade_to_cashier_v2.php'),
+            ], $tag);
+        }
+    }
+
+    protected function publishUpdate(string $tag)
+    {
+        if (Cashier::$runsMigrations) {
+            $prefix = 'migrations/'.date('Y_m_d_His', time());
+
+            $this->publishes([
+                __DIR__.'/../database/migrations/upgrade_to_cashier_v2.php.stub' => database_path($prefix.'_upgrade_to_cashier_v2.php'),
             ], $tag);
         }
     }
