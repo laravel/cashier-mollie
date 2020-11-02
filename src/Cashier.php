@@ -227,7 +227,7 @@ class Cashier
     }
 
     /**
-     * Get the first payment webhook relative url.
+     * Get the aftercare webhook relative url.
      *
      * @return string
      */
