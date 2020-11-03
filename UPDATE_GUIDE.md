@@ -1,5 +1,10 @@
 # Upgrading Cashier Mollie to v2
 
+## Requirements
+
+- Laravel 8 and up
+- PHP 7.4 and up
+
 ## Publish and run the migrations
 
     php artisan cashier:update

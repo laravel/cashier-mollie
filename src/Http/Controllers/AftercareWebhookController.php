@@ -5,6 +5,7 @@ namespace Laravel\Cashier\Http\Controllers;
 use Illuminate\Http\Request;
 use Laravel\Cashier\Order\Order;
 use Mollie\Api\Resources\Payment;
+use Money\Money;
 use Symfony\Component\HttpFoundation\Response;
 
 class AftercareWebhookController extends BaseWebhookController
@@ -32,10 +33,15 @@ class AftercareWebhookController extends BaseWebhookController
     {
         $orderAmountRefunded = $order->getAmountRefunded();
         $paymentAmountRefunded = mollie_object_to_money($payment->amountRefunded);
+        $difference = $paymentAmountRefunded->subtract($orderAmountRefunded);
 
-        if($orderAmountRefunded->lessThan($paymentAmountRefunded)) {
+        if($difference->isPositive()) {
             // TODO Handle:
             // Subtract from $order->amount_refunded
+
+            // If the refund is not triggered from this app, generate a generic refund, using $billable->taxPercentage()
+            // If the refund is triggered from this app (Refund::findByPaymentId(...)), update the Refund
+
             // Generate a processed order for the difference, containing an order item detailing the refund
             // Dispatch event
         }

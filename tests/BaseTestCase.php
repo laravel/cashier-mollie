@@ -87,6 +87,10 @@ abstract class BaseTestCase extends TestCase
                         'class' => '\CreateAppliedCouponsTable',
                         'file_path' => $migrations_dir . '/create_applied_coupons_table.php.stub',
                     ],
+                    [
+                        'class' => '\UpgradeToCashierV2',
+                        'file_path' => $migrations_dir . '/upgrade_to_cashier_v2.php.stub',
+                    ],
                 ]
             )
         );

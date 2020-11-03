@@ -26,6 +26,8 @@ class WebhookController extends BaseWebhookController
                 switch ($payment->status) {
                     case PaymentStatus::STATUS_PAID:
                         $order->handlePaymentPaid();
+                        $payment->webhookUrl = route('cashier.aftercare_webhook_url');
+                        $payment->update();
                         break;
                     case PaymentStatus::STATUS_FAILED:
                         $order->handlePaymentFailed();
