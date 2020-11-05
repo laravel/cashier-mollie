@@ -34,7 +34,7 @@ class RefundBuilder
         return new static($order);
     }
 
-    public static function fromOrder(Order $order): self
+    public static function forWholeOrder(Order $order): self
     {
         static::guardOrderIsPaid($order);
         $refund = new static($order);
@@ -79,5 +79,6 @@ class RefundBuilder
         // TODO create unprocessed Refund model
         // TODO create unprocessed RefundItem models
         // TODO initiate Mollie refund if applicable
+        // TODO return Cashier Refund
     }
 }
