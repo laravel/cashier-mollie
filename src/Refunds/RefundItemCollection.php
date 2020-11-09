@@ -4,11 +4,17 @@ declare(strict_types=1);
 namespace Laravel\Cashier\Refunds;
 
 use Illuminate\Support\Collection;
+use Laravel\Cashier\Order\OrderItem;
+use Laravel\Cashier\Order\OrderItemCollection;
 
 class RefundItemCollection extends Collection
 {
-    public static function fromOrderItemCollection(\Laravel\Cashier\Order\OrderItemCollection $items): self
+    public static function makeFromOrderItemCollection(OrderItemCollection $orderItems, array $overrides = []): self
     {
-        return new static(); // TODO
+        $refundItems = $orderItems->map(function (OrderItem $orderItem) use ($overrides) {
+            return RefundItem::makeFromOrderItem($orderItem, $overrides);
+        })->all();
+
+        return new static($refundItems);
     }
 }

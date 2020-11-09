@@ -23,9 +23,19 @@ class UpgradeToCashierV2 extends Migration
             $table->string('mollie_refund_id');
             $table->string('owner_type');
             $table->unsignedBigInteger('owner_id');
-            $table->unsignedBigInteger('original_order_item_id')->nullable();
-            $table->unsignedBigInteger('original_order_id')->nullable();
+            $table->unsignedBigInteger('original_order_id');
             $table->unsignedBigInteger('order_id')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('refund_items', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->unsignedBigInteger('refund_id');
+            $table->unsignedBigInteger('original_order_item_id')->nullable();
+            $table->string('currency', 3);
+            $table->unsignedInteger('quantity');
+            $table->integer('unit_price');
+            $table->decimal('tax_percentage', 6, 4);
             $table->timestamps();
         });
     }
@@ -37,11 +47,12 @@ class UpgradeToCashierV2 extends Migration
      */
     public function down()
     {
-        //Requires "doctrine/dbal" in composer.json
-        //Schema::table('orders', function (Blueprint $table) {
-        //    $table->dropColumn(['amount_refunded', 'amount_charged_back']);
-        //});
+        // Requires "doctrine/dbal" in composer.json
+        // Schema::table('orders', function (Blueprint $table) {
+        //     $table->dropColumn(['amount_refunded', 'amount_charged_back']);
+        // });
 
         Schema::drop('refunds');
+        Schema::drop('refund_items');
     }
 }

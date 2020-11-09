@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Laravel\Cashier\Refunds;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property int id
@@ -17,4 +18,9 @@ use Illuminate\Database\Eloquent\Model;
 class Refund extends Model
 {
     protected $guarded = [];
+
+    public function items(): HasMany
+    {
+        return $this->hasMany(RefundItem::class);
+    }
 }
