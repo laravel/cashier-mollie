@@ -6,6 +6,7 @@ namespace Laravel\Cashier\Refunds;
 use Illuminate\Support\Collection;
 use Laravel\Cashier\Order\OrderItem;
 use Laravel\Cashier\Order\OrderItemCollection;
+use Money\Money;
 
 class RefundItemCollection extends Collection
 {
@@ -16,5 +17,15 @@ class RefundItemCollection extends Collection
         })->all();
 
         return new static($refundItems);
+    }
+
+    public function getTotal(): Money
+    {
+        return money($this->sum('total'), $this->getCurrency());
+    }
+
+    public function getCurrency(): string
+    {
+        return $this->first()->currency;
     }
 }

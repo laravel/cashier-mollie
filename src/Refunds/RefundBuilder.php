@@ -85,20 +85,20 @@ class RefundBuilder
     {
         $mollieRefund = $this->createMollieRefund->execute($this->order->mollie_payment_id, [
             'amount' => [
-                'value' => money_to_decimal($this->order->getTotalDue()), // TODO use $this->items->total()
+                'value' => money_to_decimal($this->items->getTotal()),
                 'currency' => $this->order->getCurrency(),
             ],
         ]);
 
-        $refund = Refund::create([
+        $refundRecord = Refund::create([
             'owner_type' => $this->order->owner_type,
             'owner_id' => $this->order->owner_id,
             'original_order_id' => $this->order->getKey(),
             'mollie_refund_id' => $mollieRefund->id,
         ]);
 
-        $refund->items()->saveMany($this->items);
+        $refundRecord->items()->saveMany($this->items);
 
-        return $refund;
+        return $refundRecord;
     }
 }

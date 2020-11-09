@@ -9,6 +9,7 @@ use Laravel\Cashier\Order\OrderItem;
 use Laravel\Cashier\Order\OrderItemCollection;
 use Laravel\Cashier\Refunds\Refund;
 use Laravel\Cashier\Refunds\RefundBuilder;
+use Laravel\Cashier\Refunds\RefundItem;
 use Laravel\Cashier\Tests\BaseTestCase;
 use Mollie\Api\MollieApiClient;
 use Mollie\Api\Resources\Refund as MollieRefund;
@@ -62,7 +63,24 @@ class RefundsBuilderTest extends BaseTestCase
         $this->assertInstanceOf(Refund::class, $refund);
         $this->assertEquals('re_dummy_refund_id', $refund->mollie_refund_id);
 
-        // TODO assert local RefundItems match OrderItems
-        dd($refund->items->dd());
+        $refundItems = $refund->items;
+        $this->assertCount(2, $refundItems);
+
+        /** @var RefundItem $itemA */
+        $itemA = $refundItems->first(function (RefundItem $item) {
+            return (int) $item->quantity === 1;
+        });
+
+        $this->assertEquals($itemA->unit_price, 1000);
+        $this->assertEquals($itemA->tax_percentage, 10);
+        $this->assertEquals($itemA->currency, 'EUR');
+
+        /** @var RefundItem $itemB */
+        $itemB = $refundItems->first(function (RefundItem $item) {
+            return (int) $item->quantity === 2;
+        });
+        $this->assertEquals($itemB->unit_price, 500);
+        $this->assertEquals($itemB->tax_percentage, 10);
+        $this->assertEquals($itemB->currency, 'EUR');
     }
 }
