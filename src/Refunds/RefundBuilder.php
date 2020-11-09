@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Laravel\Cashier\Refunds;
 
-use Illuminate\Database\Eloquent\Model;
 use Laravel\Cashier\Mollie\Contracts\CreateMollieRefund;
 use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Order\OrderItem;
@@ -28,15 +27,9 @@ class RefundBuilder
      */
     protected CreateMollieRefund $createMollieRefund;
 
-    /**
-     * @var Model
-     */
-    private Model $owner;
-
     public function __construct(Order $order)
     {
         $this->order = $order;
-        $this->owner = $this->order->owner;
         $this->items = new RefundItemCollection;
         $this->createMollieRefund = app()->make(CreateMollieRefund::class);
     }
@@ -94,13 +87,13 @@ class RefundBuilder
             'amount' => [
                 'value' => money_to_decimal($this->order->getTotalDue()), // TODO use $this->items->total()
                 'currency' => $this->order->getCurrency(),
-            ]
+            ],
         ]);
 
         $refund = Refund::create([
+            'owner_type' => $this->order->owner_type,
+            'owner_id' => $this->order->owner_id,
             'original_order_id' => $this->order->getKey(),
-            'owner_type' => $this->owner->getMorphClass(),
-            'owner_id' => $this->owner->getKey(),
             'mollie_refund_id' => $mollieRefund->id,
         ]);
 

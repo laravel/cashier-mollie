@@ -23,6 +23,20 @@ use Mollie\Api\Resources\Mandate;
 use Mollie\Api\Types\PaymentStatus;
 
 /**
+ * @property int id
+ * @property string owner_type
+ * @property int owner_id
+ * @property string number
+ * @property string currency
+ * @property int subtotal
+ * @property int tax
+ * @property int total
+ * @property int balance_before
+ * @property int credit_used
+ * @property int total_due
+ * @property string mollie_payment_id
+ * @property string mollie_payment_status
+ * @property \Carbon\Carbon|null processed_at
  * @property int amount_refunded
  * @property int amount_charged_back
  * @property \Laravel\Cashier\Order\OrderItemCollection items
