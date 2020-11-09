@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int|null original_order_item_id
  * @property int|null original_order_id
  * @property int|null order_id
+ * @property \Laravel\Cashier\Refunds\RefundItemCollection items
  */
 class Refund extends Model
 {
