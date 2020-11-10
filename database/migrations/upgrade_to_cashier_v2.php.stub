@@ -20,11 +20,12 @@ class UpgradeToCashierV2 extends Migration
 
         Schema::create('refunds', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('mollie_refund_id');
             $table->string('owner_type');
             $table->unsignedBigInteger('owner_id');
             $table->unsignedBigInteger('original_order_id');
             $table->unsignedBigInteger('order_id')->nullable();
+            $table->string('mollie_refund_id');
+            $table->string('mollie_refund_status');
             $table->timestamps();
         });
 

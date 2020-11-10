@@ -95,6 +95,7 @@ class RefundBuilder
             'owner_id' => $this->order->owner_id,
             'original_order_id' => $this->order->getKey(),
             'mollie_refund_id' => $mollieRefund->id,
+            'mollie_refund_status' => $mollieRefund->status,
         ]);
 
         $refundRecord->items()->saveMany($this->items);

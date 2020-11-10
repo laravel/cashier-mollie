@@ -13,6 +13,7 @@ use Laravel\Cashier\Refunds\RefundItem;
 use Laravel\Cashier\Tests\BaseTestCase;
 use Mollie\Api\MollieApiClient;
 use Mollie\Api\Resources\Refund as MollieRefund;
+use Mollie\Api\Types\RefundStatus as MollieRefundStatus;
 
 class RefundsBuilderTest extends BaseTestCase
 {
@@ -29,6 +30,7 @@ class RefundsBuilderTest extends BaseTestCase
         $this->mock(CreateMollieRefund::class, function (CreateMollieRefund $mock) {
             $mollieRefund = new MollieRefund(new MollieApiClient);
             $mollieRefund->id = 're_dummy_refund_id';
+            $mollieRefund->status = MollieRefundStatus::STATUS_PENDING;
             $mock->shouldReceive('execute')->with('tr_dummy_payment_id', [
                 'amount' => [
                     'value' => '22.00',
@@ -62,6 +64,8 @@ class RefundsBuilderTest extends BaseTestCase
 
         $this->assertInstanceOf(Refund::class, $refund);
         $this->assertEquals('re_dummy_refund_id', $refund->mollie_refund_id);
+        $this->assertEquals(MollieRefundStatus::STATUS_PENDING, $refund->mollie_refund_status);
+        $this->assertNull($refund->order_id);
 
         $refundItems = $refund->items;
         $this->assertCount(2, $refundItems);
