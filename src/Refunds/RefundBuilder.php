@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Laravel\Cashier\Refunds;
 
+use Laravel\Cashier\Events\RefundInitiated;
 use Laravel\Cashier\Mollie\Contracts\CreateMollieRefund;
 use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Order\OrderItem;
@@ -99,6 +100,8 @@ class RefundBuilder
         ]);
 
         $refundRecord->items()->saveMany($this->items);
+
+        event(new RefundInitiated($refundRecord));
 
         return $refundRecord;
     }

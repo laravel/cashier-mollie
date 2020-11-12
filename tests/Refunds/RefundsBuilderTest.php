@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Laravel\Cashier\Tests\Refunds;
 
+use Illuminate\Support\Facades\Event;
+use Laravel\Cashier\Events\RefundInitiated;
 use Laravel\Cashier\Mollie\Contracts\CreateMollieRefund;
 use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Order\OrderItem;
@@ -27,6 +29,7 @@ class RefundsBuilderTest extends BaseTestCase
     /** @test */
     public function can_create_a_refund_for_a_complete_order(): void
     {
+        Event::fake();
         $this->mock(CreateMollieRefund::class, function (CreateMollieRefund $mock) {
             $mollieRefund = new MollieRefund(new MollieApiClient);
             $mollieRefund->id = 're_dummy_refund_id';
@@ -86,5 +89,9 @@ class RefundsBuilderTest extends BaseTestCase
         $this->assertEquals($itemB->unit_price, 500);
         $this->assertEquals($itemB->tax_percentage, 10);
         $this->assertEquals($itemB->currency, 'EUR');
+
+        Event::assertDispatched(RefundInitiated::class, function (RefundInitiated $event) use ($refund) {
+            return $event->refund->is($refund);
+        });
     }
 }
