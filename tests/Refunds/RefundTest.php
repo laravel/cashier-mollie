@@ -36,9 +36,10 @@ class RefundTest extends BaseTestCase
         /** @var \Laravel\Cashier\Order\Order $order */
         $order = $refund->order;
         $this->assertTrue($order->isProcessed());
-        $this->assertEquals($refund->total, $order->total_due);
+        $this->assertEquals(( - $refund->total), $order->total_due);
 
         // TODO Assert that refund is stored as orderable on order_item
+        // TODO Assert that on original order (items), optional `handlePaymentRefunded` was called
 
         Event::assertDispatched(RefundProcessed::class, function (RefundProcessed $event) use ($refund) {
             return $event->refund->is($refund);
