@@ -84,10 +84,13 @@ class RefundBuilder
 
     public function create(): Refund
     {
+        $total = money_to_decimal($this->items->getTotal());
+        $currency = $this->order->getCurrency();
+
         $mollieRefund = $this->createMollieRefund->execute($this->order->mollie_payment_id, [
             'amount' => [
                 'value' => money_to_decimal($this->items->getTotal()),
-                'currency' => $this->order->getCurrency(),
+                'currency' => $currency,
             ],
         ]);
 
@@ -95,6 +98,8 @@ class RefundBuilder
             'owner_type' => $this->order->owner_type,
             'owner_id' => $this->order->owner_id,
             'original_order_id' => $this->order->getKey(),
+            'total' => $total,
+            'currency' => $currency,
             'mollie_refund_id' => $mollieRefund->id,
             'mollie_refund_status' => $mollieRefund->status,
         ]);

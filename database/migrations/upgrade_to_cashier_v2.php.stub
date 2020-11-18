@@ -26,6 +26,8 @@ class UpgradeToCashierV2 extends Migration
             $table->unsignedBigInteger('order_id')->nullable();
             $table->string('mollie_refund_id');
             $table->string('mollie_refund_status');
+            $table->integer('total');
+            $table->string('currency', 3);
             $table->timestamps();
         });
 
@@ -33,6 +35,10 @@ class UpgradeToCashierV2 extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('refund_id');
             $table->unsignedBigInteger('original_order_item_id')->nullable();
+            $table->string('owner_type');
+            $table->unsignedBigInteger('owner_id');
+            $table->string('description');
+            $table->text('description_extra_lines')->nullable();
             $table->string('currency', 3);
             $table->unsignedInteger('quantity');
             $table->integer('unit_price');

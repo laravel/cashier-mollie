@@ -5,8 +5,10 @@ namespace Laravel\Cashier\Tests\Refunds;
 
 use Illuminate\Support\Facades\Event;
 use Laravel\Cashier\Events\RefundProcessed;
+use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Order\OrderItem;
 use Laravel\Cashier\Refunds\Refund;
+use Laravel\Cashier\Refunds\RefundItem;
 use Laravel\Cashier\Refunds\RefundItemCollection;
 use Laravel\Cashier\Tests\BaseTestCase;
 use Mollie\Api\Types\RefundStatus as MollieRefundStatus;
@@ -19,12 +21,18 @@ class RefundTest extends BaseTestCase
         Event::fake();
         $this->withPackageMigrations();
 
+        $user = $this->getCustomerUser();
+        $originalOrderItems = factory(OrderItem::class, 2)->create();
+        $originalOrder = Order::createProcessedFromItems($originalOrderItems);
+
         /** @var Refund $refund */
-        $refund = factory(Refund::class)->create();
+        $refund = factory(Refund::class)->create([
+            'total' => 29524,
+            'currency' => 'EUR',
+        ]);
+
         $refund->items()->saveMany(
-            RefundItemCollection::makeFromOrderItemCollection(
-                factory(OrderItem::class, 2)->make()
-            )->toArray()
+            RefundItemCollection::makeFromOrderItemCollection($originalOrderItems)
         );
         $this->assertEquals(MollieRefundStatus::STATUS_PENDING, $refund->mollie_refund_status);
 
@@ -33,13 +41,11 @@ class RefundTest extends BaseTestCase
         $this->assertNotNull($refund->order_id);
         $this->assertEquals(MollieRefundStatus::STATUS_REFUNDED, $refund->mollie_refund_status);
 
-        /** @var \Laravel\Cashier\Order\Order $order */
         $order = $refund->order;
+        $this->assertTrue($order->isNot($originalOrder));
         $this->assertTrue($order->isProcessed());
-        $this->assertEquals(( - $refund->total), $order->total_due);
-
-        // TODO Assert that refund is stored as orderable on order_item
-        // TODO Assert that on original order (items), optional `handlePaymentRefunded` was called
+        $this->assertEquals(-29524, $order->total_due);
+        $this->assertInstanceOf(RefundItem::class, $order->items->first()->orderable);
 
         Event::assertDispatched(RefundProcessed::class, function (RefundProcessed $event) use ($refund) {
             return $event->refund->is($refund);

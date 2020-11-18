@@ -21,6 +21,8 @@ use Laravel\Cashier\Order\OrderItem;
 use Laravel\Cashier\Order\OrderItemCollection;
 use Laravel\Cashier\Plan\Contracts\Plan;
 use Laravel\Cashier\Plan\Contracts\PlanRepository;
+use Laravel\Cashier\Refunds\RefundItem;
+use Laravel\Cashier\Tests\Refunds\Contracts\IsRefundable;
 use Laravel\Cashier\Traits\HasOwner;
 use Laravel\Cashier\Types\SubscriptionCancellationReason;
 use LogicException;
@@ -43,7 +45,7 @@ use Money\Money;
  * @property float cycle_progress
  * @property float cycle_left
  */
-class Subscription extends Model implements InteractsWithOrderItems, PreprocessesOrderItems, AcceptsCoupons
+class Subscription extends Model implements InteractsWithOrderItems, PreprocessesOrderItems, AcceptsCoupons, IsRefundable
 {
     use HasOwner;
 
@@ -562,6 +564,11 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
     public static function handlePaymentPaid(OrderItem $item)
     {
         // Subscriptions are prolonged optimistically (so before payment is being completely processed).
+    }
+
+    public static function handlePaymentRefunded(RefundItem $refundItem)
+    {
+        //
     }
 
     /**
