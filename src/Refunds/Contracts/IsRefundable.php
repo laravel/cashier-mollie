@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Laravel\Cashier\Tests\Refunds\Contracts;
+namespace Laravel\Cashier\Refunds\Contracts;
 
 use Laravel\Cashier\Refunds\RefundItem;
 

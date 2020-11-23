@@ -22,7 +22,7 @@ use Laravel\Cashier\Order\OrderItemCollection;
 use Laravel\Cashier\Plan\Contracts\Plan;
 use Laravel\Cashier\Plan\Contracts\PlanRepository;
 use Laravel\Cashier\Refunds\RefundItem;
-use Laravel\Cashier\Tests\Refunds\Contracts\IsRefundable;
+use Laravel\Cashier\Refunds\Contracts\IsRefundable;
 use Laravel\Cashier\Traits\HasOwner;
 use Laravel\Cashier\Types\SubscriptionCancellationReason;
 use LogicException;
