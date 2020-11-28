@@ -24,10 +24,10 @@ class CashierServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        $this->mergeConfig();
         if (Cashier::$registersRoutes) {
             $this->loadRoutesFrom(__DIR__.'/../routes/webhooks.php');
         }
-        $this->mergeConfig();
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'cashier');
 
         mollie()->addVersionString('MollieLaravelCashier/' . self::PACKAGE_VERSION);
