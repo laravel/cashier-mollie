@@ -96,8 +96,6 @@ class OrderItemTest extends BaseTestCase
 
         $orderItem = factory(OrderItem::class)->create();
 
-        dd($orderItem);
-
         $this->assertEquals($newUserMorphKey, (new User())->getMorphClass());
         $this->assertEquals($newSubscriptionMorphKey, (new Subscription())->getMorphClass());
         $this->assertEquals((new User())->getMorphClass(), $orderItem->owner_type);
