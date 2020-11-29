@@ -30,7 +30,7 @@
         }
     ],
     "require": {
-        "php": "^7.2",
+        "php": "^7.2|^8.0",
         "ext-json": "*",
         "ext-intl": "*",
         "dompdf/dompdf": "^0.8.0",
