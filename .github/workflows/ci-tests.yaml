@@ -1,0 +1,54 @@
+name: tests (with integration tests)
+
+on:
+    push:
+    pull_request:
+    schedule:
+        - cron: '0 0 * * *'
+
+jobs:
+    tests:
+
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: true
+            matrix:
+                php: [7.2, 7.3, 7.4]
+                laravel: [^6.0, ^7.0, ^8.0]
+                exclude:
+                    - php: 7.2
+                      laravel: ^8.0
+
+        name: P${{ matrix.php }} - L${{ matrix.laravel }}
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php }}
+                  extensions: curl, dom, intl, json, libxml, mbstring, openssl, zip
+                  tools: composer:v2
+                  coverage: xdebug
+
+            - name: Remove Legacy Factories dependency
+              if: matrix.laravel != '^8.0'
+              run: composer remove "laravel/legacy-factories" --dev --no-interaction --no-update
+
+            - name: Install dependencies
+              run: |
+                  composer require "illuminate/contracts=${{ matrix.laravel }}" --no-update
+                  composer update --prefer-dist --no-interaction --no-progress
+
+            - name: Execute tests
+              run: vendor/bin/phpunit --coverage-text
+              env:
+                  MOLLIE_KEY: ${{ secrets.MOLLIE_KEY }}
+                  MANDATED_CUSTOMER_DIRECTDEBIT: ${{ secrets.MANDATED_CUSTOMER_DIRECTDEBIT }}
+                  MANDATED_CUSTOMER_DIRECTDEBIT_MANDATE_ID: ${{ secrets.MANDATED_CUSTOMER_DIRECTDEBIT_MANDATE_ID }}
+                  SUBSCRIPTION_MANDATE_PAYMENT_PAID_ID: ${{ secrets.SUBSCRIPTION_MANDATE_PAYMENT_PAID_ID }}
+                  MANDATE_PAYMENT_PAID_ID: ${{ secrets.MANDATE_PAYMENT_PAID_ID }}
+                  PAYMENT_PAID_ID: ${{ secrets.PAYMENT_PAID_ID }}
+                  PAYMENT_FAILED_ID: ${{ secrets.PAYMENT_FAILED_ID }}
