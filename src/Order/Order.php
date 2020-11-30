@@ -17,6 +17,7 @@ use Laravel\Cashier\Events\OrderProcessed;
 use Laravel\Cashier\Exceptions\InvalidMandateException;
 use Laravel\Cashier\MandatedPayment\MandatedPaymentBuilder;
 use Laravel\Cashier\Order\Contracts\MinimumPayment;
+use Laravel\Cashier\Refunds\Refund;
 use Laravel\Cashier\Traits\HasOwner;
 use LogicException;
 use Mollie\Api\Resources\Mandate;
@@ -40,6 +41,7 @@ use Mollie\Api\Types\PaymentStatus;
  * @property int amount_refunded
  * @property int amount_charged_back
  * @property \Laravel\Cashier\Order\OrderItemCollection items
+ * @property \Laravel\Cashier\Refunds\RefundCollection refunds
  * @method static create(array $data)
  */
 class Order extends Model
@@ -237,6 +239,11 @@ class Order extends Model
     public function items()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function refunds()
+    {
+        return $this->hasMany(Refund::class);
     }
 
     /**

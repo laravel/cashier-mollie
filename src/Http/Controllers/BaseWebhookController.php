@@ -10,7 +10,7 @@ abstract class BaseWebhookController
     /**
      * @var \Laravel\Cashier\Mollie\Contracts\GetMolliePayment
      */
-    protected $getMolliePayment;
+    protected GetMolliePayment $getMolliePayment;
 
     public function __construct(GetMolliePayment $getMolliePayment)
     {

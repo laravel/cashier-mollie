@@ -6,7 +6,9 @@ namespace Laravel\Cashier\Refunds;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
+use Laravel\Cashier\Events\RefundFailed;
 use Laravel\Cashier\Events\RefundProcessed;
 use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Traits\HasOwner;
@@ -23,12 +25,38 @@ use Mollie\Api\Types\RefundStatus;
  * @property int|null order_id
  * @property \Laravel\Cashier\Refunds\RefundItemCollection items
  * @property Order order
+ * @property Order originalOrder
  */
 class Refund extends Model
 {
     use HasOwner;
 
     protected $guarded = [];
+
+    /**
+     * Create a new Refund Collection instance.
+     *
+     * @param  array  $models
+     * @return \Laravel\Cashier\Refunds\RefundCollection
+     */
+    public function newCollection(array $models = [])
+    {
+        return new RefundCollection($models);
+    }
+
+    /**
+     * Scope the query to only include unprocessed refunds.
+     *
+     * @param $query
+     * @return Builder
+     */
+    public function scopeWhereUnprocessed(Builder $query)
+    {
+        return $query->whereIn('mollie_refund_status', [
+            RefundStatus::STATUS_REFUNDED,
+            RefundStatus::STATUS_FAILED,
+        ]);
+    }
 
     public function items(): HasMany
     {
@@ -61,9 +89,31 @@ class Refund extends Model
             $refundItems->each(function (RefundItem $refundItem) {
                 $refundItem->originalOrderItem->handlePaymentRefunded($refundItem);
             });
+
+            $this->originalOrder->increment('amount_refunded', (int) $refundItems->getTotal()->getAmount());
         });
 
         event(new RefundProcessed($this));
+
+        return $this;
+    }
+
+    public function handleFailed(): self
+    {
+        $refundItems = $this->items;
+
+        DB::transaction(function () use ($refundItems) {
+
+            $this->mollie_refund_status = RefundStatus::STATUS_FAILED;
+
+            $this->save();
+
+            $refundItems->each(function (RefundItem $refundItem) {
+                $refundItem->originalOrderItem->handlePaymentRefundFailed($refundItem);
+            });
+        });
+
+        event(new RefundFailed($this));
 
         return $this;
     }

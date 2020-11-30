@@ -318,12 +318,29 @@ class OrderItem extends Model implements InvoicableItem
      * Handle a payment refund on the order item.
      * Invokes handlePaymentRefunded on the orderable model.
      *
+     * @param \Laravel\Cashier\Refunds\RefundItem $refundItem
      * @return $this
      */
     public function handlePaymentRefunded(RefundItem $refundItem)
     {
         if($this->orderableIsSet()) {
             $this->orderable_type::handlePaymentRefunded($refundItem);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Handle a failed payment refund on the order item.
+     * Invokes handlePaymentRefundFailed on the orderable model.
+     *
+     * @param \Laravel\Cashier\Refunds\RefundItem $refundItem
+     * @return $this
+     */
+    public function handlePaymentRefundFailed(RefundItem $refundItem)
+    {
+        if($this->orderableIsSet()) {
+            $this->orderable_type::handlePaymentRefundFailed($refundItem);
         }
 
         return $this;

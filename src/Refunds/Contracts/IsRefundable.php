@@ -12,4 +12,10 @@ interface IsRefundable
      * @return void
      */
     public static function handlePaymentRefunded(RefundItem $refundItem);
+
+    /**
+     * @param \Laravel\Cashier\Refunds\RefundItem $refundItem
+     * @return void
+     */
+    public static function handlePaymentRefundFailed(RefundItem $refundItem);
 }

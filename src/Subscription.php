@@ -571,6 +571,11 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
         //
     }
 
+    public static function handlePaymentRefundFailed(RefundItem $refundItem)
+    {
+        //
+    }
+
     /**
      * Increment the quantity of the subscription.
      *
