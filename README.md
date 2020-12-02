@@ -511,7 +511,7 @@ __Use these with care:__
 
 ```php
 $credit = $user->credit('EUR');
-$user->addCredit(new Amount(10, 'EUR')); // add €10.00
+$user->addCredit(money(10, 'EUR')); // add €10.00
 $user->hasCredit('EUR');
 ```
 
