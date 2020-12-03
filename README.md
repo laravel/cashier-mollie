@@ -5,15 +5,8 @@
 
 <img src="https://info.mollie.com/hubfs/github/laravel-cashier/editorLaravel.jpg" />
 
-<!--
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/mollie/laravel-cashier.svg?style=flat-square)](https://packagist.org/packages/mollie/laravel-cashier)
--->
-[![Build Status](https://travis-ci.org/laravel/cashier-mollie.svg?branch=master)](https://travis-ci.org/laravel/cashier-mollie)
-<!--
-[![SensioLabsInsight](https://img.shields.io/sensiolabs/i/xxxxxxxxx.svg?style=flat-square)](https://insight.sensiolabs.com/projects/xxxxxxxxx)
-[![Quality Score](https://img.shields.io/scrutinizer/g/mollie/:package_name.svg?style=flat-square)](https://scrutinizer-ci.com/g/mollie/:package_name)
-[![Total Downloads](https://img.shields.io/packagist/dt/mollie/:package_name.svg?style=flat-square)](https://packagist.org/packages/mollie/:package_name)
--->
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/laravel/cashier-mollie.svg?style=flat-square)](https://packagist.org/packages/laravel/cashier-mollie)
+[![Github Actions](https://github.com/laravel/cashier-mollie/workflows/tests/badge.svg)](https://github.com/laravel/cashier-mollie/actions)
 
 Laravel Cashier provides an expressive, fluent interface to subscriptions using [Mollie](https://www.mollie.com)'s billing services.
 
