@@ -82,4 +82,16 @@ class HelpersTest extends TestCase
         $this->assertTrue(Money::EUR(1234)->equals($moneyEUR));
         $this->assertTrue(Money::USD(9876)->equals($moneyUSD));
     }
+
+    /** @test */
+    public function testRoundedType()
+    {
+        $down = rounded_type(Money::EUR(1000), 0.21); //total is 1001
+        $equals = rounded_type(Money::EUR(1100), 0.21); // total is 1100
+        $up = rounded_type(Money::EUR(2100), 0.21); // total is 2099
+
+        $this->assertSame(Money::ROUND_UP, $down);
+        $this->assertSame(Money::ROUND_HALF_UP, $equals);
+        $this->assertSame(Money::ROUND_DOWN, $up);
+    }
 }

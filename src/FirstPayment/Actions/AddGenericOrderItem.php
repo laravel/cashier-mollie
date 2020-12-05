@@ -13,14 +13,16 @@ class AddGenericOrderItem extends BaseAction
      * @param \Illuminate\Database\Eloquent\Model $owner
      * @param \Money\Money $subtotal
      * @param string $description
+     * @param int $roundedType
      */
-    public function __construct(Model $owner, Money $subtotal, string $description)
+    public function __construct(Model $owner, Money $subtotal, string $description, int $roundedType = 5)
     {
         $this->owner = $owner;
         $this->taxPercentage = $this->owner->taxPercentage();
         $this->unitPrice = $subtotal;
         $this->currency = $subtotal->getCurrency()->getCode();
         $this->description = $description;
+        $this->roundedType = $roundedType;
     }
 
     /**

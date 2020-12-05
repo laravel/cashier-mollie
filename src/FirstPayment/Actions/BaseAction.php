@@ -25,6 +25,8 @@ abstract class BaseAction
     /** @var int */
     protected $quantity = 1;
 
+    /** @var int */
+    protected $roundedType = 5;
     /**
      * Rebuild the Action from a payload.
      *
@@ -70,6 +72,14 @@ abstract class BaseAction
     }
 
     /**
+     * @return int
+     */
+    public function getRoundedType()
+    {
+        return $this->roundedType;
+    }
+
+    /**
      * @return float
      */
     public function getTaxPercentage()
@@ -112,7 +122,7 @@ abstract class BaseAction
     {
         return $this->getSubtotal()
                     ->multiply($this->getTaxPercentage())
-                    ->divide(100);
+                    ->divide(100, $this->getRoundedType());
     }
 
     /**

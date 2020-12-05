@@ -89,18 +89,19 @@ class FirstPaymentSubscriptionBuilder implements Contract
         if($this->isTrial) {
             $taxPercentage = $this->owner->taxPercentage() * 0.01;
             $total = $this->plan->firstPaymentAmount();
-
             if($total->isZero()) {
                 $vat = $total->subtract($total); // zero VAT
             } else {
-                $vat = $total->divide(1 + $taxPercentage)->multiply($taxPercentage);
+                $vat = $total->divide(1 + $taxPercentage)
+                             ->multiply($taxPercentage, rounded_type($total, $taxPercentage));
             }
             $subtotal = $total->subtract($vat);
 
             $actions[] = new AddGenericOrderItem(
                 $this->owner,
                 $subtotal,
-                $this->plan->firstPaymentDescription()
+                $this->plan->firstPaymentDescription(),
+                rounded_type($total, $taxPercentage)
             );
         } elseif ($coupon) {
             $actions[] = new ApplySubscriptionCouponToPayment($this->owner, $coupon, $actions->processedOrderItems());
