@@ -64,11 +64,11 @@ class FirstPaymentSubscriptionBuilderApplyCorrectTaxTest extends BaseTestCase
     }
 
     /** @test */
-    public function roundedModeReturnCorrectValue()
+    public function roundingModeReturnCorrectValue()
     {
-        $down = $this->getBuilder()->roundedMode(Money::EUR(1000), 0.21); //total is 1001
-        $equals = $this->getBuilder()->roundedMode(Money::EUR(1100), 0.21); // total is 1100
-        $up = $this->getBuilder()->roundedMode(Money::EUR(2100), 0.21); // total is 2099
+        $down = $this->getBuilder()->roundingMode(Money::EUR(1000), 0.21); //total is 1001
+        $equals = $this->getBuilder()->roundingMode(Money::EUR(1100), 0.21); // total is 1100
+        $up = $this->getBuilder()->roundingMode(Money::EUR(2100), 0.21); // total is 2099
 
         $this->assertSame(Money::ROUND_UP, $down);
         $this->assertSame(Money::ROUND_HALF_UP, $equals);

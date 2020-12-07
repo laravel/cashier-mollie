@@ -27,7 +27,7 @@ abstract class BaseAction
     protected $quantity = 1;
 
     /** @var int */
-    protected $roundedMode = Money::ROUND_HALF_UP;
+    protected $roundingMode = Money::ROUND_HALF_UP;
     /**
      * Rebuild the Action from a payload.
      *
@@ -75,9 +75,9 @@ abstract class BaseAction
     /**
      * @return int
      */
-    public function getRoundedMode()
+    public function getRoundingMode()
     {
-        return $this->roundedMode;
+        return $this->roundingMode;
     }
 
     /**
@@ -123,7 +123,7 @@ abstract class BaseAction
     {
         return $this->getSubtotal()
                     ->multiply($this->getTaxPercentage())
-                    ->divide(100, $this->getRoundedMode());
+                    ->divide(100, $this->getRoundingMode());
     }
 
     /**
