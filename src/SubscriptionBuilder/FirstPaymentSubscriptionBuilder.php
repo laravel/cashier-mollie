@@ -94,7 +94,7 @@ class FirstPaymentSubscriptionBuilder implements Contract
                 $vat = $total->subtract($total); // zero VAT
             } else {
                 $vat = $total->divide(1 + $taxPercentage)
-                             ->multiply($taxPercentage, $this->roundedType($total, $taxPercentage));
+                             ->multiply($taxPercentage, $this->roundedMode($total, $taxPercentage));
             }
             $subtotal = $total->subtract($vat);
 
@@ -102,7 +102,7 @@ class FirstPaymentSubscriptionBuilder implements Contract
                 $this->owner,
                 $subtotal,
                 $this->plan->firstPaymentDescription(),
-                $this->roundedType($total, $taxPercentage)
+                $this->roundedMode($total, $taxPercentage)
             );
         } elseif ($coupon) {
             $actions[] = new ApplySubscriptionCouponToPayment($this->owner, $coupon, $actions->processedOrderItems());
@@ -249,8 +249,9 @@ class FirstPaymentSubscriptionBuilder implements Contract
      * @param \Money\Money $total
      * @param float $taxPercentage
      *
+     * @return int
      */
-    public function roundedType(Money $total, float $taxPercentage)
+    public function roundedMode(Money $total, float $taxPercentage)
     {
         $vat = $total->divide(1 + $taxPercentage)->multiply($taxPercentage);
 
