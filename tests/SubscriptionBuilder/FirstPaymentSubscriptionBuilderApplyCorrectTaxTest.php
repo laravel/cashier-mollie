@@ -23,6 +23,7 @@ use Mollie\Api\MollieApiClient;
 use Mollie\Api\Resources\Customer;
 use Mollie\Api\Resources\Mandate;
 use Mollie\Api\Resources\Payment;
+use Money\Money;
 
 class FirstPaymentSubscriptionBuilderApplyCorrectTaxTest extends BaseTestCase
 {
@@ -60,6 +61,18 @@ class FirstPaymentSubscriptionBuilderApplyCorrectTaxTest extends BaseTestCase
                 $trialBuilder->getMandatePaymentBuilder()->getMolliePayload()['amount']['value']
             );
         });
+    }
+
+    /** @test */
+    public function roundedTypeReturnCorrectValue()
+    {
+        $down = $this->getBuilder()->roundedType(Money::EUR(1000), 0.21); //total is 1001
+        $equals = $this->getBuilder()->roundedType(Money::EUR(1100), 0.21); // total is 1100
+        $up = $this->getBuilder()->roundedType(Money::EUR(2100), 0.21); // total is 2099
+
+        $this->assertSame(Money::ROUND_UP, $down);
+        $this->assertSame(Money::ROUND_HALF_UP, $equals);
+        $this->assertSame(Money::ROUND_DOWN, $up);
     }
 
     /**
