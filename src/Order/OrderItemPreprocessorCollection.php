@@ -2,9 +2,9 @@
 
 namespace Laravel\Cashier\Order;
 
+use \Laravel\Cashier\Order\BaseOrderItemPreprocessor as Preprocessor;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Collection as BaseCollection;
-use \Laravel\Cashier\Order\BaseOrderItemPreprocessor as Preprocessor;
 
 /**
  * A collection of instantiable OrderItemPreprocessor class strings.
@@ -34,7 +34,7 @@ class OrderItemPreprocessorCollection extends Collection
      */
     public function handle(OrderItem $item)
     {
-        $items = $this->reduce(function($carry, Preprocessor $preprocessor) {
+        $items = $this->reduce(function ($carry, Preprocessor $preprocessor) {
             return $preprocessor->handle($carry);
         }, $item->toCollection());
 

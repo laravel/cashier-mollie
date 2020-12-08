@@ -23,6 +23,4 @@ class RedeemedCouponTest extends BaseTestCase
         $this->assertEquals(0, $redeemedCoupon->times_left);
         $this->assertFalse($redeemedCoupon->isActive());
     }
-
-
 }

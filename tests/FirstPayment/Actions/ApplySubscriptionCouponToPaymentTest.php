@@ -13,7 +13,9 @@ use Laravel\Cashier\Tests\Fixtures\User;
 class ApplySubscriptionCouponToPaymentTest extends BaseTestCase
 {
     private $action;
+
     private $coupon;
+
     private $owner;
 
     protected function setUp(): void
