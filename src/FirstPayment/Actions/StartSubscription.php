@@ -145,7 +145,7 @@ class StartSubscription extends BaseAction implements SubscriptionConfigurator
     protected function processedOrderItemData()
     {
         return [
-            'owner_type' => get_class($this->owner),
+            'owner_type' => $this->owner->getMorphClass(),
             'owner_id' => $this->owner->id,
             'process_at' => now(),
             'description' => $this->getDescription(),

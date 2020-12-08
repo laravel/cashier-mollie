@@ -69,7 +69,7 @@ class FirstPaymentBuilderTest extends BaseTestCase
             'webhookUrl' => 'https://www.example.com/mandate-webhook',
             'metadata' => [
                 'owner' => [
-                    'type' => get_class($owner),
+                    'type' => $owner->getMorphClass(),
                     'id' => $owner->id,
                 ],
                 'actions' => [

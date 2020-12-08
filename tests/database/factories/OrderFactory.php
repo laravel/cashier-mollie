@@ -9,7 +9,7 @@ use Laravel\Cashier\Tests\Fixtures\User;
 $factory->define(Order::class, function (Faker $faker) {
     return [
         'owner_id' => 1,
-        'owner_type' => User::class,
+        'owner_type' => (new User())->getMorphClass(),
         'currency' => 'EUR',
         'subtotal' => 123,
         'tax' => 0,

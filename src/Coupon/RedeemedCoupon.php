@@ -36,8 +36,8 @@ class RedeemedCoupon extends Model
         return $model->redeemedCoupons()->create([
             'name' => $coupon->name(),
             'times_left' => $coupon->times(),
-            'owner_type' => $model->ownerType(),
-            'owner_id' => $model->ownerId(),
+            'owner_type' => $model->owner_type,
+            'owner_id' => $model->owner_id,
         ]);
     }
 

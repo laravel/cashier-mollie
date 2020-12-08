@@ -2,9 +2,12 @@
 
 namespace Laravel\Cashier\Tests\Order;
 
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Laravel\Cashier\Order\OrderItem;
 use Laravel\Cashier\Order\OrderItemCollection;
+use Laravel\Cashier\Subscription;
 use Laravel\Cashier\Tests\BaseTestCase;
+use Laravel\Cashier\Tests\Fixtures\User;
 
 class OrderItemTest extends BaseTestCase
 {
@@ -77,6 +80,26 @@ class OrderItemTest extends BaseTestCase
         $this->assertEquals(2, OrderItem::processed()->count());
         $this->assertEquals(2, OrderItem::processed(true)->count());
         $this->assertEquals(3, OrderItem::processed(false)->count());
+    }
+
+    public function testOrderItemTableHasCorrectOrderableType()
+    {
+        $newUserMorphKey = 'user';
+        $newSubscriptionMorphKey = 'subscription';
+
+        Relation::morphMap([
+            $newUserMorphKey => User::class,
+            $newSubscriptionMorphKey => Subscription::class,
+        ]);
+
+        $this->withPackageMigrations();
+
+        $orderItem = factory(OrderItem::class)->create();
+
+        $this->assertEquals($newUserMorphKey, (new User())->getMorphClass());
+        $this->assertEquals($newSubscriptionMorphKey, (new Subscription())->getMorphClass());
+        $this->assertEquals((new User())->getMorphClass(), $orderItem->owner_type);
+        $this->assertEquals((new Subscription())->getMorphClass(), $orderItem->orderable_type);
     }
 
     public function testScopeUnprocessed()

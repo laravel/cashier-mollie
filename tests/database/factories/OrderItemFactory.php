@@ -9,9 +9,9 @@ use Laravel\Cashier\Tests\Fixtures\User;
 
 $factory->define(OrderItem::class, function (Faker $faker) {
     return [
-        'owner_type' => User::class,
+        'owner_type' => (new User())->getMorphClass(),
         'owner_id' => 1,
-        'orderable_type' => Subscription::class,
+        'orderable_type' => (new Subscription())->getMorphClass(),
         'orderable_id' => 1,
         'description' => 'Some dummy description',
         'unit_price' => 12150,

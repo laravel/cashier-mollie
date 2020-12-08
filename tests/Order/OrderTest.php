@@ -3,6 +3,8 @@
 namespace Laravel\Cashier\Tests\Order;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Event;
 use Laravel\Cashier\Mollie\Contracts\CreateMolliePayment;
 use Laravel\Cashier\Mollie\Contracts\GetMollieCustomer;
@@ -91,7 +93,7 @@ class OrderTest extends BaseTestCase
             factory(OrderItem::class, 2)->make([
                 'process_at' => now()->subMinute(), // sub minute so we're sure it's ready to be processed
                 'owner_id' => $user->id,
-                'owner_type' => get_class($user),
+                'owner_type' => $user->getMorphClass(),
                 'currency' => 'EUR',
                 'quantity' => 1,
                 'unit_price' => 12345, // includes vat
@@ -128,12 +130,40 @@ class OrderTest extends BaseTestCase
     }
 
     /** @test */
+    public function canCreateFromOrderItemsWithCustomPolymorphicRelation()
+    {
+        Relation::morphMap([
+            'user' => User::class, // Model with Billable trait
+            'order' => Order::class,
+        ]);
+
+        $user = $this->getMandatedUser(true, ['id' => 2]);
+        $subscription = $this->createMonthlySubscription();
+
+        $subscription->orderItems()->saveMany(
+            factory(OrderItem::class, 2)->make([
+                'process_at' => now()->subMinute(), // sub minute so we're sure it's ready to be processed
+                'owner_id' => $user->id,
+                'owner_type' => $user->getMorphClass(),
+                'currency' => 'EUR',
+                'quantity' => 1,
+                'unit_price' => 12345, // includes vat
+                'tax_percentage' => 21.5,
+            ])
+        );
+
+        $order = Order::createFromItems(OrderItem::all());
+
+        $this->assertEquals((new User())->getMorphClass(), $order->owner_type);
+    }
+
+    /** @test */
     public function creatingANewOrderSchedulesNextOrderItems()
     {
         $user = factory(User::class)->create(['id' => 2]);
         $subscription = factory(Subscription::class)->create([
             'owner_id' => $user->id,
-            'owner_type' => get_class($user),
+            'owner_type' => $user->getMorphClass(),
             'plan' => 'monthly-10-1',
             'cycle_ends_at' => now(),
         ]);
@@ -185,7 +215,7 @@ class OrderTest extends BaseTestCase
 
         $subscription = factory(Subscription::class)->create([
             'owner_id' => $user->id,
-            'owner_type' => get_class($user),
+            'owner_type' => $user->getMorphClass(),
             'plan' => 'monthly-10-1',
             'cycle_ends_at' => now(),
         ]);
@@ -510,7 +540,7 @@ class OrderTest extends BaseTestCase
             'orderable_id' => null,
             'process_at' => now()->subMinute(), // sub minute so we're sure it's ready to be processed
             'owner_id' => $user->id,
-            'owner_type' => get_class($user),
+            'owner_type' => $user->getMorphClass(),
             'currency' => 'EUR',
             'quantity' => 1,
             'unit_price' => -12345, // includes vat

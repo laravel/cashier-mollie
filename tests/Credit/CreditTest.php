@@ -2,6 +2,7 @@
 
 namespace Laravel\Cashier\Tests\Credit;
 
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Laravel\Cashier\Credit\Credit;
 use Laravel\Cashier\Tests\BaseTestCase;
 use Laravel\Cashier\Tests\Fixtures\User;
@@ -47,5 +48,24 @@ class CreditTest extends BaseTestCase
 
         $this->assertTrue(Money::EUR(510)->equals($usedEUR));
         $this->assertEquals(11836, Credit::whereOwner($user)->whereCurrency('EUR')->first()->value);
+    }
+
+    public function testOwnerTypeIsSetOnCreditMorphColumn()
+    {
+        $this->withPackageMigrations();
+
+        $userMorphType = 'user';
+
+        Relation::morphMap([
+            $userMorphType => User::class,
+        ]);
+
+        $user = factory(User::class)->create();
+
+        Credit::addAmountForOwner($user, Money::USD(12348));
+
+        $credit = Credit::first();
+
+        $this->assertEquals($userMorphType, $credit->owner_type);
     }
 }
