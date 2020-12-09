@@ -87,9 +87,10 @@ class FirstPaymentSubscriptionBuilder implements Contract
         $actions = new ActionCollection([$this->startSubscription]);
         $coupon = $this->startSubscription->coupon();
 
-        if($this->isTrial) {
+        if ($this->isTrial) {
             $taxPercentage = $this->owner->taxPercentage() * 0.01;
             $total = $this->plan->firstPaymentAmount();
+          
             if($total->isZero()) {
                 $vat = $total->subtract($total); // zero VAT
             } else {

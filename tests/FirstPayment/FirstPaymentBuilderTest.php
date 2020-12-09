@@ -7,7 +7,6 @@ use Laravel\Cashier\FirstPayment\Actions\AddGenericOrderItem;
 use Laravel\Cashier\FirstPayment\FirstPaymentBuilder;
 use Laravel\Cashier\Mollie\Contracts\CreateMollieCustomer;
 use Laravel\Cashier\Mollie\Contracts\CreateMolliePayment;
-use Laravel\Cashier\Mollie\GetMollieCustomer;
 use Laravel\Cashier\Tests\BaseTestCase;
 use Laravel\Cashier\Tests\Fixtures\User;
 use Mollie\Api\MollieApiClient;
@@ -80,7 +79,7 @@ class FirstPaymentBuilderTest extends BaseTestCase
                             'currency' => 'EUR',
                         ],
                         'taxPercentage' => 0,
-                        'description' => 'Test add balance 1'
+                        'description' => 'Test add balance 1',
                     ],
                     [
                         'handler' => AddBalance::class,
@@ -89,7 +88,7 @@ class FirstPaymentBuilderTest extends BaseTestCase
                             'currency' => 'EUR',
                         ],
                         'taxPercentage' => 0,
-                        'description' => 'Test add balance 2'
+                        'description' => 'Test add balance 2',
                     ],
                 ],
             ],

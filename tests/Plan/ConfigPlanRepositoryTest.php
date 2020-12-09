@@ -118,5 +118,4 @@ class ConfigPlanRepositoryTest extends BaseTestCase
             new PersistOrderItemsPreprocessor,
         ], $plan->orderItemPreprocessors()->all());
     }
-
 }

@@ -15,9 +15,10 @@ if (! function_exists('object_to_array_recursive')) {
      */
     function object_to_array_recursive($object)
     {
-        if(empty($object)) {
+        if (empty($object)) {
             return null;
         }
+
         return json_decode(json_encode($object, JSON_FORCE_OBJECT), true);
     }
 }

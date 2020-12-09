@@ -108,7 +108,6 @@ class MandatedSubscriptionBuilderTest extends BaseTestCase
         $this->assertFalse($builder->makeSubscription()->onTrial());
     }
 
-
     /**
      * @return \Laravel\Cashier\SubscriptionBuilder\MandatedSubscriptionBuilder
      */

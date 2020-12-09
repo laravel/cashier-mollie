@@ -135,7 +135,6 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
             'currency' => 'EUR',
             'value' => 36,
         ], $payload['amount']);
-
     }
 
     /** @test */
@@ -206,7 +205,7 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
         $this->assertNull($this->user->mollie_mandate_id);
 
         $response = $this->post(route('webhooks.mollie.first_payment', [
-            'id' => 'tr_unique_payment_id'
+            'id' => 'tr_unique_payment_id',
         ]));
 
         $response->assertStatus(200);
@@ -223,6 +222,7 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
 
         Event::assertDispatched(SubscriptionStarted::class, function (SubscriptionStarted $e) use ($subscription) {
             $this->assertTrue($e->subscription->is($subscription));
+
             return true;
         });
     }

@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace Laravel\Cashier\Mollie;
 
-use Mollie\Api\Resources\Mandate;
 use Laravel\Cashier\Mollie\Contracts\GetMollieMandate as Contract;
+use Mollie\Api\Resources\Mandate;
 
 class GetMollieMandate extends BaseMollieInteraction implements Contract
 {

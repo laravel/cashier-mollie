@@ -88,5 +88,4 @@ class ConfigCouponRepositoryTest extends BaseTestCase
 
         $this->assertEquals(6, $coupon->times());
     }
-
 }

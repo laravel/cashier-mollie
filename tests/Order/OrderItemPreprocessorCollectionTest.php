@@ -59,4 +59,3 @@ class OrderItemPreprocessorCollectionTest extends BaseTestCase
         return (new FakeOrderItemPreprocessor)->withResult($items);
     }
 }
-

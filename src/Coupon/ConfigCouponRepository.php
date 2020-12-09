@@ -2,7 +2,6 @@
 
 namespace Laravel\Cashier\Coupon;
 
-use Illuminate\Config\Repository;
 use Laravel\Cashier\Coupon\Contracts\CouponRepository;
 use Laravel\Cashier\Exceptions\CouponNotFoundException;
 
@@ -33,7 +32,7 @@ class ConfigCouponRepository implements CouponRepository
     public function find(string $coupon)
     {
         $needle = strtolower($coupon);
-        if(array_key_exists($needle, $this->coupons)) {
+        if (array_key_exists($needle, $this->coupons)) {
             return $this->buildCoupon($needle);
         }
 

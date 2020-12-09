@@ -56,12 +56,12 @@ class FirstPaymentHandlerTest extends BaseTestCase
 
         $this->assertTrue($owner->hasCredit());
         $credit = $owner->credit('EUR');
-        $this->assertMoneyEURCents(1000,$credit->money());
+        $this->assertMoneyEURCents(1000, $credit->money());
 
         $this->assertEquals(2, $owner->orderItems()->count());
         $this->assertEquals(1, $owner->orders()->count());
 
-        $this->assertInstanceOf(Order::Class, $order);
+        $this->assertInstanceOf(Order::class, $order);
         $this->assertTrue($order->isProcessed());
 
         $this->assertEquals(2, $order->items()->count());
@@ -69,7 +69,7 @@ class FirstPaymentHandlerTest extends BaseTestCase
         $this->assertNotNull($owner->mollie_mandate_id);
         $this->assertEquals($payment->mandateId, $owner->mollie_mandate_id);
 
-        Event::assertDispatched(MandateUpdated::class, function(MandateUpdated $e) use ($owner, $payment) {
+        Event::assertDispatched(MandateUpdated::class, function (MandateUpdated $e) use ($owner, $payment) {
             $this->assertTrue($e->owner->is($owner));
             $this->assertSame($e->payment->id, $payment->id);
 

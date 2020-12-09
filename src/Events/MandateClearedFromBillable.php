@@ -28,4 +28,5 @@ class MandateClearedFromBillable
     {
         $this->owner = $owner;
         $this->oldMandateId = $oldMandateId;
-    }}
+    }
+}

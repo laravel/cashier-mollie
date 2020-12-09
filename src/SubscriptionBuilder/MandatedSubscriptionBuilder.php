@@ -32,7 +32,7 @@ class MandatedSubscriptionBuilder implements Contract
     /**
      * The quantity of the subscription.
      *
-     * @var integer
+     * @var int
      */
     protected $quantity = 1;
 
@@ -98,11 +98,11 @@ class MandatedSubscriptionBuilder implements Contract
             $subscription = $this->makeSubscription($now);
             $subscription->save();
 
-            if($this->coupon) {
-                if($this->validateCoupon) {
+            if ($this->coupon) {
+                if ($this->validateCoupon) {
                     $this->coupon->validateFor($subscription);
 
-                    if($this->handleCoupon) {
+                    if ($this->handleCoupon) {
                         $this->coupon->redeemFor($subscription);
                     }
                 }

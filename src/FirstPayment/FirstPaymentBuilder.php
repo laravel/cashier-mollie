@@ -131,7 +131,7 @@ class FirstPaymentBuilder
         $redirectUrl = $payload['redirectUrl'];
 
         // Parse and update redirectUrl
-        if(Str::contains($redirectUrl, '{payment_id}')) {
+        if (Str::contains($redirectUrl, '{payment_id}')) {
             $redirectUrl = Str::replaceArray('{payment_id}', [$this->molliePayment->id], $redirectUrl);
             $this->molliePayment->redirectUrl = $redirectUrl;
 
