@@ -71,7 +71,7 @@ class OrderItem extends Model implements InvoicableItem
     /**
      * Get the order item total before taxes.
      *
-     * @return integer
+     * @return int
      */
     public function getSubtotalAttribute()
     {
@@ -81,7 +81,7 @@ class OrderItem extends Model implements InvoicableItem
     /**
      * Get the order item tax money value.
      *
-     * @return integer
+     * @return int
      */
     public function getTaxAttribute()
     {
@@ -93,7 +93,7 @@ class OrderItem extends Model implements InvoicableItem
     /**
      * Get the order item total after taxes.
      *
-     * @return integer
+     * @return int
      */
     public function getTotalAttribute()
     {
@@ -111,7 +111,7 @@ class OrderItem extends Model implements InvoicableItem
      */
     public function scopeProcessed($query, $processed = true)
     {
-        if(! $processed) {
+        if (! $processed) {
             return $query->whereNull('order_id');
         }
 
@@ -180,7 +180,7 @@ class OrderItem extends Model implements InvoicableItem
      */
     public function preprocess()
     {
-        if($this->orderableIsSet()) {
+        if ($this->orderableIsSet()) {
             return $this->orderable->preprocessOrderItem($this);
         }
 
@@ -202,7 +202,7 @@ class OrderItem extends Model implements InvoicableItem
      */
     public function process()
     {
-        if($this->orderableIsSet()) {
+        if ($this->orderableIsSet()) {
             $result = $this->orderable->processOrderItem($this);
             $result->save();
 
@@ -292,7 +292,7 @@ class OrderItem extends Model implements InvoicableItem
      */
     public function handlePaymentFailed()
     {
-        if($this->orderableIsSet()) {
+        if ($this->orderableIsSet()) {
             $this->orderable_type::handlePaymentFailed($this);
         }
 
@@ -307,7 +307,7 @@ class OrderItem extends Model implements InvoicableItem
      */
     public function handlePaymentPaid()
     {
-        if($this->orderableIsSet()) {
+        if ($this->orderableIsSet()) {
             $this->orderable_type::handlePaymentPaid($this);
         }
 

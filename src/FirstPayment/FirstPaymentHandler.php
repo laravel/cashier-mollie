@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\DB;
 use Laravel\Cashier\Events\MandateUpdated;
 use Laravel\Cashier\FirstPayment\Actions\BaseAction;
 use Laravel\Cashier\Order\Order;
-use Laravel\Cashier\Order\OrderItem;
 use Laravel\Cashier\Order\OrderItemCollection;
 use Mollie\Api\Resources\Payment;
 

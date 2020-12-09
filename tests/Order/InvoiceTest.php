@@ -63,7 +63,6 @@ class InvoiceTest extends BaseTestCase
 
         $this->assertEquals('70,50 €', $invoice->total());
         $this->assertMoneyEURCents(7050, $invoice->rawTotal());
-
     }
 
     /** @test */

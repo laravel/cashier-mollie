@@ -30,11 +30,10 @@ class OrderNumberGenerator
 
         $numbers = str_split($number, 4);
 
-        return implode('-',[
+        return implode('-', [
             now()->year,
             $numbers[0],
             $numbers[1],
         ]);
     }
-
 }

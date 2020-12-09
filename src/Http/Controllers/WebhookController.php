@@ -19,7 +19,7 @@ class WebhookController extends BaseWebhookController
     {
         $payment = $this->getPaymentById($request->get('id'));
 
-        if($payment) {
+        if ($payment) {
             $order = $this->getOrder($payment);
 
             if ($order && $order->mollie_payment_status !== $payment->status) {
@@ -49,10 +49,10 @@ class WebhookController extends BaseWebhookController
     {
         $order = Order::findByPaymentId($payment->id);
 
-        if(!$order && isset($payment->metadata, $payment->metadata->temporary_mollie_payment_id)) {
+        if (! $order && isset($payment->metadata, $payment->metadata->temporary_mollie_payment_id)) {
             $order = Order::findByPaymentId($payment->metadata->temporary_mollie_payment_id);
 
-            if($order) {
+            if ($order) {
                 // Store the definite payment id.
                 $order->update(['mollie_payment_id' => $payment->id]);
             }

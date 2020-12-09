@@ -76,7 +76,7 @@ class AddGenericOrderItem extends BaseAction
      */
     public function execute()
     {
-        return tap($this->makeProcessedOrderItems(), function($items) {
+        return tap($this->makeProcessedOrderItems(), function ($items) {
             $items->save();
         });
     }

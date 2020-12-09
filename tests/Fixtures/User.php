@@ -2,8 +2,8 @@
 
 namespace Laravel\Cashier\Tests\Fixtures;
 
-use Laravel\Cashier\Billable;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Cashier\Billable;
 use Laravel\Cashier\Order\Contracts\ProvidesInvoiceInformation;
 
 class User extends Model implements ProvidesInvoiceInformation

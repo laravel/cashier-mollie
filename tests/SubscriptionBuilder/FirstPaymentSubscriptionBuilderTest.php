@@ -135,7 +135,6 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
             'currency' => 'EUR',
             'value' => 36,
         ], $payload['amount']);
-
     }
 
     /** @test */
@@ -223,6 +222,7 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
 
         Event::assertDispatched(SubscriptionStarted::class, function (SubscriptionStarted $e) use ($subscription) {
             $this->assertTrue($e->subscription->is($subscription));
+
             return true;
         });
     }

@@ -5,9 +5,9 @@ namespace Laravel\Cashier\Tests;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Event;
 use Laravel\Cashier\Cashier;
+use Laravel\Cashier\Events\SubscriptionQuantityUpdated;
 use Laravel\Cashier\Events\SubscriptionResumed;
 use Laravel\Cashier\Events\SubscriptionStarted;
-use Laravel\Cashier\Events\SubscriptionQuantityUpdated;
 use Laravel\Cashier\Mollie\Contracts\CreateMolliePayment;
 use Laravel\Cashier\Mollie\Contracts\GetMollieMandate;
 use Laravel\Cashier\Mollie\Contracts\GetMollieMethodMinimumAmount;
@@ -63,6 +63,7 @@ class ManageSubscriptionTest extends BaseTestCase
 
         Event::assertDispatched(SubscriptionStarted::class, function (SubscriptionStarted $e) use ($subscription) {
             $this->assertTrue($e->subscription->is($subscription));
+
             return true;
         });
 
@@ -173,6 +174,7 @@ class ManageSubscriptionTest extends BaseTestCase
 
         Event::assertDispatched(SubscriptionResumed::class, function (SubscriptionResumed $e) use ($subscription) {
             $this->assertTrue($e->subscription->is($subscription));
+
             return true;
         });
 
@@ -198,6 +200,7 @@ class ManageSubscriptionTest extends BaseTestCase
             $this->assertTrue($e->subscription->is($subscription));
             $this->assertEquals(2, $e->subscription->quantity);
             $this->assertEquals(1, $e->oldQuantity);
+
             return true;
         });
 
@@ -209,6 +212,7 @@ class ManageSubscriptionTest extends BaseTestCase
             $this->assertTrue($e->subscription->is($subscription));
             $this->assertEquals(1, $e->subscription->quantity);
             $this->assertEquals(2, $e->oldQuantity);
+
             return true;
         });
 
@@ -279,6 +283,7 @@ class ManageSubscriptionTest extends BaseTestCase
 
         Event::assertDispatched(SubscriptionResumed::class, function (SubscriptionResumed $e) use ($subscription) {
             $this->assertTrue($e->subscription->is($subscription));
+
             return true;
         });
 

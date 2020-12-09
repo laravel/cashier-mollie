@@ -34,14 +34,14 @@
         <env name="QUEUE_DRIVER" value="sync"/>
         <env name="DB_CONNECTION" value="sqlite"/>
         <env name="DB_DATABASE" value=":memory:"/>
-        <env name="MOLLIE_KEY" value=""/>
-        <env name="MANDATED_CUSTOMER_DIRECTDEBIT" value=""/>
-        <env name="MANDATED_CUSTOMER_DIRECTDEBIT_MANDATE_ID" value=""/>
-        <env name="REFUND_ID" value=""/>
-        <env name="REFUND_PAYMENT_ID" value=""/>
-        <env name="SUBSCRIPTION_MANDATE_PAYMENT_PAID_ID" value=""/>
-        <env name="MANDATE_PAYMENT_PAID_ID" value=""/>
-        <env name="PAYMENT_PAID_ID" value=""/>
-        <env name="PAYMENT_FAILED_ID" value=""/>
+<!--        <env name="MOLLIE_KEY" value=""/>-->
+<!--        <env name="MANDATED_CUSTOMER_DIRECTDEBIT" value=""/>-->
+<!--        <env name="MANDATED_CUSTOMER_DIRECTDEBIT_MANDATE_ID" value=""/>-->
+<!--        <env name="REFUND_ID" value=""/>-->
+<!--        <env name="REFUND_PAYMENT_ID" value=""/>-->
+<!--        <env name="SUBSCRIPTION_MANDATE_PAYMENT_PAID_ID" value=""/>-->
+<!--        <env name="MANDATE_PAYMENT_PAID_ID" value=""/>-->
+<!--        <env name="PAYMENT_PAID_ID" value=""/>-->
+<!--        <env name="PAYMENT_FAILED_ID" value=""/>-->
     </php>
 </phpunit>

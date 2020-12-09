@@ -21,7 +21,7 @@ trait RegistersMollieInteractions
             Contracts\UpdateMolliePayment::class => UpdateMolliePayment::class,
         ]);
 
-       $interactions->each(function ($concrete, $abstract) use ($app) {
+        $interactions->each(function ($concrete, $abstract) use ($app) {
             $app->bind($abstract, $concrete);
         });
     }

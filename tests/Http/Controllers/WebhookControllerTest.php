@@ -40,7 +40,7 @@ class WebhookControllerTest extends BaseTestCase
     public function MollieApiExceptionIsCatchedWhenDebugDisabled()
     {
         $wrongId = 'sub_xxxxxxxxxxx';
-        $this->mock(GetMolliePayment::class, function(GetMolliePayment $mock) use ($wrongId) {
+        $this->mock(GetMolliePayment::class, function (GetMolliePayment $mock) use ($wrongId) {
             return $mock->shouldReceive('execute')
                 ->with($wrongId, [])
                 ->once()
@@ -55,7 +55,7 @@ class WebhookControllerTest extends BaseTestCase
     public function MollieApiExceptionIsThrownWhenDebugEnabled()
     {
         $wrongId = 'sub_xxxxxxxxxxx';
-        $this->mock(GetMolliePayment::class, function(GetMolliePayment $mock) use ($wrongId) {
+        $this->mock(GetMolliePayment::class, function (GetMolliePayment $mock) use ($wrongId) {
             return $mock->shouldReceive('execute')
                 ->with($wrongId, [])
                 ->once()
@@ -74,7 +74,7 @@ class WebhookControllerTest extends BaseTestCase
         $id = 'tr_xxxxxxxxxxxxx';
         $request = $this->getWebhookRequest($id);
 
-        $this->mock(GetMolliePayment::class, function(GetMolliePayment $mock) use ($id) {
+        $this->mock(GetMolliePayment::class, function (GetMolliePayment $mock) use ($id) {
             return $mock->shouldReceive('execute')
                 ->with($id, [])
                 ->once()
@@ -114,7 +114,7 @@ class WebhookControllerTest extends BaseTestCase
 
         $request = $this->getWebhookRequest($paymentId);
 
-        $this->mock(GetMolliePayment::class, function(GetMolliePayment $mock) use ($paymentId) {
+        $this->mock(GetMolliePayment::class, function (GetMolliePayment $mock) use ($paymentId) {
             $payment = new Payment(new MollieApiClient);
             $payment->id = $paymentId;
             $payment->status = 'failed';
@@ -149,6 +149,7 @@ class WebhookControllerTest extends BaseTestCase
         Event::assertDispatched(SubscriptionCancelled::class, function (SubscriptionCancelled $event) use ($subscription) {
             $this->assertTrue($event->subscription->is($subscription));
             $this->assertEquals($event->reason, SubscriptionCancellationReason::PAYMENT_FAILED);
+
             return true;
         });
     }
@@ -177,7 +178,7 @@ class WebhookControllerTest extends BaseTestCase
 
         $request = $this->getWebhookRequest($paymentId);
 
-        $this->mock(GetMolliePayment::class, function(GetMolliePayment $mock) use ($paymentId) {
+        $this->mock(GetMolliePayment::class, function (GetMolliePayment $mock) use ($paymentId) {
             $payment = new Payment(new MollieApiClient);
             $payment->id = $paymentId;
             $payment->status = 'paid';
@@ -215,7 +216,7 @@ class WebhookControllerTest extends BaseTestCase
 
         $request = $this->getWebhookRequest($paymentId);
 
-        $this->mock(GetMolliePayment::class, function(GetMolliePayment $mock) use ($paymentId) {
+        $this->mock(GetMolliePayment::class, function (GetMolliePayment $mock) use ($paymentId) {
             $payment = new Payment(new MollieApiClient);
             $payment->id = $paymentId;
             $payment->status = 'paid';
@@ -252,7 +253,7 @@ class WebhookControllerTest extends BaseTestCase
 
     protected function makeTestResponse($response)
     {
-        if(class_exists('\Illuminate\Foundation\Testing\TestResponse')) {
+        if (class_exists('\Illuminate\Foundation\Testing\TestResponse')) {
             // Prior to Laravel v7
             return new \Illuminate\Foundation\Testing\TestResponse($response);
         }

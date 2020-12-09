@@ -17,7 +17,7 @@ class CouponOrderItemPreprocessor extends BaseOrderItemPreprocessor
         $result = new OrderItemCollection;
 
         $items->each(function (OrderItem $item) use (&$result) {
-            if($item->orderableIsSet()) {
+            if ($item->orderableIsSet()) {
                 $coupons = $this->getActiveCoupons($item->orderable_type, $item->orderable_id);
                 $result = $result->concat($coupons->applyTo($item));
             } else {

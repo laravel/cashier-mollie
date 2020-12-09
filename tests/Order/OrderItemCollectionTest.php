@@ -5,8 +5,6 @@ namespace Laravel\Cashier\Tests\Order;
 use Illuminate\Support\Collection;
 use Laravel\Cashier\Order\OrderItem;
 use Laravel\Cashier\Order\OrderItemCollection;
-use Laravel\Cashier\Order\Tax;
-use Laravel\Cashier\Order\TaxCollection;
 use Laravel\Cashier\Tests\BaseTestCase;
 use Laravel\Cashier\Tests\Fixtures\User;
 
@@ -29,7 +27,7 @@ class OrderItemCollectionTest extends BaseTestCase
     {
         $this->withPackageMigrations();
 
-        factory(User::class, 3)->create()->each(function($owner) {
+        factory(User::class, 3)->create()->each(function ($owner) {
             $owner->orderItems()->saveMany(factory(OrderItem::class, 2)->make());
         });
 
@@ -134,8 +132,8 @@ class OrderItemCollectionTest extends BaseTestCase
             'Laravel\Cashier\Tests\Fixtures\User_2',
         ], $result->keys()->all());
 
-        $result->flatten()->each(function($item) {
-           $this->assertInstanceOf(OrderItem::class, $item);
+        $result->flatten()->each(function ($item) {
+            $this->assertInstanceOf(OrderItem::class, $item);
         });
     }
 

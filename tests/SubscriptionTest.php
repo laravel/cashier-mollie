@@ -257,8 +257,9 @@ class SubscriptionTest extends BaseTestCase
     public function cancelAtWorks()
     {
         $user = factory(User::class)->create();
-        $subscription = $user->subscriptions()->save(factory(Subscription::class)->make([
-            'cycle_ends_at' => now()->addWeek()])
+        $subscription = $user->subscriptions()->save(
+            factory(Subscription::class)->make([
+            'cycle_ends_at' => now()->addWeek(), ])
         );
 
         $this->assertFalse($subscription->onTrial());
@@ -280,8 +281,9 @@ class SubscriptionTest extends BaseTestCase
     public function cancelNowWorks()
     {
         $user = factory(User::class)->create();
-        $subscription = $user->subscriptions()->save(factory(Subscription::class)->make([
-            'cycle_ends_at' => now()->addWeek()])
+        $subscription = $user->subscriptions()->save(
+            factory(Subscription::class)->make([
+            'cycle_ends_at' => now()->addWeek(), ])
         );
 
         $this->assertFalse($subscription->onTrial());

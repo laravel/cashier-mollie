@@ -4,7 +4,6 @@ namespace Laravel\Cashier\Order;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as BaseCollection;
-use Money\Currency;
 
 class OrderItemCollection extends Collection
 {
@@ -56,6 +55,7 @@ class OrderItemCollection extends Collection
             return get_class($owner) . '_' . $owner->id;
         })->mapWithKeys(function ($owner) {
             $key = get_class($owner) . '_' . $owner->id;
+
             return [$key => $this->whereOwner($owner)];
         });
     }
@@ -95,12 +95,10 @@ class OrderItemCollection extends Collection
         $result = collect();
 
         $this->chunkByOwner()->each(function ($owners_chunks, $owner_reference) use (&$result) {
-
             $owners_chunks->chunkByCurrency()->each(function ($chunk, $currency) use (&$result, $owner_reference) {
                 $key = "{$owner_reference}_{$currency}";
                 $result->put($key, $chunk);
             });
-
         });
 
         return $result;
@@ -141,6 +139,7 @@ class OrderItemCollection extends Collection
     {
         return $this->map(function (OrderItem $item) {
             $item->save();
+
             return $item;
         });
     }

@@ -6,16 +6,16 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
-use Laravel\Cashier\Events\SubscriptionResumed;
-use Laravel\Cashier\Order\Contracts\InteractsWithOrderItems;
-use Laravel\Cashier\Order\Contracts\PreprocessesOrderItems;
 use Laravel\Cashier\Coupon\AppliedCoupon;
 use Laravel\Cashier\Coupon\Contracts\AcceptsCoupons;
 use Laravel\Cashier\Coupon\RedeemedCoupon;
-use Laravel\Cashier\Events\SubscriptionStarted;
 use Laravel\Cashier\Events\SubscriptionCancelled;
 use Laravel\Cashier\Events\SubscriptionPlanSwapped;
 use Laravel\Cashier\Events\SubscriptionQuantityUpdated;
+use Laravel\Cashier\Events\SubscriptionResumed;
+use Laravel\Cashier\Events\SubscriptionStarted;
+use Laravel\Cashier\Order\Contracts\InteractsWithOrderItems;
+use Laravel\Cashier\Order\Contracts\PreprocessesOrderItems;
 use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Order\OrderItem;
 use Laravel\Cashier\Order\OrderItemCollection;
@@ -422,7 +422,8 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
                 'quantity' => $this->quantity ?: 1,
                 'tax_percentage' => $this->tax_percentage,
                 'description' => $plan->description(),
-            ], $item_overrides
+            ],
+            $item_overrides
         ));
 
         if ($fill_link) {
@@ -486,7 +487,7 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
             return $item;
         });
 
-        if($plan_swapped) {
+        if ($plan_swapped) {
             Event::dispatch(new SubscriptionPlanSwapped($subscription, $previousPlan));
         }
 
