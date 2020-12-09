@@ -45,6 +45,16 @@ class UpgradeToCashierV2 extends Migration
             $table->decimal('tax_percentage', 6, 4);
             $table->timestamps();
         });
+
+        Schema::create('payments', function (Blueprint $table) {
+                    $table->bigIncrements('id');
+                    $table->unsignedBigInteger('order_id')->nullable();
+                    $table->string('owner_type');
+
+                    
+
+                    $table->timestamps();
+                });
     }
 
     /**
@@ -59,7 +69,9 @@ class UpgradeToCashierV2 extends Migration
         //     $table->dropColumn(['amount_refunded', 'amount_charged_back']);
         // });
 
-        Schema::drop('refunds');
-        Schema::drop('refund_items');
+        Schema::dropIfExists('refunds');
+        Schema::dropIfExists('refund_items');
+        Schema::dropIfExists('payments');
+
     }
 }
