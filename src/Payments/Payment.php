@@ -3,9 +3,7 @@
 namespace Laravel\Cashier\Payments;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Laravel\Cashier\Order\ConvertsToMoney;
-use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Traits\HasOwner;
 use Mollie\Api\Resources\Payment as MolliePayment;
 use Money\Money;
@@ -39,14 +37,13 @@ class Payment extends Model
     public static function makeFromMolliePayment(MolliePayment $payment, Model $owner, array $overrides = []): self
     {
         $chargebackAmount = money(0, $payment->amount->currency);
-        if ($payment->hasChargebacks()) {
-            foreach ($payment->chargebacks() as $chargeback) {
-                $chargebackAmount->add(mollie_object_to_money($chargeback->amount));
-            }
+        if ($payment->amountChargedBack) {
+            $chargebackAmount = $chargebackAmount->add(mollie_object_to_money($payment->amountChargedBack));
         }
 
         return static::make(array_merge([
             'mollie_payment_id' => $payment->id,
+            'mollie_payment_status' => $payment->status,
             'owner_type' => $owner->getMorphClass(),
             'owner_id' => $owner->{$owner->getForeignKey()},
             'status' => $payment->status,
@@ -87,16 +84,5 @@ class Payment extends Model
     public function getAmountChargedBack(): Money
     {
         return $this->toMoney($this->amount_charged_back);
-    }
-
-    /**
-     * Get Orders for this payment. One Payment can relate to multiple Orders, as a refund and chargeback result in
-     * in additional Order records. A first Payment has no order until it is marked as paid.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function orders(): BelongsToMany
-    {
-        return $this->belongsToMany(Order::class);
     }
 }
