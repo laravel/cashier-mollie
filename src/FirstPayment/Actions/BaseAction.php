@@ -28,6 +28,7 @@ abstract class BaseAction
 
     /** @var int */
     protected $roundingMode = Money::ROUND_HALF_UP;
+
     /**
      * Rebuild the Action from a payload.
      *

@@ -91,7 +91,7 @@ class FirstPaymentSubscriptionBuilder implements Contract
             $taxPercentage = $this->owner->taxPercentage() * 0.01;
             $total = $this->plan->firstPaymentAmount();
           
-            if($total->isZero()) {
+            if ($total->isZero()) {
                 $vat = $total->subtract($total); // zero VAT
             } else {
                 $vat = $total->divide(1 + $taxPercentage)
@@ -262,8 +262,13 @@ class FirstPaymentSubscriptionBuilder implements Contract
 
         $finalTotal = $subtotal->add($recalculatedTax);
 
-        if($finalTotal->equals($total)) return Money::ROUND_HALF_UP;
-        if($finalTotal->greaterThan($total)) return Money::ROUND_UP;
+        if ($finalTotal->equals($total)) {
+            return Money::ROUND_HALF_UP;
+        }
+        if ($finalTotal->greaterThan($total)) {
+            return Money::ROUND_UP;
+        }
+
         return  Money::ROUND_DOWN;
     }
 }
