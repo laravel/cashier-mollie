@@ -3,10 +3,12 @@
 namespace Laravel\Cashier\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Refunds\Refund;
 use Mollie\Api\Resources\Payment;
 use Mollie\Api\Resources\Refund as MollieRefund;
+use Mollie\Api\Types\RefundStatus;
 use Symfony\Component\HttpFoundation\Response;
 
 class AftercareWebhookController extends BaseWebhookController
@@ -20,67 +22,44 @@ class AftercareWebhookController extends BaseWebhookController
     {
         $payment = $this->getPaymentById($request->get('id'));
 
-        if ($payment) {
+        if ($payment && $payment->hasRefunds()) {
             $order = Order::findByPaymentId($payment->id);
 
-            $this->handlePotentialRefunds($order, $payment);
-            $this->handlePotentialChargebacks($order, $payment);
+            $this->handleRefunds($order, $payment);
         }
 
         return new Response(null, 200);
     }
 
-    protected function handlePotentialRefunds(Order $order, Payment $payment)
+    protected function handleRefunds(Order $order, Payment $payment)
     {
-        if (! $payment->hasRefunds()) {
-            return;
-        }
-
         /** @var \Laravel\Cashier\Refunds\RefundCollection $localRefunds */
         $localRefunds = $order->refunds()->whereUnprocessed()->get();
         $mollieRefunds = collect($payment->refunds());
 
         $localRefunds->each(function (Refund $localRefund) use ($mollieRefunds) {
 
-            /**
-             * Get matching Mollie refund.
-             * @var MollieRefund $mollieRefund
-             */
-            $mollieRefund = $mollieRefunds->first(function (MollieRefund $mollieRefund) use ($localRefund) {
-                return $mollieRefund->id === $localRefund->mollie_refund_id;
-            });
+            $mollieRefund = $this->matchingMollieRefundForLocalRefund($localRefund, $mollieRefunds);
 
             if ($mollieRefund) {
-                if ($mollieRefund->isTransferred()) {
+                if ($mollieRefund->isTransferred() && $localRefund->mollie_refund_status !== RefundStatus::STATUS_REFUNDED) {
                     $localRefund->handleProcessed();
-                } elseif ($mollieRefund->isFailed()) {
+                } elseif ($mollieRefund->isFailed() && $localRefund->mollie_refund_status !== RefundStatus::STATUS_FAILED) {
                     $localRefund->handleFailed();
                 }
             }
         });
     }
 
-    protected function handlePotentialChargebacks(Order $order, Payment $payment)
+    /**
+     * @param \Laravel\Cashier\Refunds\Refund $localRefund
+     * @param \Illuminate\Support\Collection $mollieRefunds
+     * @return MollieRefund|null
+     */
+    protected function matchingMollieRefundForLocalRefund(Refund $localRefund, Collection $mollieRefunds)
     {
-        if (! $payment->hasChargebacks()) {
-            return;
-        }
-
-        $orderAmountChargedBack = $order->getAmountChargedBack();
-        $currency = $orderAmountChargedBack->getCurrency()->getCode();
-
-        $paymentAmountChargedBack = money(0, $currency);
-
-        /** @var \Mollie\Api\Resources\Chargeback $chargeback */
-        foreach ($payment->chargebacks() as $chargeback) {
-            $paymentAmountChargedBack->add(mollie_object_to_money($chargeback->amount));
-        }
-
-        if ($orderAmountChargedBack->lessThan($paymentAmountChargedBack)) {
-            // TODO handle:
-            // Subtract from $order->amount_refunded
-            // Generate a processed order for the difference, containing an order item detailing the chargeback
-            // Dispatch event
-        }
+        return $mollieRefunds->first(function (MollieRefund $mollieRefund) use ($localRefund) {
+            return $mollieRefund->id === $localRefund->mollie_refund_id;
+        });
     }
 }
