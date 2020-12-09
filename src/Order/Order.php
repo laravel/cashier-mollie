@@ -18,6 +18,7 @@ use Laravel\Cashier\Exceptions\InvalidMandateException;
 use Laravel\Cashier\MandatedPayment\MandatedPaymentBuilder;
 use Laravel\Cashier\Order\Contracts\MinimumPayment;
 use Laravel\Cashier\Refunds\Refund;
+use Laravel\Cashier\Refunds\RefundBuilder;
 use Laravel\Cashier\Traits\HasOwner;
 use LogicException;
 use Mollie\Api\Resources\Mandate;
@@ -244,6 +245,11 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 
+    /**
+     * The refunds for this order.
+     *
+     * @return HasMany
+     */
     public function refunds()
     {
         return $this->hasMany(Refund::class);
@@ -525,6 +531,36 @@ class Order extends Model
     public function getCurrency()
     {
         return $this->currency;
+    }
+
+    /**
+     * Get an empty refund builder for this order.
+     *
+     * @return \Laravel\Cashier\Refunds\RefundBuilder
+     */
+    public function refundBuilder()
+    {
+        return RefundBuilder::forOrder($this);
+    }
+
+    /**
+     * Get a refund builder prepared to completely refund this order.
+     *
+     * @return \Laravel\Cashier\Refunds\RefundBuilder
+     */
+    public function completeRefundBuilder()
+    {
+        return RefundBuilder::forWholeOrder($this);
+    }
+
+    /**
+     * Initiate a complete refund for this order.
+     *
+     * @return \Laravel\Cashier\Refunds\Refund
+     */
+    public function refundCompletely()
+    {
+        return $this->completeRefundBuilder()->create();
     }
 
     /**
