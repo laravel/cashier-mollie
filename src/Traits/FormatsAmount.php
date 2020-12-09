@@ -5,7 +5,8 @@ namespace Laravel\Cashier\Traits;
 use Laravel\Cashier\Cashier;
 use Money\Money;
 
-trait FormatsAmount {
+trait FormatsAmount
+{
     /**
      * Format the given amount into a string.
      *

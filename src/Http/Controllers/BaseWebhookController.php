@@ -30,10 +30,11 @@ abstract class BaseWebhookController
         try {
             return $this->getMolliePayment->execute($id);
         } catch (ApiException $e) {
-            if(! config('app.debug')) {
+            if (! config('app.debug')) {
                 // Prevent leaking information
                 return null;
             }
+
             throw $e;
         }
     }

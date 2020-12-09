@@ -8,9 +8,10 @@ use Laravel\Cashier\Order\OrderItem;
 use Laravel\Cashier\Order\OrderItemCollection;
 use Laravel\Cashier\Tests\BaseTestCase;
 
-class FakeOrderItemPreprocessor extends BaseOrderItemPreprocessor {
-
+class FakeOrderItemPreprocessor extends BaseOrderItemPreprocessor
+{
     protected $items = [];
+
     protected $result;
 
     /**

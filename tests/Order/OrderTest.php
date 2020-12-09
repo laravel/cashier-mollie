@@ -4,14 +4,13 @@ namespace Laravel\Cashier\Tests\Order;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Event;
+use Laravel\Cashier\Events\BalanceTurnedStale;
+use Laravel\Cashier\Events\OrderCreated;
+use Laravel\Cashier\Events\OrderProcessed;
 use Laravel\Cashier\Mollie\Contracts\CreateMolliePayment;
 use Laravel\Cashier\Mollie\Contracts\GetMollieCustomer;
 use Laravel\Cashier\Mollie\Contracts\GetMollieMandate;
 use Laravel\Cashier\Mollie\Contracts\GetMollieMethodMinimumAmount;
-use Laravel\Cashier\Order\Contracts\MinimumPayment;
-use Laravel\Cashier\Events\BalanceTurnedStale;
-use Laravel\Cashier\Events\OrderCreated;
-use Laravel\Cashier\Events\OrderProcessed;
 use Laravel\Cashier\Order\Invoice;
 use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Order\OrderCollection;
@@ -25,7 +24,6 @@ use Mollie\Api\Resources\Customer;
 use Mollie\Api\Resources\Mandate;
 use Mollie\Api\Resources\Payment;
 use Mollie\Api\Types\PaymentStatus;
-use Mollie\Laravel\Wrappers\MollieApiWrapper;
 
 class OrderTest extends BaseTestCase
 {
@@ -162,7 +160,6 @@ class OrderTest extends BaseTestCase
         $this->assertSame('1', $scheduled_item->quantity);
         $this->assertSame('1000', $scheduled_item->unit_price);
         $this->assertSame('0', $scheduled_item->tax_percentage);
-
     }
 
     /** @test */
@@ -240,8 +237,6 @@ class OrderTest extends BaseTestCase
         $this->assertSame("0", $order->total_due);
         $this->assertSame(1000, $order->credit_used);
         $this->assertSame("1500", $order->balance_before);
-
-
     }
 
     /** @test */
@@ -491,7 +486,7 @@ class OrderTest extends BaseTestCase
 
         $this->assertDispatchedOrderProcessed($order);
 
-        Event::assertDispatched(BalanceTurnedStale::class, function($event) use ($credit) {
+        Event::assertDispatched(BalanceTurnedStale::class, function ($event) use ($credit) {
             return $credit->is($event->credit);
         });
     }
@@ -692,11 +687,10 @@ class OrderTest extends BaseTestCase
         $filename = __DIR__.'/../../example_invoice_output.html';
         $some_content = 'Invoice dummy';
 
-        if(collect($this->getGroups())->contains('generate_new_invoice_template')) {
+        if (collect($this->getGroups())->contains('generate_new_invoice_template')) {
             $this->assertFileIsWritable($filename);
 
             if (is_writable($filename)) {
-
                 if (! $handle = fopen($filename, 'w')) {
                     echo "Cannot open file ($filename)";
                     exit;

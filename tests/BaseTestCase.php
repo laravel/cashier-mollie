@@ -33,7 +33,7 @@ abstract class BaseTestCase extends TestCase
         config(['cashier.webhook_url' => 'https://www.example.com/webhook']);
         config(['cashier.first_payment.webhook_url' => 'https://www.example.com/mandate-webhook']);
 
-        if(! $this->interactWithMollieAPI) {
+        if (! $this->interactWithMollieAPI) {
             // Disable the Mollie API
             $this->mock(MollieApiWrapper::class, null);
         }
@@ -154,7 +154,7 @@ abstract class BaseTestCase extends TestCase
      */
     protected function withTestNow($now)
     {
-        if(is_string($now)) {
+        if (is_string($now)) {
             $now = Carbon::parse($now);
         }
         Carbon::setTestNow($now);
@@ -224,7 +224,8 @@ abstract class BaseTestCase extends TestCase
         return $this;
     }
 
-    protected function getMandatedCustomerId() {
+    protected function getMandatedCustomerId()
+    {
         return env('MANDATED_CUSTOMER_DIRECTDEBIT');
     }
 
@@ -322,11 +323,11 @@ abstract class BaseTestCase extends TestCase
      */
     protected function withMockedCouponRepository(Coupon $coupon = null, $couponHandler = null, $context = null)
     {
-        if(is_null($couponHandler)) {
+        if (is_null($couponHandler)) {
             $couponHandler = new FixedDiscountHandler;
         }
 
-        if(is_null($context)) {
+        if (is_null($context)) {
             $context = [
                 'description' => 'Test coupon',
                 'discount' => [
@@ -336,7 +337,7 @@ abstract class BaseTestCase extends TestCase
             ];
         }
 
-        if(is_null($coupon)) {
+        if (is_null($coupon)) {
             $coupon = new Coupon(
                 'test-coupon',
                 $couponHandler,

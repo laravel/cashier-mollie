@@ -28,9 +28,9 @@ class CashierInstall extends Command
      */
     public function handle()
     {
-        if(app()->environment('production')) {
+        if (app()->environment('production')) {
             $this->alert('Running in production mode.');
-            if($this->confirm('Proceed installing Cashier?')) {
+            if ($this->confirm('Proceed installing Cashier?')) {
                 return;
             }
         }
@@ -41,7 +41,7 @@ class CashierInstall extends Command
         $this->comment('Publishing Cashier configuration files...');
         $this->callSilent('vendor:publish', ['--tag' => 'cashier-configs']);
 
-        if($this->option('template')) {
+        if ($this->option('template')) {
             $this->callSilent('vendor:publish', ['--tag' => 'cashier-views']);
         } else {
             $this->info(
@@ -49,7 +49,7 @@ class CashierInstall extends Command
                 . 'Note that this will exclude your template copy from updates by the package maintainers.'
             );
 
-            if($this->confirm('Publish Cashier invoice template?')) {
+            if ($this->confirm('Publish Cashier invoice template?')) {
                 $this->comment('Publishing Cashier invoice template...');
                 $this->callSilent('vendor:publish', ['--tag' => 'cashier-views']);
             }

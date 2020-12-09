@@ -5,10 +5,10 @@ namespace Laravel\Cashier;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Cashier\Console\Commands\CashierInstall;
 use Laravel\Cashier\Console\Commands\CashierRun;
-use Laravel\Cashier\Mollie\RegistersMollieInteractions;
-use Laravel\Cashier\Order\Contracts\MinimumPayment as MinimumPaymentContract;
 use Laravel\Cashier\Coupon\ConfigCouponRepository;
 use Laravel\Cashier\Coupon\Contracts\CouponRepository;
+use Laravel\Cashier\Mollie\RegistersMollieInteractions;
+use Laravel\Cashier\Order\Contracts\MinimumPayment as MinimumPaymentContract;
 use Laravel\Cashier\Plan\ConfigPlanRepository;
 use Laravel\Cashier\Plan\Contracts\PlanRepository;
 use Mollie\Laravel\MollieServiceProvider;
@@ -108,7 +108,7 @@ class CashierServiceProvider extends ServiceProvider
     protected function configureCurrency()
     {
         $currency = config('cashier.currency', false);
-        if($currency) {
+        if ($currency) {
             Cashier::useCurrency($currency);
         }
     }
@@ -116,7 +116,7 @@ class CashierServiceProvider extends ServiceProvider
     protected function configureCurrencyLocale()
     {
         $locale = config('cashier.currency_locale', false);
-        if($locale) {
+        if ($locale) {
             Cashier::useCurrencyLocale($locale);
         }
     }
