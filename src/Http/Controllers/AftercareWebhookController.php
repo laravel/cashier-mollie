@@ -18,10 +18,7 @@ class AftercareWebhookController extends BaseWebhookController
      */
     public function handleWebhook(Request $request)
     {
-        $payment = $this->getPaymentById(
-            $request->get('id'),
-            ['include' => 'refund,chargebacks']
-        );
+        $payment = $this->getPaymentById($request->get('id'));
 
         if($payment) {
             $order = Order::findByPaymentId($payment->id);
