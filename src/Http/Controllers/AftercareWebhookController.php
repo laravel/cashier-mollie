@@ -38,7 +38,6 @@ class AftercareWebhookController extends BaseWebhookController
         $mollieRefunds = collect($payment->refunds());
 
         $localRefunds->each(function (Refund $localRefund) use ($mollieRefunds) {
-
             $mollieRefund = $this->matchingMollieRefundForLocalRefund($localRefund, $mollieRefunds);
 
             if ($mollieRefund) {
