@@ -27,9 +27,9 @@ class CashierUpdate extends Command
      */
     public function handle()
     {
-        if(app()->environment('production')) {
+        if (app()->environment('production')) {
             $this->alert('Running in production mode.');
-            if($this->confirm('Proceed updating Cashier?')) {
+            if ($this->confirm('Proceed updating Cashier?')) {
                 return;
             }
         }

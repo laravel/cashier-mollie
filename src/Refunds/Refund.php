@@ -103,7 +103,6 @@ class Refund extends Model
         $refundItems = $this->items;
 
         DB::transaction(function () use ($refundItems) {
-
             $this->mollie_refund_status = RefundStatus::STATUS_FAILED;
 
             $this->save();

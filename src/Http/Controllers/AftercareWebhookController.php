@@ -20,7 +20,7 @@ class AftercareWebhookController extends BaseWebhookController
     {
         $payment = $this->getPaymentById($request->get('id'));
 
-        if($payment) {
+        if ($payment) {
             $order = Order::findByPaymentId($payment->id);
 
             $this->handlePotentialRefunds($order, $payment);
@@ -32,7 +32,7 @@ class AftercareWebhookController extends BaseWebhookController
 
     protected function handlePotentialRefunds(Order $order, Payment $payment)
     {
-        if(! $payment->hasRefunds()) {
+        if (! $payment->hasRefunds()) {
             return;
         }
 
@@ -50,8 +50,8 @@ class AftercareWebhookController extends BaseWebhookController
                 return $mollieRefund->id === $localRefund->mollie_refund_id;
             });
 
-            if($mollieRefund) {
-                if($mollieRefund->isTransferred()) {
+            if ($mollieRefund) {
+                if ($mollieRefund->isTransferred()) {
                     $localRefund->handleProcessed();
                 } elseif ($mollieRefund->isFailed()) {
                     $localRefund->handleFailed();
@@ -62,7 +62,7 @@ class AftercareWebhookController extends BaseWebhookController
 
     protected function handlePotentialChargebacks(Order $order, Payment $payment)
     {
-        if(! $payment->hasChargebacks()) {
+        if (! $payment->hasChargebacks()) {
             return;
         }
 
@@ -72,12 +72,11 @@ class AftercareWebhookController extends BaseWebhookController
         $paymentAmountChargedBack = money(0, $currency);
 
         /** @var \Mollie\Api\Resources\Chargeback $chargeback */
-        foreach ($payment->chargebacks() as $chargeback)
-        {
+        foreach ($payment->chargebacks() as $chargeback) {
             $paymentAmountChargedBack->add(mollie_object_to_money($chargeback->amount));
         }
 
-        if($orderAmountChargedBack->lessThan($paymentAmountChargedBack)) {
+        if ($orderAmountChargedBack->lessThan($paymentAmountChargedBack)) {
             // TODO handle:
             // Subtract from $order->amount_refunded
             // Generate a processed order for the difference, containing an order item detailing the chargeback

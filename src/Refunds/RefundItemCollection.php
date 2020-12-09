@@ -33,7 +33,6 @@ class RefundItemCollection extends Collection
     {
         return new OrderItemCollection(
             $this->map(function (RefundItem $refundItem) {
-
                 return OrderItem::make([
                     'process_at' => now(),
                     'orderable_type' => $refundItem->getMorphClass(),
@@ -44,10 +43,11 @@ class RefundItemCollection extends Collection
                     'description_extra_lines' => $refundItem->description_extra_lines,
                     'currency' => $refundItem->currency,
                     'quantity' => $refundItem->quantity,
-                    'unit_price' => - ($refundItem->unit_price),
+                    'unit_price' => -($refundItem->unit_price),
                     'tax_percentage' => $refundItem->tax_percentage,
                     'order_id' => null,
                 ]);
-            }));
+            })
+        );
     }
 }
