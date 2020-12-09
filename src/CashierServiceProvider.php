@@ -4,8 +4,8 @@ namespace Laravel\Cashier;
 
 use Illuminate\Support\ServiceProvider;
 use Laravel\Cashier\Console\Commands\CashierInstall;
-use Laravel\Cashier\Console\Commands\CashierUpdate;
 use Laravel\Cashier\Console\Commands\CashierRun;
+use Laravel\Cashier\Console\Commands\CashierUpdate;
 use Laravel\Cashier\Coupon\ConfigCouponRepository;
 use Laravel\Cashier\Coupon\Contracts\CouponRepository;
 use Laravel\Cashier\Mollie\RegistersMollieInteractions;

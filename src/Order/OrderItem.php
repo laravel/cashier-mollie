@@ -323,7 +323,7 @@ class OrderItem extends Model implements InvoicableItem
      */
     public function handlePaymentRefunded(RefundItem $refundItem)
     {
-        if($this->orderableIsSet()) {
+        if ($this->orderableIsSet()) {
             $this->orderable_type::handlePaymentRefunded($refundItem);
         }
 
@@ -339,7 +339,7 @@ class OrderItem extends Model implements InvoicableItem
      */
     public function handlePaymentRefundFailed(RefundItem $refundItem)
     {
-        if($this->orderableIsSet()) {
+        if ($this->orderableIsSet()) {
             $this->orderable_type::handlePaymentRefundFailed($refundItem);
         }
 

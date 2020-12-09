@@ -28,9 +28,11 @@ class WebhookController extends BaseWebhookController
                         $order->handlePaymentPaid();
                         $payment->webhookUrl = route('webhooks.mollie.aftercare');
                         $payment->update();
+
                         break;
                     case PaymentStatus::STATUS_FAILED:
                         $order->handlePaymentFailed();
+
                         break;
                     default:
                         break;

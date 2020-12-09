@@ -135,7 +135,7 @@ class RefundItem extends Model
     /**
      * Get the order item total before taxes.
      *
-     * @return integer
+     * @return int
      */
     public function getSubtotalAttribute(): int
     {
@@ -145,7 +145,7 @@ class RefundItem extends Model
     /**
      * Get the order item tax money value.
      *
-     * @return integer
+     * @return int
      */
     public function getTaxAttribute(): int
     {
@@ -157,7 +157,7 @@ class RefundItem extends Model
     /**
      * Get the order item total after taxes.
      *
-     * @return integer
+     * @return int
      */
     public function getTotalAttribute(): int
     {
