@@ -48,6 +48,7 @@ class UpgradeToCashierV2 extends Migration
 
         Schema::create('payments', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->unsignedBigInteger('order_id')->nullable();
             $table->string('mollie_payment_id');
             $table->string('mollie_payment_status');
             $table->string('owner_type');
@@ -57,7 +58,7 @@ class UpgradeToCashierV2 extends Migration
             $table->unsignedInteger('amount')->default(0);
             $table->unsignedInteger('amount_refunded')->default(0);
             $table->integer('amount_charged_back')->default(0); // Negative value
-            $table->json('actions')->nullable();
+            $table->json('first_payment_actions')->nullable();
             $table->timestamps();
         });
     }

@@ -2,16 +2,18 @@
 
 namespace Laravel\Cashier\Tests\FirstPayment;
 
+use Laravel\Cashier\FirstPayment\Actions\ActionCollection;
 use Laravel\Cashier\FirstPayment\Actions\AddBalance;
 use Laravel\Cashier\FirstPayment\Actions\AddGenericOrderItem;
 use Laravel\Cashier\FirstPayment\FirstPaymentBuilder;
 use Laravel\Cashier\Mollie\Contracts\CreateMollieCustomer;
 use Laravel\Cashier\Mollie\Contracts\CreateMolliePayment;
+use Laravel\Cashier\Payment;
 use Laravel\Cashier\Tests\BaseTestCase;
 use Laravel\Cashier\Tests\Fixtures\User;
 use Mollie\Api\MollieApiClient;
 use Mollie\Api\Resources\Customer;
-use Mollie\Api\Resources\Payment;
+use Mollie\Api\Resources\Payment as MolliePayment;
 use Mollie\Api\Types\SequenceType;
 
 class FirstPaymentBuilderTest extends BaseTestCase
@@ -126,7 +128,12 @@ class FirstPaymentBuilderTest extends BaseTestCase
         ]);
 
         $this->mock(CreateMolliePayment::class, function (CreateMolliePayment $mock) {
-            $payment = new Payment(new MollieApiClient);
+            $payment = new MolliePayment(new MollieApiClient);
+            $payment->id = 'tr_unique_id';
+            $payment->amount = (object) [
+                'currency' => 'EUR',
+                'value' => '12.34',
+            ];
 
             return $mock->shouldReceive('execute')
                 ->once()
@@ -138,7 +145,7 @@ class FirstPaymentBuilderTest extends BaseTestCase
         $this->assertEquals(0, $owner->orderItems()->count());
         $this->assertEquals(0, $owner->orders()->count());
 
-        $this->assertInstanceOf(Payment::class, $payment);
+        $this->assertInstanceOf(MolliePayment::class, $payment);
     }
 
     /** @test */
@@ -151,9 +158,13 @@ class FirstPaymentBuilderTest extends BaseTestCase
         ]);
 
         $this->mock(CreateMolliePayment::class, function (CreateMolliePayment $mock) {
-            $payment = new Payment(new MollieApiClient);
+            $payment = new MolliePayment(new MollieApiClient);
             $payment->redirectUrl = 'https://www.example.com/{payment_id}';
             $payment->id = 'tr_unique_id';
+            $payment->amount = (object) [
+                'currency' => 'EUR',
+                'value' => '12.34',
+            ];
 
             return $mock->shouldReceive('execute')
                 ->once()
@@ -165,5 +176,54 @@ class FirstPaymentBuilderTest extends BaseTestCase
         ])->create();
 
         $this->assertEquals('https://www.example.com/tr_unique_id', $payment->redirectUrl);
+    }
+
+    /** @test */
+    public function storesLocalPaymentRecord()
+    {
+        $owner = factory(User::class)->create();
+        $this->assertEquals(0, $owner->orderItems()->count());
+        $this->assertEquals(0, $owner->orders()->count());
+
+        $builder = new FirstPaymentBuilder($owner, [
+            'description' => 'Test mandate payment',
+            'redirectUrl' => 'https://www.example.com',
+        ]);
+
+        $builder->inOrderTo([
+            new AddBalance(
+                $owner,
+                money(500, 'EUR'),
+                'Test add balance 1'
+            ),
+            new AddBalance(
+                $owner,
+                money(500, 'EUR'),
+                'Test add balance 2'
+            ),
+        ]);
+
+        $this->mock(CreateMolliePayment::class, function (CreateMolliePayment $mock) {
+            $payment = new MolliePayment(new MollieApiClient);
+            $payment->id = 'tr_dummy_payment_id';
+            $payment->amount = (object) [
+                'currency' => 'EUR',
+                'value' => '12.34',
+            ];
+
+            return $mock->shouldReceive('execute')
+                ->once()
+                ->andReturn($payment);
+        });
+
+        $molliePayment = $builder->create();
+
+        $localPayment = Payment::findByPaymentIdOrFail($molliePayment->id);
+        $actions = $localPayment->first_payment_actions;
+        $this->instanceOf(ActionCollection::class, $actions);
+
+
+
+        $this->markTestIncomplete('TODO Move actions');
     }
 }

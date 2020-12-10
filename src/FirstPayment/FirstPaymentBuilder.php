@@ -8,6 +8,7 @@ use Laravel\Cashier\Cashier;
 use Laravel\Cashier\FirstPayment\Actions\ActionCollection;
 use Laravel\Cashier\Mollie\Contracts\CreateMolliePayment;
 use Laravel\Cashier\Mollie\Contracts\UpdateMolliePayment;
+use Laravel\Cashier\Payment;
 use Mollie\Api\Types\SequenceType;
 
 class FirstPaymentBuilder
@@ -140,11 +141,13 @@ class FirstPaymentBuilder
             $this->molliePayment = $updateMolliePayment->execute($this->molliePayment);
         }
 
+        Payment::createFromMolliePayment($this->molliePayment, $this->owner);
+
         return $this->molliePayment;
     }
 
     /**
-     * @param string $method
+     * @param string|null $method
      * @return FirstPaymentBuilder
      */
     public function setFirstPaymentMethod(?string $method)

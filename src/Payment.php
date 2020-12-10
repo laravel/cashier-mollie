@@ -4,6 +4,7 @@ namespace Laravel\Cashier;
 
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Cashier\Order\ConvertsToMoney;
+use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Traits\HasOwner;
 use Mollie\Api\Resources\Payment as MolliePayment;
 use Money\Money;
@@ -20,7 +21,7 @@ use Money\Money;
  * @property int amount
  * @property int amount_refunded
  * @property int amount_charged_back
- * @property string actions
+ * @property string first_payment_actions
  * @method static create(array $data)
  * @method static make(array $data)
  */
@@ -74,6 +75,29 @@ class Payment extends Model
             'amount_refunded' => (int) $amountRefunded->getAmount(),
             'amount_charged_back' => (int) $amountChargedBack->getAmount(),
         ], $overrides));
+    }
+
+    /**
+     * Retrieve an Order by the Mollie Payment id.
+     *
+     * @param $id
+     * @return self
+     */
+    public static function findByPaymentId($id): ?self
+    {
+        return self::where('mollie_payment_id', $id)->first();
+    }
+
+    /**
+     * Retrieve an Order by the Mollie Payment id or throw an Exception if not found.
+     *
+     * @param $id
+     * @return self
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     */
+    public static function findByPaymentIdOrFail($id): self
+    {
+        return self::where('mollie_payment_id', $id)->firstOrFail();
     }
 
     /**
