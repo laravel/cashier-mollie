@@ -13,6 +13,7 @@ use Money\Money;
  * @property string mollie_payment_status
  * @property string owner_type
  * @property int owner_id
+ * @property Model owner
  * @property int order_id
  * @property string status
  * @property string currency
@@ -54,11 +55,11 @@ class Payment extends Model
      */
     public static function makeFromMolliePayment(MolliePayment $payment, Model $owner, array $overrides = []): self
     {
-        $chargebackAmount = $payment->amountChargedBack
+        $amountChargedBack = $payment->amountChargedBack
             ? mollie_object_to_money($payment->amountChargedBack)
             : money(0, $payment->amount->currency);
 
-        $refundAmount = $payment->amountRefunded
+        $amountRefunded = $payment->amountRefunded
             ? mollie_object_to_money($payment->amountRefunded)
             : money(0, $payment->amount->currency);
 
@@ -70,8 +71,8 @@ class Payment extends Model
             'status' => $payment->status,
             'currency' => $payment->amount->currency,
             'amount' => (int) mollie_object_to_money($payment->amount)->getAmount(),
-            'amount_refunded' => (int) $refundAmount->getAmount(),
-            'amount_charged_back' => (int) $chargebackAmount->getAmount(),
+            'amount_refunded' => (int) $amountRefunded->getAmount(),
+            'amount_charged_back' => (int) $amountChargedBack->getAmount(),
         ], $overrides));
     }
 
