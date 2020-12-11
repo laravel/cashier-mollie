@@ -20,6 +20,7 @@ use Laravel\Cashier\Plan\Contracts\PlanRepository;
 use Laravel\Cashier\SubscriptionBuilder\FirstPaymentSubscriptionBuilder;
 use Laravel\Cashier\SubscriptionBuilder\MandatedSubscriptionBuilder;
 use Laravel\Cashier\Traits\PopulatesMollieCustomerFields;
+use Laravel\Cashier\UpdatePaymentMethod\UpdatePaymentMethodBuilder;
 use Mollie\Api\Exceptions\ApiException;
 use Mollie\Api\Resources\Customer;
 use Mollie\Api\Types\MandateMethod;
@@ -537,5 +538,19 @@ trait Billable
     public function redeemedCoupons()
     {
         return $this->morphMany(RedeemedCoupon::class, 'owner');
+    }
+
+    /**
+     * @return mixed
+     * @throws \Mollie\Api\Exceptions\ApiException
+     */
+    public function updatePaymentMethod()
+    {
+        if (! empty($this->mollie_mandate_id)) {
+            $mandate = $this->mollieMandate();
+            if (! empty($mandate) && $mandate->isValid()) {
+                return (new UpdatePaymentMethodBuilder($this))->submit();
+            }
+        }
     }
 }
