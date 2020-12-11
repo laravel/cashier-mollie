@@ -5,21 +5,20 @@
 
 <img src="https://info.mollie.com/hubfs/github/laravel-cashier/editorLaravel.jpg" />
 
-<!--
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/mollie/laravel-cashier.svg?style=flat-square)](https://packagist.org/packages/mollie/laravel-cashier)
--->
-[![Build Status](https://travis-ci.org/laravel/cashier-mollie.svg?branch=master)](https://travis-ci.org/laravel/cashier-mollie)
-<!--
-[![SensioLabsInsight](https://img.shields.io/sensiolabs/i/xxxxxxxxx.svg?style=flat-square)](https://insight.sensiolabs.com/projects/xxxxxxxxx)
-[![Quality Score](https://img.shields.io/scrutinizer/g/mollie/:package_name.svg?style=flat-square)](https://scrutinizer-ci.com/g/mollie/:package_name)
-[![Total Downloads](https://img.shields.io/packagist/dt/mollie/:package_name.svg?style=flat-square)](https://packagist.org/packages/mollie/:package_name)
--->
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/laravel/cashier-mollie.svg?style=flat-square)](https://packagist.org/packages/laravel/cashier-mollie)
+[![Github Actions](https://github.com/laravel/cashier-mollie/workflows/tests/badge.svg)](https://github.com/laravel/cashier-mollie/actions)
 
 Laravel Cashier provides an expressive, fluent interface to subscriptions using [Mollie](https://www.mollie.com)'s billing services.
 
 ## Installation
 
-You can pull this package in using composer:
+First, make sure to add the Mollie key to your `.env` file. You can obtain an API key from the [Mollie dashboard](https://www.mollie.com/dashboard/developers/api-keys):
+
+```dotenv
+MOLLIE_KEY="test_xxxxxxxxxxx"
+```
+
+Next, pull this package in using composer:
 
 ```bash
 composer require laravel/cashier-mollie "^1.0"
@@ -43,10 +42,10 @@ Once you have pulled in the package:
 
 3. Run the migrations: `php artisan migrate`
 
-4. Set the `MOLLIE_KEY` in your .env file. You can obtain an API key from the [Mollie dashboard](https://www.mollie.com/dashboard/developers/api-keys):
+4. Ensure you have properly configured the `MOLLIE_KEY` in your .env file. You can obtain an API key from the [Mollie dashboard](https://www.mollie.com/dashboard/developers/api-keys):
 
     ```dotenv
-   MOLLIE_KEY="test_xxxxxxxxxxx"
+   MOLLIE_KEY="test_xxxxxxxxxxxxxxxxxxxxxx"
     ```
 
 5. Prepare the configuration files:
@@ -331,6 +330,10 @@ To cancel a subscription, call the `cancel` method on the user's subscription:
 ```php
 $user->subscription('main')->cancel();
 ```
+or
+```php
+$user->subscription('main')->cancelAt(now());
+```
 
 When a subscription is cancelled, Cashier will automatically set the `ends_at` column in your database. This column is used to know when the `subscribed` method should begin returning `false`. For example, if a customer cancels a subscription on March 1st, but the subscription was not scheduled to end until March 5th, the `subscribed` method will continue to return `true` until March 5th.
 
@@ -460,6 +463,29 @@ $invoice->download(); // get a download response for the pdf
 To list invoices, access the user's orders using: `$user->orders->invoices()`.
 This includes invoices for all orders, even unprocessed or failed orders.
 
+For list of invoices
+
+```php
+<ul class="list-unstyled">
+    @foreach(auth()->user()->orders as $order)
+    <li>
+        
+        <a href="/download-invoice/{{ $order->id }}">
+            {{ $order->invoice()->id() }} -  {{ $order->invoice()->date() }}
+        </a>
+    </li>
+    @endforeach
+</ul>
+```
+and add this route inside web.php
+
+```php
+Route::middleware('auth')->get('/download-invoice/{orderId}', function($orderId){
+
+    return (request()->user()->downloadInvoice($orderId));
+});
+```
+
 ### Refunding Charges
 
 Coming soon. 
@@ -478,7 +504,7 @@ __Use these with care:__
 
 ```php
 $credit = $user->credit('EUR');
-$user->addCredit(new Amount(10, 'EUR'); // add €10.00
+$user->addCredit(money(10, 'EUR')); // add €10.00
 $user->hasCredit('EUR');
 ```
 

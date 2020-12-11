@@ -18,6 +18,7 @@ trait PaymentMethodString
                 return trim($methodString);
             })
             ->filter()
-            ->unique();
+            ->unique()
+            ->all();
     }
 }

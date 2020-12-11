@@ -5,26 +5,29 @@ namespace Laravel\Cashier;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Cashier\Console\Commands\CashierInstall;
 use Laravel\Cashier\Console\Commands\CashierRun;
-use Laravel\Cashier\Order\Contracts\MinimumPayment as MinimumPaymentContract;
 use Laravel\Cashier\Coupon\ConfigCouponRepository;
 use Laravel\Cashier\Coupon\Contracts\CouponRepository;
+use Laravel\Cashier\Mollie\RegistersMollieInteractions;
+use Laravel\Cashier\Order\Contracts\MinimumPayment as MinimumPaymentContract;
 use Laravel\Cashier\Plan\ConfigPlanRepository;
 use Laravel\Cashier\Plan\Contracts\PlanRepository;
 use Mollie\Laravel\MollieServiceProvider;
 
 class CashierServiceProvider extends ServiceProvider
 {
-    const PACKAGE_VERSION = '1.12.2';
+    use RegistersMollieInteractions;
+
+    const PACKAGE_VERSION = '1.14.0';
 
     /**
      * Bootstrap the application services.
      */
     public function boot()
     {
+        $this->mergeConfig();
         if (Cashier::$registersRoutes) {
             $this->loadRoutesFrom(__DIR__.'/../routes/webhooks.php');
         }
-        $this->mergeConfig();
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'cashier');
 
         mollie()->addVersionString('MollieLaravelCashier/' . self::PACKAGE_VERSION);
@@ -45,6 +48,7 @@ class CashierServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->register(MollieServiceProvider::class);
+        $this->registerMollieInteractions($this->app);
         $this->app->bind(PlanRepository::class, ConfigPlanRepository::class);
         $this->app->singleton(CouponRepository::class, function () {
             return new ConfigCouponRepository(
@@ -104,7 +108,7 @@ class CashierServiceProvider extends ServiceProvider
     protected function configureCurrency()
     {
         $currency = config('cashier.currency', false);
-        if($currency) {
+        if ($currency) {
             Cashier::useCurrency($currency);
         }
     }
@@ -112,7 +116,7 @@ class CashierServiceProvider extends ServiceProvider
     protected function configureCurrencyLocale()
     {
         $locale = config('cashier.currency_locale', false);
-        if($locale) {
+        if ($locale) {
             Cashier::useCurrencyLocale($locale);
         }
     }

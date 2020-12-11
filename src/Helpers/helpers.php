@@ -15,9 +15,10 @@ if (! function_exists('object_to_array_recursive')) {
      */
     function object_to_array_recursive($object)
     {
-        if(empty($object)) {
+        if (empty($object)) {
             return null;
         }
+
         return json_decode(json_encode($object, JSON_FORCE_OBJECT), true);
     }
 }
@@ -32,7 +33,7 @@ if (! function_exists('money')) {
      */
     function money(int $value, string $currency)
     {
-        return new Money($value, new \Money\Currency($currency));
+        return new Money($value, new Currency($currency));
     }
 }
 
@@ -48,7 +49,7 @@ if (! function_exists('decimal_to_money')) {
     {
         $moneyParser = new DecimalMoneyParser(new ISOCurrencies());
 
-        return $moneyParser->parse($value, $currency);
+        return $moneyParser->parse($value, new Currency($currency));
     }
 }
 

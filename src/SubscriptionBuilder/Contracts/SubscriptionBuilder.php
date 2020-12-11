@@ -10,5 +10,4 @@ interface SubscriptionBuilder extends SubscriptionConfigurator
      * @return mixed
      */
     public function create();
-
 }

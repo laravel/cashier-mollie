@@ -5,20 +5,21 @@ namespace Laravel\Cashier\Tests;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Support\Collection;
-use Laravel\Cashier\Coupon\Contracts\CouponHandler;
 use Laravel\Cashier\Coupon\Contracts\CouponRepository;
 use Laravel\Cashier\Coupon\Coupon;
 use Laravel\Cashier\Coupon\FixedDiscountHandler;
 use Laravel\Cashier\Tests\Database\Migrations\CreateUsersTable;
-use Laravel\Cashier\Tests\FirstPayment\Actions\StartSubscriptionTest;
 use Laravel\Cashier\Tests\Fixtures\User;
 use Mockery;
 use Mollie\Api\MollieApiClient;
+use Mollie\Laravel\Wrappers\MollieApiWrapper;
 use Money\Money;
 use Orchestra\Testbench\TestCase;
 
 abstract class BaseTestCase extends TestCase
 {
+    protected $interactWithMollieAPI = false;
+
     /**
      * Setup the test environment.
      */
@@ -31,6 +32,11 @@ abstract class BaseTestCase extends TestCase
 
         config(['cashier.webhook_url' => 'https://www.example.com/webhook']);
         config(['cashier.first_payment.webhook_url' => 'https://www.example.com/mandate-webhook']);
+
+        if (! $this->interactWithMollieAPI) {
+            // Disable the Mollie API
+            $this->mock(MollieApiWrapper::class, null);
+        }
     }
 
     /**
@@ -148,7 +154,7 @@ abstract class BaseTestCase extends TestCase
      */
     protected function withTestNow($now)
     {
-        if(is_string($now)) {
+        if (is_string($now)) {
             $now = Carbon::parse($now);
         }
         Carbon::setTestNow($now);
@@ -218,7 +224,8 @@ abstract class BaseTestCase extends TestCase
         return $this;
     }
 
-    protected function getMandatedCustomerId() {
+    protected function getMandatedCustomerId()
+    {
         return env('MANDATED_CUSTOMER_DIRECTDEBIT');
     }
 
@@ -230,14 +237,14 @@ abstract class BaseTestCase extends TestCase
     protected function getMandatedUser($persist = true, $overrides = [])
     {
         return $this->getCustomerUser($persist, array_merge([
-            'mollie_mandate_id' => $this->getMandateId(),
+            'mollie_mandate_id' => 'mdt_unique_mandate_id',
         ], $overrides));
     }
 
     protected function getCustomerUser($persist = true, $overrides = [])
     {
         return $this->getUser($persist, array_merge([
-            'mollie_customer_id' => $this->getMandatedCustomerId(),
+            'mollie_customer_id' => 'cst_unique_customer_id',
         ], $overrides));
     }
 
@@ -316,11 +323,11 @@ abstract class BaseTestCase extends TestCase
      */
     protected function withMockedCouponRepository(Coupon $coupon = null, $couponHandler = null, $context = null)
     {
-        if(is_null($couponHandler)) {
+        if (is_null($couponHandler)) {
             $couponHandler = new FixedDiscountHandler;
         }
 
-        if(is_null($context)) {
+        if (is_null($context)) {
             $context = [
                 'description' => 'Test coupon',
                 'discount' => [
@@ -330,7 +337,7 @@ abstract class BaseTestCase extends TestCase
             ];
         }
 
-        if(is_null($coupon)) {
+        if (is_null($coupon)) {
             $coupon = new Coupon(
                 'test-coupon',
                 $couponHandler,
@@ -339,7 +346,7 @@ abstract class BaseTestCase extends TestCase
         }
 
         return $this->mock(CouponRepository::class, function ($mock) use ($coupon) {
-            $mock->shouldReceive('findOrFail')->with($coupon->name())->andReturn($coupon);
+            return $mock->shouldReceive('findOrFail')->with($coupon->name())->andReturn($coupon);
         });
     }
 

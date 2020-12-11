@@ -4,8 +4,15 @@ namespace Laravel\Cashier\Tests;
 
 use Illuminate\Support\Facades\Event;
 use Laravel\Cashier\Events\SubscriptionPlanSwapped;
+use Laravel\Cashier\Mollie\Contracts\CreateMolliePayment;
+use Laravel\Cashier\Mollie\Contracts\GetMollieMandate;
+use Laravel\Cashier\Mollie\Contracts\GetMollieMethodMinimumAmount;
+use Laravel\Cashier\Mollie\GetMollieCustomer;
 use Laravel\Cashier\Order\OrderItem;
 use Laravel\Cashier\Subscription;
+use Mollie\Api\MollieApiClient;
+use Mollie\Api\Resources\Customer;
+use Mollie\Api\Resources\Mandate;
 
 class SwapSubscriptionPlanTest extends BaseTestCase
 {
@@ -24,6 +31,10 @@ class SwapSubscriptionPlanTest extends BaseTestCase
     public function canSwapToAnotherPlan()
     {
         $now = now();
+        $this->withMockedGetMollieCustomer();
+        $this->withMockedGetMollieMandate();
+        $this->withMockedGetMollieMethodMinimumAmount();
+        $this->withMockedCreateMolliePayment();
 
         $user = $this->getUserWithZeroBalance();
         $subscription = $this->getSubscriptionForUser($user);
@@ -138,6 +149,7 @@ class SwapSubscriptionPlanTest extends BaseTestCase
         $this->assertCarbon($cycle_should_end_at, $new_order_item->process_at, 1); // based on previous plan's cycle
         $this->assertEquals(2200, $new_order_item->total);
         $this->assertEquals(200, $new_order_item->tax);
+        $this->assertEquals('Twice as expensive monthly subscription', $new_order_item->description);
 
         $this->assertFalse($user->fresh()->hasCredit());
 
@@ -166,9 +178,12 @@ class SwapSubscriptionPlanTest extends BaseTestCase
 
     protected function getUserWithZeroBalance()
     {
-        $user = $this->getMandatedUser(true, ["tax_percentage" => 10]);
+        $user = $this->getMandatedUser(true, [
+            'tax_percentage' => 10,
+            'mollie_customer_id' => 'cst_unique_customer_id',
+            'mollie_mandate_id' => 'mdt_unique_mandate_id',
+        ]);
         $this->assertEquals(0, $user->credits()->whereCurrency('EUR')->count());
-        $this->assertTrue($user->asMollieCustomer()->hasValidMandate());
 
         return $user;
     }
@@ -186,5 +201,51 @@ class SwapSubscriptionPlanTest extends BaseTestCase
             "cycle_ends_at" => now()->subWeeks(2)->addMonth(),
             "tax_percentage" => 10,
         ]));
+    }
+
+    protected function withMockedGetMollieCustomer($customerIds = ['cst_unique_customer_id'], $times = 1): void
+    {
+        $this->mock(GetMollieCustomer::class, function ($mock) use ($customerIds, $times) {
+            foreach ($customerIds as $id) {
+                $customer = new Customer(new MollieApiClient);
+                $customer->id = $id;
+                $mock->shouldReceive('execute')->with($id)->times($times)->andReturn($customer);
+            }
+
+            return $mock;
+        });
+    }
+
+    protected function withMockedGetMollieMandate($attributes = [[
+        'mandateId' => 'mdt_unique_mandate_id',
+        'customerId' => 'cst_unique_customer_id',
+    ]], $times = 1): void
+    {
+        $this->mock(GetMollieMandate::class, function ($mock) use ($times, $attributes) {
+            foreach ($attributes as $data) {
+                $mandate = new Mandate(new MollieApiClient);
+                $mandate->id = $data['mandateId'];
+                $mandate->status = 'valid';
+                $mandate->method = 'directdebit';
+
+                $mock->shouldReceive('execute')->with($data['customerId'], $data['mandateId'])->times($times)->andReturn($mandate);
+            }
+
+            return $mock;
+        });
+    }
+
+    protected function withMockedGetMollieMethodMinimumAmount($times = 1): void
+    {
+        $this->mock(GetMollieMethodMinimumAmount::class, function ($mock) use ($times) {
+            return $mock->shouldReceive('execute')->with('directdebit', 'EUR')->times($times)->andReturn(money(100, 'EUR'));
+        });
+    }
+
+    protected function withMockedCreateMolliePayment($times = 1): void
+    {
+        $this->mock(CreateMolliePayment::class, function ($mock) use ($times) {
+            return $mock->shouldReceive('execute')->times($times);
+        });
     }
 }
