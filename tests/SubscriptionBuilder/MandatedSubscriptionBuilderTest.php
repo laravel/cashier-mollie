@@ -6,8 +6,13 @@ use Carbon\Carbon;
 use Laravel\Cashier\Coupon\AppliedCoupon;
 use Laravel\Cashier\Coupon\RedeemedCoupon;
 use Laravel\Cashier\Exceptions\CouponException;
+use Laravel\Cashier\Mollie\Contracts\GetMollieCustomer;
+use Laravel\Cashier\Mollie\Contracts\GetMollieMandate;
 use Laravel\Cashier\SubscriptionBuilder\MandatedSubscriptionBuilder;
 use Laravel\Cashier\Tests\BaseTestCase;
+use Mollie\Api\MollieApiClient;
+use Mollie\Api\Resources\Customer;
+use Mollie\Api\Resources\Mandate;
 
 class MandatedSubscriptionBuilderTest extends BaseTestCase
 {
@@ -18,13 +23,19 @@ class MandatedSubscriptionBuilderTest extends BaseTestCase
         parent::setUp();
         $this->withPackageMigrations();
         $this->withConfiguredPlans();
-        $this->user = $this->getMandatedUser(true);
+        $this->user = $this->getCustomerUser(true, [
+            'tax_percentage' => 20,
+            'mollie_customer_id' => 'cst_unique_customer_id',
+            'mollie_mandate_id' => 'mdt_unique_mandate_id',
+        ]);
     }
 
     /** @test */
     public function testWithCouponNoTrial()
     {
         $this->withMockedCouponRepository();
+        $this->withMockedGetMollieMandate();
+        $this->withMockedGetMollieCustomer();
         $now = Carbon::parse('2019-01-01');
         $this->withTestNow($now);
 
@@ -50,6 +61,8 @@ class MandatedSubscriptionBuilderTest extends BaseTestCase
     public function testWithCouponAndTrial()
     {
         $this->withMockedCouponRepository();
+        $this->withMockedGetMollieMandate();
+        $this->withMockedGetMollieCustomer();
         $now = Carbon::parse('2019-01-01');
         $this->withTestNow($now);
 
@@ -80,6 +93,8 @@ class MandatedSubscriptionBuilderTest extends BaseTestCase
     {
         $this->expectException(CouponException::class);
         $this->withMockedCouponRepository(null, new InvalidatingCouponHandler);
+        $this->withMockedGetMollieMandate();
+        $this->withMockedGetMollieCustomer();
         $this->getBuilder()->withCoupon('test-coupon')->create();
     }
 
@@ -93,7 +108,6 @@ class MandatedSubscriptionBuilderTest extends BaseTestCase
         $this->assertFalse($builder->makeSubscription()->onTrial());
     }
 
-
     /**
      * @return \Laravel\Cashier\SubscriptionBuilder\MandatedSubscriptionBuilder
      */
@@ -104,5 +118,27 @@ class MandatedSubscriptionBuilderTest extends BaseTestCase
             'default',
             'monthly-10-1'
         );
+    }
+
+    protected function withMockedGetMollieCustomer(): void
+    {
+        $this->mock(GetMollieCustomer::class, function ($mock) {
+            $customer = new Customer(new MollieApiClient);
+            $customer->id = 'cst_unique_customer_id';
+
+            return $mock->shouldReceive('execute')->with('cst_unique_customer_id')->once()->andReturn($customer);
+        });
+    }
+
+    protected function withMockedGetMollieMandate(): void
+    {
+        $this->mock(GetMollieMandate::class, function ($mock) {
+            $mandate = new Mandate(new MollieApiClient);
+            $mandate->id = 'mdt_unique_mandate_id';
+            $mandate->status = 'valid';
+            $mandate->method = 'directdebit';
+
+            return $mock->shouldReceive('execute')->with('cst_unique_customer_id', 'mdt_unique_mandate_id')->once()->andReturn($mandate);
+        });
     }
 }

@@ -6,9 +6,14 @@ use Illuminate\Support\Facades\Event;
 use Laravel\Cashier\Coupon\RedeemedCoupon;
 use Laravel\Cashier\Coupon\RedeemedCouponCollection;
 use Laravel\Cashier\Events\MandateClearedFromBillable;
+use Laravel\Cashier\Mollie\Contracts\GetMollieCustomer;
+use Laravel\Cashier\Mollie\Contracts\GetMollieMandate;
 use Laravel\Cashier\SubscriptionBuilder\FirstPaymentSubscriptionBuilder;
 use Laravel\Cashier\SubscriptionBuilder\MandatedSubscriptionBuilder;
 use Laravel\Cashier\Tests\Fixtures\User;
+use Mollie\Api\MollieApiClient;
+use Mollie\Api\Resources\Customer;
+use Mollie\Api\Resources\Mandate;
 
 class BillableTest extends BaseTestCase
 {
@@ -39,10 +44,13 @@ class BillableTest extends BaseTestCase
     {
         $this->withConfiguredPlans();
         $this->withPackageMigrations();
+        $this->withMockedGetMollieCustomer();
+        $this->withMockedGetMollieMandateRevoked();
 
-        $revokedMandateId = 'mdt_MvfK2PRzNJ';
-
-        $user = $this->getUser(false, ['mollie_mandate_id' => $revokedMandateId]);
+        $user = $this->getUser(false, [
+            'mollie_mandate_id' => 'mdt_unique_revoked_mandate_id',
+            'mollie_customer_id' => 'cst_unique_customer_id',
+        ]);
 
         $builder = $user->newSubscription('default', 'monthly-10-1');
 
@@ -53,7 +61,12 @@ class BillableTest extends BaseTestCase
     public function returnsDefaultSubscriptionBuilderIfOwnerHasValidMandateId()
     {
         $this->withConfiguredPlans();
-        $user = $this->getMandatedUser(false);
+        $this->withMockedGetMollieCustomer();
+        $this->withMockedGetMollieMandate();
+        $user = $this->getMandatedUser(false, [
+            'mollie_mandate_id' => 'mdt_unique_mandate_id',
+            'mollie_customer_id' => 'cst_unique_customer_id',
+        ]);
 
         $builder = $user->newSubscription('default', 'monthly-10-1');
 
@@ -78,8 +91,13 @@ class BillableTest extends BaseTestCase
         $this->withPackageMigrations();
         $this->withConfiguredPlans();
         $this->withMockedCouponRepository(); // 'test-coupon'
+        $this->withMockedGetMollieCustomerTwice();
+        $this->withMockedGetMollieMandateTwice();
 
-        $user = $this->getMandatedUser();
+        $user = $this->getMandatedUser(true, [
+            'mollie_mandate_id' => 'mdt_unique_mandate_id',
+            'mollie_customer_id' => 'cst_unique_customer_id',
+        ]);
         $subscription = $user->newSubscription('default', 'monthly-10-1')->create();
         $this->assertEquals(0, $user->redeemedCoupons()->count());
 
@@ -97,8 +115,14 @@ class BillableTest extends BaseTestCase
         $this->withPackageMigrations();
         $this->withConfiguredPlans();
         $this->withMockedCouponRepository(); // 'test-coupon'
+        $this->withMockedGetMollieCustomerTwice();
+        $this->withMockedGetMollieMandateTwice();
 
-        $user = $this->getMandatedUser();
+        $user = $this->getMandatedUser(true, [
+            'mollie_mandate_id' => 'mdt_unique_mandate_id',
+            'mollie_customer_id' => 'cst_unique_customer_id',
+        ]);
+
         $subscription = $user->newSubscription('default', 'monthly-10-1')->create();
         $subscription->redeemedCoupons()->saveMany(factory(RedeemedCoupon::class, 2)->make());
         $this->assertEquals(2, $subscription->redeemedCoupons()->active()->count());
@@ -131,4 +155,58 @@ class BillableTest extends BaseTestCase
         });
     }
 
+    protected function withMockedGetMollieCustomer(): void
+    {
+        $this->mock(GetMollieCustomer::class, function ($mock) {
+            $customer = new Customer(new MollieApiClient);
+            $customer->id = 'cst_unique_customer_id';
+
+            return $mock->shouldReceive('execute')->with('cst_unique_customer_id')->once()->andReturn($customer);
+        });
+    }
+
+    protected function withMockedGetMollieCustomerTwice(): void
+    {
+        $this->mock(GetMollieCustomer::class, function ($mock) {
+            $customer = new Customer(new MollieApiClient);
+            $customer->id = 'cst_unique_customer_id';
+
+            return $mock->shouldReceive('execute')->with('cst_unique_customer_id')->twice()->andReturn($customer);
+        });
+    }
+
+    protected function withMockedGetMollieMandateRevoked(): void
+    {
+        $this->mock(GetMollieMandate::class, function ($mock) {
+            $mandate = new Mandate(new MollieApiClient);
+            $mandate->id = 'mdt_unique_revoked_mandate_id';
+            $mandate->status = 'invalid';
+
+            return $mock->shouldReceive('execute')->with('cst_unique_customer_id', 'mdt_unique_revoked_mandate_id')->once()->andReturn($mandate);
+        });
+    }
+
+    protected function withMockedGetMollieMandate(): void
+    {
+        $this->mock(GetMollieMandate::class, function ($mock) {
+            $mandate = new Mandate(new MollieApiClient);
+            $mandate->id = 'mdt_unique_mandate_id';
+            $mandate->status = 'valid';
+            $mandate->method = 'directdebit';
+
+            return $mock->shouldReceive('execute')->with('cst_unique_customer_id', 'mdt_unique_mandate_id')->once()->andReturn($mandate);
+        });
+    }
+
+    protected function withMockedGetMollieMandateTwice(): void
+    {
+        $this->mock(GetMollieMandate::class, function ($mock) {
+            $mandate = new Mandate(new MollieApiClient);
+            $mandate->id = 'mdt_unique_revoked_mandate_id';
+            $mandate->status = 'valid';
+            $mandate->method = 'directdebit';
+
+            return $mock->shouldReceive('execute')->with('cst_unique_customer_id', 'mdt_unique_mandate_id')->twice()->andReturn($mandate);
+        });
+    }
 }

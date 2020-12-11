@@ -195,10 +195,10 @@ class Cashier
      */
     public static function getLocale(Model $owner)
     {
-        if(method_exists($owner, 'getLocale')) {
+        if (method_exists($owner, 'getLocale')) {
             $locale = $owner->getLocale();
 
-            if(!empty($locale)) {
+            if (! empty($locale)) {
                 return $locale;
             }
         }

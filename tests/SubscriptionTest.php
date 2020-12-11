@@ -5,10 +5,15 @@ namespace Laravel\Cashier\Tests;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Event;
 use Laravel\Cashier\Events\SubscriptionResumed;
+use Laravel\Cashier\Mollie\Contracts\GetMollieMandate;
+use Laravel\Cashier\Mollie\GetMollieCustomer;
 use Laravel\Cashier\Order\OrderItem;
 use Laravel\Cashier\Subscription;
 use Laravel\Cashier\Tests\Fixtures\User;
 use LogicException;
+use Mollie\Api\MollieApiClient;
+use Mollie\Api\Resources\Customer;
+use Mollie\Api\Resources\Mandate;
 
 class SubscriptionTest extends BaseTestCase
 {
@@ -145,12 +150,15 @@ class SubscriptionTest extends BaseTestCase
     {
         Carbon::setTestNow(Carbon::parse('2018-01-01'));
         $this->withConfiguredPlans();
+        $this->withMockedGetMollieCustomer();
+        $this->withMockedGetMollieMandate();
 
         $user = factory(User::class)->create([
-            'mollie_customer_id' => $this->getMandatedCustomerId(),
+            'mollie_mandate_id' => 'mdt_unique_mandate_id',
+            'mollie_customer_id' => 'cst_unique_customer_id',
         ]);
 
-        $subscription = $user->newSubscriptionForMandateId($this->getMandateId(), 'main', 'monthly-10-1')->create();
+        $subscription = $user->newSubscriptionForMandateId('mdt_unique_mandate_id', 'main', 'monthly-10-1')->create();
         $this->assertCarbon(Carbon::parse('2018-01-01'), $subscription->cycle_started_at);
         $this->assertCarbon(Carbon::parse('2018-01-01'), $subscription->cycle_ends_at);
 
@@ -249,8 +257,9 @@ class SubscriptionTest extends BaseTestCase
     public function cancelAtWorks()
     {
         $user = factory(User::class)->create();
-        $subscription = $user->subscriptions()->save(factory(Subscription::class)->make([
-            'cycle_ends_at' => now()->addWeek()])
+        $subscription = $user->subscriptions()->save(
+            factory(Subscription::class)->make([
+            'cycle_ends_at' => now()->addWeek(), ])
         );
 
         $this->assertFalse($subscription->onTrial());
@@ -272,8 +281,9 @@ class SubscriptionTest extends BaseTestCase
     public function cancelNowWorks()
     {
         $user = factory(User::class)->create();
-        $subscription = $user->subscriptions()->save(factory(Subscription::class)->make([
-            'cycle_ends_at' => now()->addWeek()])
+        $subscription = $user->subscriptions()->save(
+            factory(Subscription::class)->make([
+            'cycle_ends_at' => now()->addWeek(), ])
         );
 
         $this->assertFalse($subscription->onTrial());
@@ -308,5 +318,34 @@ class SubscriptionTest extends BaseTestCase
 
         $this->assertFalse($subscription->cancelled());
         $this->assertCarbon(now()->addWeek(), $subscription->cycle_ends_at);
+    }
+
+    protected function withMockedGetMollieCustomer($customerId = 'cst_unique_customer_id', $times = 1): void
+    {
+        $this->mock(GetMollieCustomer::class, function ($mock) use ($customerId, $times) {
+            $customer = new Customer(new MollieApiClient);
+            $customer->id = $customerId;
+
+            return $mock->shouldReceive('execute')->with($customerId)->times($times)->andReturn($customer);
+        });
+    }
+
+    protected function withMockedGetMollieMandate($attributes = [[
+        'mandateId' => 'mdt_unique_mandate_id',
+        'customerId' => 'cst_unique_customer_id',
+    ]], $times = 1): void
+    {
+        $this->mock(GetMollieMandate::class, function ($mock) use ($times, $attributes) {
+            foreach ($attributes as $data) {
+                $mandate = new Mandate(new MollieApiClient);
+                $mandate->id = $data['mandateId'];
+                $mandate->status = 'valid';
+                $mandate->method = 'directdebit';
+
+                $mock->shouldReceive('execute')->with($data['customerId'], $data['mandateId'])->times($times)->andReturn($mandate);
+            }
+
+            return $mock;
+        });
     }
 }

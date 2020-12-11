@@ -105,7 +105,7 @@ abstract class BaseCouponHandler implements CouponHandler
      */
     protected function makeOrderItem(array $data)
     {
-        if($this->appliedCoupon) {
+        if ($this->appliedCoupon) {
             return $this->appliedCoupon->orderItems()->make($data);
         }
 

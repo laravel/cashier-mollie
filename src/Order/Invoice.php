@@ -503,10 +503,12 @@ class Invoice
      * @param $separator
      * @return \Illuminate\Support\Collection|string
      */
-    private function optionallyImplode(Collection $collection, $separator) {
-        if($separator === null) {
+    private function optionallyImplode(Collection $collection, $separator)
+    {
+        if ($separator === null) {
             return $collection;
         }
+
         return $collection->implode($separator);
     }
 }

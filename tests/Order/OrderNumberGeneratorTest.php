@@ -3,10 +3,10 @@
 namespace Laravel\Cashier\Tests\Order;
 
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Order\OrderNumberGenerator;
 use Laravel\Cashier\Tests\BaseTestCase;
-use Illuminate\Support\Str;
 
 class OrderNumberGeneratorTest extends BaseTestCase
 {
@@ -43,7 +43,6 @@ class OrderNumberGeneratorTest extends BaseTestCase
 
         factory(Order::class, 3)->create();
         $this->assertTrue(Str::endsWith($this->generator->generate(), '19'));
-
     }
 
     /** @test */

@@ -10,6 +10,9 @@ use Laravel\Cashier\Coupon\RedeemedCoupon;
 use Laravel\Cashier\Credit\Credit;
 use Laravel\Cashier\Events\MandateClearedFromBillable;
 use Laravel\Cashier\Exceptions\InvalidMandateException;
+use Laravel\Cashier\Mollie\Contracts\CreateMollieCustomer;
+use Laravel\Cashier\Mollie\Contracts\GetMollieCustomer;
+use Laravel\Cashier\Mollie\Contracts\GetMollieMandate;
 use Laravel\Cashier\Order\Invoice;
 use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Order\OrderItem;
@@ -66,18 +69,12 @@ trait Billable
      */
     public function newSubscription($subscription, $plan, $firstPaymentOptions = [])
     {
-        if(! empty($this->mollie_mandate_id)) {
-
-            $mandate = null;
-
-            try {
-                $mandate = $this->asMollieCustomer()->getMandate($this->mollie_mandate_id);
-            } catch (ApiException $e) {} // A revoked mandate may no longer exist, so throws an exception
-
+        if (! empty($this->mollie_mandate_id)) {
+            $mandate = $this->mollieMandate();
             $planModel = app(PlanRepository::class)::findOrFail($plan);
             $method = MandateMethod::getForFirstPaymentMethod($planModel->firstPaymentMethod());
 
-            if(
+            if (
                 ! empty($mandate)
                 && $mandate->isValid()
                 && $mandate->method === $method
@@ -117,7 +114,7 @@ trait Billable
     public function newSubscriptionForMandateId($mandateId, $subscription, $plan)
     {
         // The mandateId has changed
-        if($this->mollie_mandate_id !== $mandateId) {
+        if ($this->mollie_mandate_id !== $mandateId) {
             $this->mollie_mandate_id = $mandateId;
             $this->guardMollieMandate();
             $this->save();
@@ -133,7 +130,7 @@ trait Billable
      */
     public function mollieCustomerId()
     {
-        if(empty($this->mollie_customer_id)) {
+        if (empty($this->mollie_customer_id)) {
             return $this->createAsMollieCustomer()->id;
         }
 
@@ -150,7 +147,9 @@ trait Billable
     {
         $options = array_merge($this->mollieCustomerFields(), $override_options);
 
-        $customer = mollie()->customers()->create($options);
+        /** @var CreateMollieCustomer $createMollieCustomer */
+        $createMollieCustomer = app()->make(CreateMollieCustomer::class);
+        $customer = $createMollieCustomer->execute($options);
 
         $this->mollie_customer_id = $customer->id;
         $this->save();
@@ -165,10 +164,14 @@ trait Billable
      */
     public function asMollieCustomer()
     {
-        if(empty($this->mollie_customer_id)) {
+        if (empty($this->mollie_customer_id)) {
             return $this->createAsMollieCustomer();
         }
-        return mollie()->customers()->get($this->mollie_customer_id);
+
+        /** @var GetMollieCustomer $getMollieCustomer */
+        $getMollieCustomer = app()->make(GetMollieCustomer::class);
+
+        return $getMollieCustomer->execute($this->mollie_customer_id);
     }
 
     /**
@@ -211,7 +214,7 @@ trait Billable
      */
     public function cancelGenericTrial()
     {
-        if($this->onGenericTrial()) {
+        if ($this->onGenericTrial()) {
             $this->forceFill(['trial_ends_at' => now()])->save();
         }
 
@@ -234,6 +237,7 @@ trait Billable
         if (is_null($plan)) {
             return $subscription->valid();
         }
+
         return $subscription->valid() &&
                $subscription->plan === $plan;
     }
@@ -254,6 +258,7 @@ trait Billable
                 return true;
             }
         }
+
         return false;
     }
 
@@ -302,7 +307,7 @@ trait Billable
      */
     public function hasCredit($currency = null)
     {
-        if(empty($currency)) {
+        if (empty($currency)) {
             return $this->credits()
                 ->where('value', '<>', 0)
                 ->exists();
@@ -324,7 +329,7 @@ trait Billable
     {
         $credit = $this->credits()->whereCurrency($currency)->first();
 
-        if(! $credit ) {
+        if (! $credit) {
             $credit = $this->credits()->create([
                 'currency' => $currency,
                 'value' => 0,
@@ -412,13 +417,16 @@ trait Billable
      */
     public function mollieMandate()
     {
-        $id = $this->mollieMandateId();
+        $mandateId = $this->mollieMandateId();
 
-        if(! empty($id)) {
+        if (! empty($mandateId)) {
             $customer = $this->asMollieCustomer();
 
             try {
-                return $customer->getMandate($id);
+                /** @var GetMollieMandate $getMollieMandate */
+                $getMollieMandate = app()->make(GetMollieMandate::class);
+
+                return $getMollieMandate->execute($customer->id, $mandateId);
             } catch (ApiException $e) {
                 // Status 410: mandate was revoked
                 if (! $e->getCode() == 410) {
@@ -447,7 +455,7 @@ trait Billable
      */
     public function validateMollieMandate()
     {
-        if($this->validMollieMandate()) {
+        if ($this->validMollieMandate()) {
             return true;
         }
 
@@ -472,7 +480,7 @@ trait Billable
      */
     public function clearMollieMandate()
     {
-        if(empty($this->mollieMandateId())) {
+        if (empty($this->mollieMandateId())) {
             return $this;
         }
 
@@ -510,7 +518,7 @@ trait Billable
         $coupon->validateFor($subscription);
 
         return DB::transaction(function () use ($coupon, $subscription, $revokeOtherCoupons) {
-            if($revokeOtherCoupons) {
+            if ($revokeOtherCoupons) {
                 $otherCoupons = $subscription->redeemedCoupons()->active()->get();
                 $otherCoupons->each->revoke();
             }

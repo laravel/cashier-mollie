@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace Laravel\Cashier\Plan;
 
+use Laravel\Cashier\FirstPayment\Traits\PaymentMethodString;
 use Laravel\Cashier\Order\OrderItemPreprocessorCollection;
 use Laravel\Cashier\Plan\Contracts\Plan as PlanContract;
 use Money\Money;
 
 class Plan implements PlanContract
 {
+
+    use PaymentMethodString;
+
     /**
      * A unique reference for this plan.
      *
@@ -49,8 +53,8 @@ class Plan implements PlanContract
     /**
      * The first payment method
      *
-     * @var string
-     * @example ideal
+     * @var array
+     * @example ['ideal']
      */
     protected $firstPaymentMethod;
 
@@ -104,6 +108,7 @@ class Plan implements PlanContract
     public function setName(string $name)
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -146,7 +151,7 @@ class Plan implements PlanContract
     }
 
     /**
-     * @return string
+     * @return array
      */
     public function firstPaymentMethod()
     {
@@ -154,11 +159,15 @@ class Plan implements PlanContract
     }
 
     /**
-     * @param string $firstPaymentMethod
+     * @param  array|string  $firstPaymentMethod
      * @return $this
      */
-    public function setFirstPaymentMethod(?string $firstPaymentMethod)
+    public function setFirstPaymentMethod($firstPaymentMethod)
     {
+        if (is_string($firstPaymentMethod)) {
+            $firstPaymentMethod = $this->castPaymentMethodString($firstPaymentMethod);
+        }
+
         $this->firstPaymentMethod = $firstPaymentMethod;
 
         return $this;

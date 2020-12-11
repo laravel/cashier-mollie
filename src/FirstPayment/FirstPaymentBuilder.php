@@ -6,10 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\FirstPayment\Actions\ActionCollection;
+use Laravel\Cashier\FirstPayment\Traits\PaymentMethodString;
+use Laravel\Cashier\Mollie\Contracts\CreateMolliePayment;
+use Laravel\Cashier\Mollie\Contracts\UpdateMolliePayment;
 use Mollie\Api\Types\SequenceType;
 
 class FirstPaymentBuilder
 {
+    use PaymentMethodString;
+
     /**
      * The billable model.
      *
@@ -121,26 +126,36 @@ class FirstPaymentBuilder
     public function create()
     {
         $payload = $this->getMolliePayload();
-        $this->molliePayment = mollie()->payments()->create($payload);
+
+        /** @var CreateMolliePayment $createMolliePayment */
+        $createMolliePayment = app()->make(CreateMolliePayment::class);
+        $this->molliePayment = $createMolliePayment->execute($payload);
 
         $redirectUrl = $payload['redirectUrl'];
 
         // Parse and update redirectUrl
-        if(Str::contains($redirectUrl, '{payment_id}')) {
+        if (Str::contains($redirectUrl, '{payment_id}')) {
             $redirectUrl = Str::replaceArray('{payment_id}', [$this->molliePayment->id], $redirectUrl);
             $this->molliePayment->redirectUrl = $redirectUrl;
-            $this->molliePayment = $this->molliePayment->update();
+
+            /** @var UpdateMolliePayment $updateMolliePayment */
+            $updateMolliePayment = app()->make(UpdateMolliePayment::class);
+            $this->molliePayment = $updateMolliePayment->execute($this->molliePayment);
         }
 
         return $this->molliePayment;
     }
 
     /**
-     * @param string $method
+     * @param array|string $method
      * @return FirstPaymentBuilder
      */
-    public function setFirstPaymentMethod(?string $method)
+    public function setFirstPaymentMethod($method)
     {
+        if(is_string($method)) {
+            $method = $this->castPaymentMethodString($method);
+        }
+
         $this->method = $method;
 
         return $this;

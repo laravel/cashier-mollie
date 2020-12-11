@@ -6,9 +6,14 @@ use Carbon\Carbon;
 use Laravel\Cashier\Coupon\AppliedCoupon;
 use Laravel\Cashier\Coupon\RedeemedCoupon;
 use Laravel\Cashier\FirstPayment\Actions\StartSubscription;
+use Laravel\Cashier\Mollie\Contracts\GetMollieMandate;
+use Laravel\Cashier\Mollie\GetMollieCustomer;
 use Laravel\Cashier\Order\OrderItem;
 use Laravel\Cashier\Order\OrderItemCollection;
 use Laravel\Cashier\Tests\BaseTestCase;
+use Mollie\Api\MollieApiClient;
+use Mollie\Api\Resources\Customer;
+use Mollie\Api\Resources\Mandate;
 
 class StartSubscriptionTest extends BaseTestCase
 {
@@ -275,6 +280,8 @@ class StartSubscriptionTest extends BaseTestCase
         $user = $this->getMandatedUser(true, [
             'trial_ends_at' => now()->addWeek(), // on generic trial
         ]);
+        $this->withMockedGetMollieCustomer();
+        $this->withMockedGetMollieMandate();
 
         $this->assertFalse($user->subscribed('default'));
 
@@ -313,6 +320,8 @@ class StartSubscriptionTest extends BaseTestCase
     public function canStartSubscriptionWithTrialDays()
     {
         $user = $this->getMandatedUser(true, ['tax_percentage' => 20]);
+        $this->withMockedGetMollieCustomer();
+        $this->withMockedGetMollieMandate();
 
         $this->assertFalse($user->subscribed('default'));
 
@@ -361,7 +370,10 @@ class StartSubscriptionTest extends BaseTestCase
     /** @test */
     public function canStartSubscriptionWithTrialUntil()
     {
+        $this->withMockedGetMollieCustomer();
+        $this->withMockedGetMollieMandate();
         $user = $this->getMandatedUser();
+
 
         $this->assertFalse($user->subscribed('default'));
 
@@ -406,6 +418,8 @@ class StartSubscriptionTest extends BaseTestCase
     /** @test */
     public function canStartSubscriptionWithQuantityNoTrial()
     {
+        $this->withMockedGetMollieCustomer();
+        $this->withMockedGetMollieMandate();
         $user = $this->getMandatedUser();
 
         $this->assertFalse($user->subscribed('default'));
@@ -452,6 +466,8 @@ class StartSubscriptionTest extends BaseTestCase
     /** @test */
     public function canStartSubscriptionWithQuantityAndTrialUntil()
     {
+        $this->withMockedGetMollieCustomer();
+        $this->withMockedGetMollieMandate();
         $user = $this->getMandatedUser();
 
         $this->assertFalse($user->subscribed('default'));
@@ -501,6 +517,8 @@ class StartSubscriptionTest extends BaseTestCase
     public function canStartSubscriptionWithCouponNoTrial()
     {
         $this->withMockedCouponRepository();
+        $this->withMockedGetMollieCustomer();
+        $this->withMockedGetMollieMandate();
         $user = $this->getMandatedUser();
 
         $this->assertFalse($user->subscribed('default'));
@@ -552,6 +570,8 @@ class StartSubscriptionTest extends BaseTestCase
     public function canStartSubscriptionWithCouponAndTrial()
     {
         $this->withMockedCouponRepository();
+        $this->withMockedGetMollieCustomer();
+        $this->withMockedGetMollieMandate();
         $user = $this->getMandatedUser(true, ['tax_percentage' => 20]);
 
         $this->assertFalse($user->subscribed('default'));
@@ -631,5 +651,34 @@ class StartSubscriptionTest extends BaseTestCase
         $result = $action->getPayload();
 
         $this->assertEquals($payload, $result);
+    }
+
+    protected function withMockedGetMollieCustomer($customerId = 'cst_unique_customer_id', $times = 1): void
+    {
+        $this->mock(GetMollieCustomer::class, function ($mock) use ($customerId, $times) {
+            $customer = new Customer(new MollieApiClient);
+            $customer->id = $customerId;
+
+            return $mock->shouldReceive('execute')->with($customerId)->times($times)->andReturn($customer);
+        });
+    }
+
+    protected function withMockedGetMollieMandate($attributes = [[
+        'mandateId' => 'mdt_unique_mandate_id',
+        'customerId' => 'cst_unique_customer_id',
+    ]], $times = 1): void
+    {
+        $this->mock(GetMollieMandate::class, function ($mock) use ($times, $attributes) {
+            foreach ($attributes as $data) {
+                $mandate = new Mandate(new MollieApiClient);
+                $mandate->id = $data['mandateId'];
+                $mandate->status = 'valid';
+                $mandate->method = 'directdebit';
+
+                $mock->shouldReceive('execute')->with($data['customerId'], $data['mandateId'])->times($times)->andReturn($mandate);
+            }
+
+            return $mock;
+        });
     }
 }
