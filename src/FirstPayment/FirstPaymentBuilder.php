@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\FirstPayment\Actions\ActionCollection;
+use Laravel\Cashier\FirstPayment\Traits\PaymentMethodString;
 use Laravel\Cashier\Mollie\Contracts\CreateMolliePayment;
 use Laravel\Cashier\Mollie\Contracts\UpdateMolliePayment;
 use Laravel\Cashier\Payment;
@@ -13,6 +14,8 @@ use Mollie\Api\Types\SequenceType;
 
 class FirstPaymentBuilder
 {
+    use PaymentMethodString;
+
     /**
      * The billable model.
      *
@@ -147,11 +150,15 @@ class FirstPaymentBuilder
     }
 
     /**
-     * @param string|null $method
+     * @param array|string $method
      * @return FirstPaymentBuilder
      */
-    public function setFirstPaymentMethod(?string $method)
+    public function setFirstPaymentMethod($method)
     {
+        if(is_string($method)) {
+            $method = $this->castPaymentMethodString($method);
+        }
+
         $this->method = $method;
 
         return $this;

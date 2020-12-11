@@ -52,11 +52,11 @@ return [
         'webhook_url' => 'webhooks/mollie/first-payment',
 
         /**
-         * A comma-separated list of allowed Mollie payment methods for the first payment. Make sure the methods are
-         * enabled in the Mollie dashboard. Set to NULL to let Mollie handle this for you. Can be overridden per plan.
-         * @example 'ideal,creditcard'
+         * Array of allowed Mollie payment methods for the first payment. Make sure the methods are
+         * enabled in the Mollie dashboard. Set to [] to let Mollie handle this for you. Can be overridden per plan.
+         * @example ['ideal', 'creditcard']
          */
-        'method' => null,
+        'method' => [],
 
         /**
          * The default url the customer is redirected to after the Mollie first payment checkout screen. Can be
