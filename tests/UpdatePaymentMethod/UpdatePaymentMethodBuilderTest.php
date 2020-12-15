@@ -16,7 +16,7 @@ use Mollie\Api\Resources\Payment;
 class UpdatePaymentMethodBuilderTest extends BaseTestCase
 {
     /** @test */
-    public function canUpdatePaymentMethodBuild()
+    public function canUpdatePaymentMethod()
     {
         $this->withPackageMigrations();
         Event::fake();
