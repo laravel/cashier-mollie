@@ -35,7 +35,7 @@ class UpdatePaymentMethodBuilder implements Contract
     {
         $payment = (new FirstPaymentBuilder($this->owner))
             ->setRedirectUrl(config('cashier.update_payment_method.redirect_url'))
-            ->setFirstPaymentMethod($this->allowedPaymentMethod())
+            ->setFirstPaymentMethod($this->allowedPaymentMethods())
             ->inOrderTo($this->addToBalanceAction())
             ->create();
 
@@ -45,15 +45,19 @@ class UpdatePaymentMethodBuilder implements Contract
     }
 
     /**
-     * @return string
+     * @return array
      */
-    protected function allowedPaymentMethod()
+    protected function allowedPaymentMethods()
     {
-        $plan = $this->owner->subscriptions->last()->plan;
+        $paymentMethods = $this->owner->subscriptions->map(function ($subscription) {
+            if ($subscription->active()) {
+                $planModel = app(PlanRepository::class)::findOrFail($subscription->plan);
 
-        $planModel = app(PlanRepository::class)::findOrFail($plan);
+                return $planModel->paymentMethod();
+            }
+        })->filter()->unique()->collapse();
 
-        return $planModel->firstPaymentMethod();
+        return $paymentMethods->all();
     }
 
     /**
