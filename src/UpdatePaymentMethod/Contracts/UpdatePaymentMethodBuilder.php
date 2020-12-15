@@ -9,5 +9,5 @@ interface UpdatePaymentMethodBuilder
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function submit();
+    public function create();
 }

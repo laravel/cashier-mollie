@@ -31,7 +31,7 @@ class UpdatePaymentMethodBuilder implements Contract
     /**
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function submit()
+    public function create()
     {
         $payment = (new FirstPaymentBuilder($this->owner))
             ->setRedirectUrl(config('cashier.update_payment_method.redirect_url'))

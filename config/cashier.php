@@ -84,7 +84,7 @@ return [
     ],
 
     /**
-     * A first payment requires a customer to go through the Mollie checkout screen in order to change a Mandate for
+     * Updating the payment method requires a customer to go through the hosted Mollie checkout to change a Mandate for
      * future recurring payments.
      * @link https://docs.mollie.com/payments/recurring#payments-recurring-first-payment
      */

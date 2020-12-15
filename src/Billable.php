@@ -546,11 +546,6 @@ trait Billable
      */
     public function updatePaymentMethod()
     {
-        if (! empty($this->mollie_mandate_id)) {
-            $mandate = $this->mollieMandate();
-            if (! empty($mandate) && $mandate->isValid()) {
-                return (new UpdatePaymentMethodBuilder($this))->submit();
-            }
-        }
+        return (new UpdatePaymentMethodBuilder($this))->create();
     }
 }
