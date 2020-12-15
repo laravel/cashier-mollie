@@ -21,6 +21,14 @@ class Plan implements PlanContract
     protected $name;
 
     /**
+     * The plan payment method
+     *
+     * @var array
+     * @example ['ideal']
+     */
+    protected $paymentMethod;
+
+    /**
      * The amount of the payment.
      *
      * @var \Money\Money
@@ -112,6 +120,25 @@ class Plan implements PlanContract
     }
 
     /**
+     * @return array
+     */
+    public function paymentMethod()
+    {
+        return $this->paymentMethod ?? $this->firstPaymentMethod;
+    }
+
+    /**
+     * @param  array  $paymentMethod
+     * @return $this
+     */
+    public function setMethod($paymentMethod)
+    {
+        $this->paymentMethod = $paymentMethod;
+
+        return $this;
+    }
+
+    /**
      * @return \Money\Money
      */
     public function amount()
@@ -158,15 +185,11 @@ class Plan implements PlanContract
     }
 
     /**
-     * @param  array|string  $firstPaymentMethod
+     * @param  array $firstPaymentMethod
      * @return $this
      */
     public function setFirstPaymentMethod($firstPaymentMethod)
     {
-        if (is_string($firstPaymentMethod)) {
-            $firstPaymentMethod = $this->castPaymentMethodString($firstPaymentMethod);
-        }
-
         $this->firstPaymentMethod = $firstPaymentMethod;
 
         return $this;

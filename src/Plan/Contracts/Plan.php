@@ -36,6 +36,17 @@ interface Plan
     public function name();
 
     /**
+     * @return array
+     */
+    public function paymentMethod();
+
+    /**
+     * @param array $paymentMethod
+     * @return Plan
+     */
+    public function setMethod($paymentMethod);
+
+    /**
      * The amount the customer is charged for a mandate payment.
      *
      * @return \Money\Money
@@ -49,12 +60,12 @@ interface Plan
     public function setFirstPaymentAmount(Money $firstPaymentAmount);
 
     /**
-     * @return string
+     * @return array
      */
     public function firstPaymentMethod();
 
     /**
-     * @param array|string $firstPaymentMethod
+     * @param array $firstPaymentMethod
      * @return Plan
      */
     public function setFirstPaymentMethod($firstPaymentMethod);

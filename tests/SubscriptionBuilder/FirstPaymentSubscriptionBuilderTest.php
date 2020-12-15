@@ -68,7 +68,7 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
 
         $this->assertEquals([
             "sequenceType" => "first",
-            "method" => ["ideal"],
+            "method" => "ideal",
             "customerId" => $this->user->mollie_customer_id,
             "description" => "Test mandate payment",
             "amount" => [

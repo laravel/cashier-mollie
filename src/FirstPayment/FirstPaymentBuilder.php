@@ -39,7 +39,7 @@ class FirstPaymentBuilder
     /**
      * The Mollie PaymentMethod
      *
-     * @var string
+     * @var array
      */
     protected $method;
 
@@ -147,15 +147,11 @@ class FirstPaymentBuilder
     }
 
     /**
-     * @param array|string $method
+     * @param array $method
      * @return FirstPaymentBuilder
      */
     public function setFirstPaymentMethod($method)
     {
-        if (is_string($method)) {
-            $method = $this->castPaymentMethodString($method);
-        }
-
         $this->method = $method;
 
         return $this;

@@ -73,12 +73,13 @@ trait Billable
         if (! empty($this->mollie_mandate_id)) {
             $mandate = $this->mollieMandate();
             $planModel = app(PlanRepository::class)::findOrFail($plan);
-            $method = MandateMethod::getForFirstPaymentMethod($planModel->firstPaymentMethod());
-
+            $methods = collect($planModel->paymentMethod())->map(function ($method) {
+                return MandateMethod::getForFirstPaymentMethod($method);
+            })->filter()->unique();
             if (
                 ! empty($mandate)
                 && $mandate->isValid()
-                && $mandate->method === $method
+                && $methods->contains($mandate->method)
             ) {
                 return $this->newSubscriptionForMandateId($this->mollie_mandate_id, $subscription, $plan);
             }
