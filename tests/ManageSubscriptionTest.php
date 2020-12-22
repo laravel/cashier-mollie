@@ -101,7 +101,6 @@ class ManageSubscriptionTest extends BaseTestCase
         $this->assertEquals(1, $scheduled_order_item->quantity);
         $this->assertEquals(1000, $scheduled_order_item->unit_price);
         $this->assertEquals(1000, $scheduled_order_item->subtotal);
-        $this->assertEquals(0, $scheduled_order_item->discount_value); // TODO implement discounts
         $this->assertEquals(10, $scheduled_order_item->tax_percentage);
         $this->assertEquals('Monthly payment', $scheduled_order_item->description);
         $this->assertFalse($scheduled_order_item->isProcessed());
@@ -136,7 +135,6 @@ class ManageSubscriptionTest extends BaseTestCase
         $this->assertEquals(10, $scheduled_order_item->tax_percentage);
         $this->assertEquals(1, $scheduled_order_item->quantity);
         $this->assertEquals(1000, $scheduled_order_item->subtotal);
-        $this->assertEquals(0, $scheduled_order_item->discount); // TODO implement discounts
         $this->assertEquals(100, $scheduled_order_item->tax);
         $this->assertEquals(1100, $scheduled_order_item->total);
         $this->assertFalse($scheduled_order_item->isProcessed());

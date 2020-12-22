@@ -220,7 +220,7 @@ class FirstPaymentBuilderTest extends BaseTestCase
 
         $localPayment = Payment::findByPaymentIdOrFail($molliePayment->id);
         $actions = $localPayment->first_payment_actions;
-        $this->instanceOf(ActionCollection::class, $actions);
+        $this->assertInstanceOf(ActionCollection::class, $actions);
 
 
 
