@@ -15,6 +15,8 @@ module.exports = {
     ['meta', { name: "msapplication-config", content: "/assets/favicons/browserconfig.xml"}],
     ['meta', { name: "theme-color", content: "#ffffff"}],
     ['meta', { name: "viewport", content: "width=device-width"}],
+    ['script', { src: "https://cdn.usefathom.com/script.js", spa: "auto", site: "ANMLOYPH", defer:true}]
+
   ],
   themeConfig: {
     logo: '/favicon-32x32.png',
