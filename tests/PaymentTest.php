@@ -27,7 +27,7 @@ class PaymentTest extends BaseTestCase
         $localPayment = Payment::createFromMolliePayment($molliePayment, $user);
 
         $this->assertEquals('tr_dummy_payment_id', $localPayment->mollie_payment_id);
-        $this->assertEquals('dummy_status', $localPayment->status);
+        $this->assertEquals('dummy_status', $localPayment->mollie_payment_status);
         $this->assertEquals('EUR', $localPayment->currency);
         $this->assertMoneyEURCents(1234, $localPayment->getAmount());
         $this->assertMoneyEURCents(0, $localPayment->getAmountRefunded());
@@ -53,18 +53,18 @@ class PaymentTest extends BaseTestCase
         ];
         $molliePayment->amountChargedBack = (object) [
             'currency' => 'EUR',
-            'value' => '-5.43',
+            'value' => '5.43',
         ];
         $user = $this->getMandatedUser();
 
         $localPayment = Payment::createFromMolliePayment($molliePayment, $user);
 
         $this->assertEquals('tr_dummy_payment_id', $localPayment->mollie_payment_id);
-        $this->assertEquals('dummy_status', $localPayment->status);
+        $this->assertEquals('dummy_status', $localPayment->mollie_payment_status);
         $this->assertEquals('EUR', $localPayment->currency);
         $this->assertMoneyEURCents(1234, $localPayment->getAmount());
         $this->assertMoneyEURCents(321, $localPayment->getAmountRefunded());
-        $this->assertMoneyEURCents(-543, $localPayment->getAmountChargedBack());
+        $this->assertMoneyEURCents(543, $localPayment->getAmountChargedBack());
         $this->assertTrue($localPayment->owner->is($user));
     }
 }

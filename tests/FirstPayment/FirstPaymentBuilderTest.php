@@ -219,11 +219,13 @@ class FirstPaymentBuilderTest extends BaseTestCase
         $molliePayment = $builder->create();
 
         $localPayment = Payment::findByPaymentIdOrFail($molliePayment->id);
-        $actions = $localPayment->first_payment_actions;
-        $this->assertInstanceOf(ActionCollection::class, $actions);
-
-
-
-        $this->markTestIncomplete('TODO Move actions');
+        $this->assertNull($localPayment->order_id);
+        $this->assertEquals('tr_dummy_payment_id', $localPayment->mollie_payment_id);
+        $this->assertEquals('open', $localPayment->mollie_payment_status);
+        $this->assertTrue($localPayment->owner->is($owner));
+        $this->assertEquals('EUR', $localPayment->currency);
+        $this->assertEquals(1234, $localPayment->amount);
+        $this->assertEquals(0, $localPayment->amount_refunded);
+        $this->assertEquals(0, $localPayment->amount_charged_back);
     }
 }
