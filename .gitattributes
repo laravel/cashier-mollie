@@ -10,3 +10,6 @@
 /tests              export-ignore
 /.editorconfig      export-ignore
 /.styleci.yml       export-ignore
+/deploy.sh          export-ignore
+/docs               export-ignore
+/package.json       export-ignore
