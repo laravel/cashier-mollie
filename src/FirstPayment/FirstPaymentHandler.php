@@ -8,7 +8,8 @@ use Laravel\Cashier\Events\MandateUpdated;
 use Laravel\Cashier\FirstPayment\Actions\BaseAction;
 use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Order\OrderItemCollection;
-use Mollie\Api\Resources\Payment;
+use Laravel\Cashier\Payment as LocalPayment;
+use Mollie\Api\Resources\Payment as MolliePayment;
 
 class FirstPaymentHandler
 {
@@ -26,7 +27,7 @@ class FirstPaymentHandler
      *
      * @param \Mollie\Api\Resources\Payment $payment
      */
-    public function __construct(Payment $payment)
+    public function __construct(MolliePayment $payment)
     {
         $this->payment = $payment;
         $this->owner = $this->extractOwner();
@@ -46,10 +47,18 @@ class FirstPaymentHandler
 
             $orderItems = $this->executeActions();
 
-            return Order::createProcessedFromItems($orderItems, [
+            $order = Order::createProcessedFromItems($orderItems, [
                 'mollie_payment_id' => $this->payment->id,
                 'mollie_payment_status' => $this->payment->status,
             ]);
+
+            $payment = LocalPayment::findByPaymentIdOrFail($this->payment->id);
+            $payment->update([
+                'order_id' => $order->id,
+                'mollie_payment_status' => $this->payment->status,
+            ]);
+
+            return $order;
         });
 
         event(new MandateUpdated($this->owner, $this->payment));

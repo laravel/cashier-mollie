@@ -17,6 +17,7 @@ use Laravel\Cashier\Events\OrderProcessed;
 use Laravel\Cashier\Exceptions\InvalidMandateException;
 use Laravel\Cashier\MandatedPayment\MandatedPaymentBuilder;
 use Laravel\Cashier\Order\Contracts\MinimumPayment;
+use Laravel\Cashier\Payment;
 use Laravel\Cashier\Refunds\Refund;
 use Laravel\Cashier\Refunds\RefundBuilder;
 use Laravel\Cashier\Traits\HasOwner;
@@ -43,6 +44,7 @@ use Mollie\Api\Types\PaymentStatus;
  * @property int amount_charged_back
  * @property \Laravel\Cashier\Order\OrderItemCollection items
  * @property \Laravel\Cashier\Refunds\RefundCollection refunds
+ * @property \Laravel\Cashier\Payment payment;
  * @method static create(array $data)
  */
 class Order extends Model
@@ -598,5 +600,15 @@ class Order extends Model
         }
 
         return $minimumPaymentAmount;
+    }
+
+    /**
+     * The payments for this order.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class)->orderByDesc('updated_at');
     }
 }

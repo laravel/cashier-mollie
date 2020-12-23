@@ -22,6 +22,7 @@ use Money\Money;
  * @property int amount_refunded
  * @property int amount_charged_back
  * @property string first_payment_actions
+ * @property \Laravel\Cashier\Order\Order order
  * @method static create(array $data)
  * @method static make(array $data)
  */
@@ -97,6 +98,14 @@ class Payment extends Model
     public static function findByPaymentIdOrFail($id): self
     {
         return self::where('mollie_payment_id', $id)->firstOrFail();
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
     }
 
     /**
