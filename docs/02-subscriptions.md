@@ -236,7 +236,8 @@ if ($user->subscription('main')->onGracePeriod()) {
 ## Resuming Subscriptions
 
 If a user has cancelled their subscription and you wish to resume it, use the `resume` method. The user **must** still be on their grace period in order to resume a subscription:
-
-    $user->subscription('main')->resume();
+```php
+$user->subscription('main')->resume();
+```
 
 If the user cancels a subscription and then resumes that subscription before the subscription has fully expired, they will not be billed immediately. Instead, their subscription will be re-activated, and they will be billed on the original billing cycle.
