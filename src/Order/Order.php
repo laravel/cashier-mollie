@@ -23,6 +23,7 @@ use Laravel\Cashier\Refunds\RefundBuilder;
 use Laravel\Cashier\Traits\HasOwner;
 use LogicException;
 use Mollie\Api\Resources\Mandate;
+use Mollie\Api\Resources\Payment as MolliePayment;
 use Mollie\Api\Types\PaymentStatus;
 
 /**
@@ -408,11 +409,12 @@ class Order extends Model
      * Restores any credit used to the customer's balance and resets the credits applied to the Order.
      * Invokes handlePaymentFailed() on each related OrderItem.
      *
+     * @param \Mollie\Api\Resources\Payment $molliePayment
      * @return $this
      */
-    public function handlePaymentFailed()
+    public function handlePaymentFailed(MolliePayment $molliePayment)
     {
-        return DB::transaction(function () {
+        return DB::transaction(function () use ($molliePayment) {
             if ($this->creditApplied()) {
                 $this->owner->addCredit($this->getCreditUsed());
             }
@@ -421,6 +423,11 @@ class Order extends Model
                 'mollie_payment_status' => 'failed',
                 'balance_before' => 0,
                 'credit_used' => 0,
+            ]);
+
+            $localPayment = Payment::findByPaymentIdOrFail($molliePayment->id);
+            $localPayment->update([
+                'mollie_payment_status' => 'failed',
             ]);
 
             Event::dispatch(new OrderPaymentFailed($this));
@@ -439,12 +446,19 @@ class Order extends Model
      * Handles a paid payment for this order.
      * Invokes handlePaymentPaid() on each related OrderItem.
      *
+     * @param \Mollie\Api\Resources\Payment $molliePayment
      * @return $this
      */
-    public function handlePaymentPaid()
+    public function handlePaymentPaid(MolliePayment $molliePayment)
     {
-        return DB::transaction(function () {
+        return DB::transaction(function () use ($molliePayment) {
             $this->update(['mollie_payment_status' => 'paid']);
+
+            $localPayment = Payment::findByPaymentIdOrFail($molliePayment->id);
+            $localPayment->update([
+                'mollie_payment_status' => 'paid',
+            ]);
+
             Event::dispatch(new OrderPaymentPaid($this));
 
             $this->items->each(function (OrderItem $item) {
