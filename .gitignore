@@ -1,9 +1,11 @@
 build
 composer.lock
 vendor
+node_modules
 coverage
 phpunit.xml
 .phpunit.result.cache
 .idea
 .phpstorm.meta.php
 .php_cs.cache
+docs/.vuepress/dist
