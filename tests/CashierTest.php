@@ -15,6 +15,7 @@ use Laravel\Cashier\Tests\Fixtures\User;
 use Mollie\Api\MollieApiClient;
 use Mollie\Api\Resources\Customer;
 use Mollie\Api\Resources\Mandate;
+use Mollie\Api\Resources\Payment;
 
 class CashierTest extends BaseTestCase
 {
@@ -324,7 +325,22 @@ class CashierTest extends BaseTestCase
     protected function withMockedCreateMolliePayment($times = 1): void
     {
         $this->mock(CreateMolliePayment::class, function ($mock) use ($times) {
-            return $mock->shouldReceive('execute')->times($times);
+            $payment = new Payment($this->getMollieClientMock());
+            $payment->id = 'tr_dummy_id';
+            $payment->amount = (object) [
+                'currency' => 'EUR',
+                'value' => '10.00',
+            ];
+            $payment->amountChargedBack = (object) [
+                'currency' => 'EUR',
+                'value' => '0.00',
+            ];
+            $payment->amountRefunded = (object) [
+                'currency' => 'EUR',
+                'value' => '0.00',
+            ];
+
+            return $mock->shouldReceive('execute')->times($times)->andReturn($payment);
         });
     }
 }

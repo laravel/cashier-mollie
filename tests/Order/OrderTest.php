@@ -72,6 +72,10 @@ class OrderTest extends BaseTestCase
         $this->mock(CreateMolliePayment::class, function ($mock) {
             $payment = new Payment(new MollieApiClient);
             $payment->id = 'tr_unique_payment_id';
+            $payment->amount = (object) [
+                'currency' => 'EUR',
+                'value' => '10.00',
+            ];
 
             return $mock->shouldReceive('execute')
                 ->once()
@@ -331,6 +335,10 @@ class OrderTest extends BaseTestCase
         $this->mock(CreateMolliePayment::class, function ($mock) {
             $payment = new Payment(new MollieApiClient);
             $payment->id = 'tr_unique_payment_id';
+            $payment->amount = (object) [
+                'currency' => 'EUR',
+                'value' => '10.00',
+            ];
 
             return $mock->shouldReceive('execute')
                 ->once()

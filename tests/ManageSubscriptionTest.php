@@ -351,6 +351,10 @@ class ManageSubscriptionTest extends BaseTestCase
         $this->mock(CreateMolliePayment::class, function ($mock) use ($times) {
             $payment = new Payment(new MollieApiClient);
             $payment->id = 'tr_unique_payment_id';
+            $payment->amount = (object) [
+                'currency' => 'EUR',
+                'value' => '10.00',
+            ];
 
             return $mock->shouldReceive('execute')->times($times)->andReturn($payment);
         });

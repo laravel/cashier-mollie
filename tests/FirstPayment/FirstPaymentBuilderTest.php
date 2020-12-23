@@ -134,6 +134,14 @@ class FirstPaymentBuilderTest extends BaseTestCase
                 'currency' => 'EUR',
                 'value' => '12.34',
             ];
+            $payment->amountChargedBack = (object) [
+                'currency' => 'EUR',
+                'value' => '0.00',
+            ];
+            $payment->amountRefunded = (object) [
+                'currency' => 'EUR',
+                'value' => '0.00',
+            ];
 
             return $mock->shouldReceive('execute')
                 ->once()
@@ -164,6 +172,14 @@ class FirstPaymentBuilderTest extends BaseTestCase
             $payment->amount = (object) [
                 'currency' => 'EUR',
                 'value' => '12.34',
+            ];
+            $payment->amountRefunded = (object) [
+                'currency' => 'EUR',
+                'value' => '0.00',
+            ];
+            $payment->amountChargedBack = (object) [
+                'currency' => 'EUR',
+                'value' => '0.00',
             ];
 
             return $mock->shouldReceive('execute')
