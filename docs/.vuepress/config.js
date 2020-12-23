@@ -1,5 +1,5 @@
 module.exports = {
-  title: 'Laravel Cashier Mollie',
+  title: 'Laravel Cashier Mollie v2.x',
   description: 'Laravel Cashier provides an expressive, fluent interface to subscriptions using Mollie\'s billing services.',
   head: [
     ['link', { rel: "apple-touch-icon", sizes: "180x180", href: "/assets/favicons/apple-touch-icon.png"}],
@@ -19,7 +19,7 @@ module.exports = {
 
   ],
   themeConfig: {
-    logo: '/favicon-32x32.png',
+    logo: '/favicon.svg',
     repo: 'laravel/cashier-mollie',
     authors: [
       {
@@ -56,7 +56,7 @@ module.exports = {
         siteTitle: (_, $site) => $site.title,
         title: $page => $page.title,
         description: $page => $page.frontmatter.description,
-        author: (_, $site) => $site.themeConfig.author,
+        author: (_, $site) => $site.themeConfig.authors[0],
         tags: $page => $page.frontmatter.tags,
         twitterCard: _ => 'summary_large_image',
         type: $page => 'article',
