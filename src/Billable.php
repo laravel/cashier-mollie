@@ -547,6 +547,6 @@ trait Billable
      */
     public function updatePaymentMethod()
     {
-        return (new UpdatePaymentMethodBuilder($this))->create();
+        return (new UpdatePaymentMethodBuilder($this));
     }
 }
