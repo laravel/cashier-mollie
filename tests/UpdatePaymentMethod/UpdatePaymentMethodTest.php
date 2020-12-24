@@ -13,7 +13,7 @@ use Laravel\Cashier\Tests\Fixtures\User;
 use Mollie\Api\MollieApiClient;
 use Mollie\Api\Resources\Payment;
 
-class UpdatePaymentMethodBuilderTest extends BaseTestCase
+class UpdatePaymentMethodTest extends BaseTestCase
 {
     /** @test */
     public function canUpdatePaymentMethod()
