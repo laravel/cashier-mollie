@@ -1,7 +1,7 @@
 <h2 align="center">Subscription billing with Laravel Cashier for Mollie
 </h2>
 <p align="center">
-    <img src="./.vuepress/public/assets/pages/laravelcashiermollie.png" title="Laravel Cashier Mollie">
+    <img src="./.vuepress/public/assets/pages/laravelcashiermollie.jpg" title="Laravel Cashier Mollie">
 </p>
 <img src="https://info.mollie.com/hubfs/github/laravel-cashier/editorLaravel.jpg" />
 
