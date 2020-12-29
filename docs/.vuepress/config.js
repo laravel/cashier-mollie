@@ -67,7 +67,7 @@ module.exports = {
         twitterCard: _ => 'summary_large_image',
         type: $page => 'website',
         url: (_, $site, path) => ($site.themeConfig.domain || '') + path,
-        image: ($page, $site) => "https://ciungulete.github.io/cashier-mollie/assets/img/laravelcashiermollie.jpg",
+        image: ($page, $site) => "https://ciungulete.github.io/cashier-mollie/assets/pages/laravelcashiermollie.jpg",
         publishedAt: $page => $page.frontmatter.date && new Date($page.frontmatter.date),
         modifiedAt: $page => $page.lastUpdated && new Date($page.lastUpdated),
     }],
