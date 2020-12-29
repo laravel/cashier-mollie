@@ -11,7 +11,6 @@ use Money\Money;
 
 class Plan implements PlanContract
 {
-
     use PaymentMethodString;
 
     /**
