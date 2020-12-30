@@ -73,13 +73,13 @@ trait Billable
         if (! empty($this->mollie_mandate_id)) {
             $mandate = $this->mollieMandate();
             $planModel = app(PlanRepository::class)::findOrFail($plan);
-            $methods = collect($planModel->paymentMethod())->map(function ($method) {
-                return MandateMethod::getForFirstPaymentMethod($method);
+            $allowedPlanMethods = collect($planModel->paymentMethod())->map(function ($allowedPlanMethod) {
+                return MandateMethod::getForFirstPaymentMethod($allowedPlanMethod);
             })->filter()->unique();
             if (
                 ! empty($mandate)
                 && $mandate->isValid()
-                && $methods->contains($mandate->method)
+                && $allowedPlanMethods->contains($mandate->method)
             ) {
                 return $this->newSubscriptionForMandateId($this->mollie_mandate_id, $subscription, $plan);
             }
@@ -542,11 +542,10 @@ trait Billable
     }
 
     /**
-     * @return mixed
-     * @throws \Mollie\Api\Exceptions\ApiException
+     * @return \Laravel\Cashier\UpdatePaymentMethod\UpdatePaymentMethodBuilder
      */
     public function updatePaymentMethod()
     {
-        return (new UpdatePaymentMethodBuilder($this));
+        return new UpdatePaymentMethodBuilder($this);
     }
 }

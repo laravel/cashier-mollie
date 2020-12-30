@@ -56,6 +56,16 @@ class UpdatePaymentMethodBuilder implements Contract
     }
 
     /**
+     * @return $this
+     */
+    public function addGenericItem()
+    {
+        $this->addGenericItem = true;
+
+        return $this;
+    }
+
+    /**
      * @return array
      */
     protected function allowedPaymentMethods()
@@ -77,28 +87,27 @@ class UpdatePaymentMethodBuilder implements Contract
     protected function getPaymentActions()
     {
         if ($this->addGenericItem) {
-            return $this->addGenericItemAction();
+            return [ $this->addGenericItemAction() ];
         }
 
-        return $this->addToBalanceAction();
+        return [ $this->addToBalanceAction() ];
     }
 
     /**
-     * @return \Laravel\Cashier\FirstPayment\Actions\AddBalance[]
+     * @return \Laravel\Cashier\FirstPayment\Actions\AddBalance
      */
     protected function addToBalanceAction()
     {
-        return [
+        return
             new AddBalance(
                 $this->owner,
                 mollie_array_to_money(config('cashier.update_payment_method.amount')),
                 __("Payment method updated")
-            ),
-        ];
+            );
     }
 
     /**
-     * @return \Laravel\Cashier\FirstPayment\Actions\AddGenericOrderItem[]
+     * @return \Laravel\Cashier\FirstPayment\Actions\AddGenericOrderItem
      */
     protected function addGenericItemAction()
     {
@@ -107,7 +116,7 @@ class UpdatePaymentMethodBuilder implements Contract
             $this->owner->taxPercentage() * 0.01
         );
 
-        return [ new AddGenericOrderItem($this->owner, $subtotal, __("Payment method updated")) ];
+        return new AddGenericOrderItem($this->owner, $subtotal, __("Payment method updated"));
     }
 
     /**
@@ -120,15 +129,5 @@ class UpdatePaymentMethodBuilder implements Contract
         $vat = $total->divide(1 + $taxPercentage)->multiply($taxPercentage);
 
         return $total->subtract($vat);
-    }
-
-    /**
-     * @return $this
-     */
-    public function addGenericItem()
-    {
-        $this->addGenericItem = true;
-
-        return $this;
     }
 }
