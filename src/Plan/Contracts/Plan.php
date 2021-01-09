@@ -31,6 +31,21 @@ interface Plan
     public function interval();
 
     /**
+     * @return int
+     */
+    public function intervalValue();
+
+    /**
+     * @return string
+     */
+    public function intervalPeriod();
+
+    /**
+     * @return bool
+     */
+    public function intervalFixed();
+
+    /**
      * @return string
      */
     public function name();

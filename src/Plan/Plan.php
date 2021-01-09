@@ -28,12 +28,35 @@ class Plan implements PlanContract
     protected $amount;
 
     /**
-     * The billing frequency.
+     * The billing period.
      *
      * @var string
      * @example 1 month
      */
     protected $interval;
+
+    /**
+     *
+     * @var string
+     * @example month
+     */
+    protected $intervalPeriod;
+
+    /**
+     * The billing value .
+     *
+     * @var int
+     * @example 1 (intervalPeriod - ex. month)
+     */
+    protected $intervalValue;
+
+    /**
+     * The billing value .
+     *
+     * @var bool
+     * If fixed is true the interval is Carbon Base Interval Generator use NoOverflow,
+     */
+    protected $intervalFixed = false;
 
     /**
      * A user friendly description to be included in the invoice.
@@ -215,6 +238,30 @@ class Plan implements PlanContract
     }
 
     /**
+     * @return int
+     */
+    public function intervalValue()
+    {
+        return $this->intervalValue;
+    }
+
+    /**
+     * @return string
+     */
+    public function intervalPeriod()
+    {
+        return $this->intervalPeriod;
+    }
+
+    /**
+     * @return bool
+     */
+    public function intervalFixed()
+    {
+        return $this->intervalFixed;
+    }
+
+    /**
      * @return string
      */
     public function interval()
@@ -223,12 +270,18 @@ class Plan implements PlanContract
     }
 
     /**
-     * @param string $interval
+     * @param array|string $interval
      * @return $this
      */
-    public function setInterval(string $interval)
+    public function setInterval($interval)
     {
-        $this->interval = $interval;
+        if (is_array($interval)) {
+            $this->intervalValue = $interval['value'];
+            $this->intervalPeriod = $interval['period'];
+            $this->intervalFixed = $interval['fixed'];
+        } else {
+            $this->interval = $interval;
+        }
 
         return $this;
     }

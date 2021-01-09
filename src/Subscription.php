@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Str;
 use Laravel\Cashier\Coupon\AppliedCoupon;
 use Laravel\Cashier\Coupon\Contracts\AcceptsCoupons;
 use Laravel\Cashier\Coupon\RedeemedCoupon;
@@ -468,7 +469,11 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
         }
 
         $item = DB::transaction(function () use (&$subscription, $item) {
-            $next_cycle_ends_at = $subscription->cycle_ends_at->copy()->modify('+' . $subscription->plan()->interval());
+            if ($subscription->plan()->intervalFixed() && Str::startsWith($subscription->plan()->intervalPeriod(), 'month')) {
+                $next_cycle_ends_at = $subscription->cycle_ends_at->copy()->addMonthNoOverflow($subscription->plan()->intervalValue());
+            } else {
+                $next_cycle_ends_at = $subscription->cycle_ends_at->copy()->modify('+' . $subscription->plan()->interval());
+            }
             $subscription->cycle_started_at = $subscription->cycle_ends_at;
             $subscription->cycle_ends_at = $next_cycle_ends_at;
 

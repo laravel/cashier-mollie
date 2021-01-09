@@ -60,7 +60,12 @@ return [
             /**
              * The length of the billing cycle.
              */
-            'interval' => '1 month',
+            // 'interval' => 1 month or
+            'interval' => [
+                'value' => 1,
+                'period' => 'month', /* day, month or year*/
+                'fixed' => false, /*  If fixed is true the interval is Carbon Base Interval Generator use NoOverflow, */
+            ],
 
             /**
              * The text to appear on the invoice.

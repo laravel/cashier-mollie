@@ -224,6 +224,59 @@ abstract class BaseTestCase extends TestCase
         return $this;
     }
 
+    /**
+     * Configure some test plans.
+     *
+     * @return $this
+     */
+    protected function withConfiguredPlansWithIntervalArray()
+    {
+        config([
+            'cashier_plans' => [
+                'defaults' => [
+                    'first_payment' => [
+                        'redirect_url' => 'https://www.example.com',
+                        'webhook_url' => 'https://www.example.com/webhooks/mollie/first-payment',
+                        'method' => 'ideal',
+                        'amount' => [
+                            'value' => '0.05',
+                            'currency' => 'EUR',
+                        ],
+                        'description' => 'Test mandate payment',
+                    ],
+                ],
+                'plans' => [
+                    'withixedinterval-10-1' => [
+                        'amount' => [
+                            'currency' => 'EUR',
+                            'value' => '10.00',
+                        ],
+                        'interval' => [
+                            'value' => 1,
+                            'period' => 'month',
+                            'fixed' => true,
+                        ],
+                        'description' => 'Monthly payment',
+                    ],
+                    'withoutfixedinterval-10-1' => [
+                        'amount' => [
+                            'currency' => 'EUR',
+                            'value' => '10.00',
+                        ],
+                        'interval' => [
+                            'value' => 1,
+                            'period' => 'month',
+                            'fixed' => false,
+                        ],
+                        'description' => 'Monthly payment',
+                    ],
+                ],
+            ],
+        ]);
+
+        return $this;
+    }
+
     protected function getMandatedCustomerId()
     {
         return env('MANDATED_CUSTOMER_DIRECTDEBIT');
