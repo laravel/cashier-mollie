@@ -74,8 +74,6 @@ class StartSubscriptionWithPlanIntervalArrayTest extends BaseTestCase
         $this->assertCarbon(now()->addMonth(), $subscription->cycle_ends_at);
     }
 
-
-
     protected function withMockedGetMollieCustomer($customerId = 'cst_unique_customer_id', $times = 1): void
     {
         $this->mock(GetMollieCustomer::class, function ($mock) use ($customerId, $times) {
