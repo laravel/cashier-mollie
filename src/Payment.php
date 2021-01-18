@@ -3,6 +3,7 @@
 namespace Laravel\Cashier;
 
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Cashier\Mollie\Contracts\GetMolliePayment;
 use Laravel\Cashier\Order\ConvertsToMoney;
 use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Traits\HasOwner;
@@ -40,7 +41,7 @@ class Payment extends Model
     protected $guarded = [];
 
     /**
-     * @param \Mollie\Api\Resources\Payment $payment
+     * @param MolliePayment $payment
      * @param \Illuminate\Database\Eloquent\Model $owner
      * @param array $overrides
      * @return static
@@ -51,7 +52,7 @@ class Payment extends Model
     }
 
     /**
-     * @param \Mollie\Api\Resources\Payment $payment
+     * @param MolliePayment $payment
      * @param \Illuminate\Database\Eloquent\Model $owner
      * @param array $overrides
      * @return static
@@ -140,5 +141,15 @@ class Payment extends Model
     public function getAmountChargedBack(): Money
     {
         return $this->toMoney($this->amount_charged_back);
+    }
+
+    /**
+     * Fetch the Mollie payment resource for this local payment instance.
+     *
+     * @return MolliePayment
+     */
+    public function asMolliePayment(): MolliePayment
+    {
+        return app()->make(GetMolliePayment::class)->execute($this->mollie_payment_id);
     }
 }
