@@ -122,6 +122,8 @@ class WebhookControllerTest extends BaseTestCase
             'currency' => 'EUR',
             'value' => '10.00',
         ];
+        $payment->mandateId = 'mdt_dummy_mandate_id';
+        
         LocalPayment::createFromMolliePayment($payment, $user);
         $payment->status = 'failed';
 
@@ -194,6 +196,7 @@ class WebhookControllerTest extends BaseTestCase
             'currency' => 'EUR',
             'value' => '10.00',
         ];
+        $payment->mandateId = 'mdt_dummy_mandate_id';
         LocalPayment::createFromMolliePayment($payment, $user);
         $payment->status = 'paid';
 
@@ -237,6 +240,7 @@ class WebhookControllerTest extends BaseTestCase
             $payment = new MolliePayment(new MollieApiClient);
             $payment->id = $paymentId;
             $payment->status = 'paid';
+            $payment->mandateId = 'mdt_dummy_mandate_id';
 
             return $mock
                 ->shouldReceive('execute')

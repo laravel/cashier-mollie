@@ -376,7 +376,7 @@ class Order extends Model
      * @param $id
      * @return self
      */
-    public static function findByPaymentId($id)
+    public static function findByMolliePaymentId($id)
     {
         return self::where('mollie_payment_id', $id)->first();
     }

@@ -114,6 +114,7 @@ class FirstPaymentSubscriptionBuilderApplyCorrectTaxTest extends BaseTestCase
                     'type' => 'text/html',
                 ],
             ]));
+            $payment->mandateId = 'mdt_dummy_mandate_id';
 
             return $mock->shouldReceive('execute')->once()->andReturn($payment);
         });

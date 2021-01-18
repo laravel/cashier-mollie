@@ -141,6 +141,7 @@ class FirstPaymentBuilderTest extends BaseTestCase
                 'currency' => 'EUR',
                 'value' => '0.00',
             ];
+            $payment->mandateId = 'mdt_dummy_mandate_id';
 
             return $mock->shouldReceive('execute')
                 ->once()
@@ -180,6 +181,7 @@ class FirstPaymentBuilderTest extends BaseTestCase
                 'currency' => 'EUR',
                 'value' => '0.00',
             ];
+            $payment->mandateId = 'mdt_dummy_mandate_id';
 
             return $mock->shouldReceive('execute')
                 ->once()
@@ -225,6 +227,7 @@ class FirstPaymentBuilderTest extends BaseTestCase
                 'currency' => 'EUR',
                 'value' => '12.34',
             ];
+            $payment->mandateId = 'mdt_dummy_mandate_id';
 
             return $mock->shouldReceive('execute')
                 ->once()

@@ -57,6 +57,7 @@ class PaymentTest extends BaseTestCase
             'currency' => 'EUR',
             'value' => '5.43',
         ];
+        $molliePayment->mandateId = 'mdt_dummy_mandate_id';
         $user = $this->getMandatedUser();
 
         $localPayment = Payment::createFromMolliePayment($molliePayment, $user);

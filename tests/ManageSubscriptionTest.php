@@ -355,6 +355,7 @@ class ManageSubscriptionTest extends BaseTestCase
                 'currency' => 'EUR',
                 'value' => '10.00',
             ];
+            $payment->mandateId = 'mdt_dummy_mandate_id';
 
             return $mock->shouldReceive('execute')->times($times)->andReturn($payment);
         });
