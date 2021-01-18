@@ -51,6 +51,7 @@ class UpgradeToCashierV2 extends Migration
             $table->unsignedBigInteger('order_id')->nullable();
             $table->string('mollie_payment_id');
             $table->string('mollie_payment_status');
+            $table->string('mollie_mandate_id');
             $table->string('owner_type');
             $table->unsignedBigInteger('owner_id');
             $table->string('currency', 3);

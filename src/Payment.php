@@ -22,6 +22,7 @@ use Money\Money;
  * @property int amount_refunded
  * @property int amount_charged_back
  * @property string first_payment_actions
+ * @property string mollie_mandate_id
  * @property \Laravel\Cashier\Order\Order order
  * @method static create(array $data)
  * @method static make(array $data)
@@ -74,6 +75,7 @@ class Payment extends Model
             'amount' => (int) mollie_object_to_money($payment->amount)->getAmount(),
             'amount_refunded' => (int) $amountRefunded->getAmount(),
             'amount_charged_back' => (int) $amountChargedBack->getAmount(),
+            'mollie_mandate_id' => $payment->mandateId,
         ], $overrides));
     }
 
