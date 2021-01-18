@@ -30,7 +30,7 @@ class FirstPaymentSubscriptionBuilderApplyCorrectTaxTest extends BaseTestCase
     }
 
     /** @test */
-    public function handlesTrialDaysAndFirstPaymentWithTaxAppliedCorrect()
+    public function handlesTrialDaysAndFirstPaymentWithTaxAppliedCorrectly()
     {
         $firstPaymentAmounts = collect(['10.00', '11.00', '21.00', '24.00', '280.00']);
 
@@ -104,6 +104,10 @@ class FirstPaymentSubscriptionBuilderApplyCorrectTaxTest extends BaseTestCase
         $this->mock(CreateMolliePayment::class, function ($mock) {
             $payment = new Payment(new MollieApiClient);
             $payment->id = 'tr_unique_payment_id';
+            $payment->amount = (object) [
+                'value' => '10.00',
+                'currency' => 'EUR',
+            ];
             $payment->_links = json_decode(json_encode([
                 'checkout' => [
                     'href' => 'https://foo-redirect-bar.com',

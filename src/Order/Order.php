@@ -376,7 +376,7 @@ class Order extends Model
      * @param $id
      * @return self
      */
-    public static function findByPaymentId($id)
+    public static function findByMolliePaymentId($id)
     {
         return self::where('mollie_payment_id', $id)->first();
     }
@@ -388,7 +388,7 @@ class Order extends Model
      * @return self
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      */
-    public static function findByPaymentIdOrFail($id)
+    public static function findByMolliePaymentIdOrFail($id)
     {
         return self::where('mollie_payment_id', $id)->firstOrFail();
     }
