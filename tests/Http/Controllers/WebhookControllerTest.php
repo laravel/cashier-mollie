@@ -34,7 +34,7 @@ class WebhookControllerTest extends BaseTestCase
                 ->andReturn(new MolliePayment(new MollieApiClient));
         });
 
-        $this->assertInstanceOf(MolliePayment::class, $this->getController()->getPaymentById($id));
+        $this->assertInstanceOf(MolliePayment::class, $this->getController()->getMolliePaymentById($id));
     }
 
     /** @test **/
@@ -49,7 +49,7 @@ class WebhookControllerTest extends BaseTestCase
         });
 
         $this->assertFalse(config('app.debug'));
-        $this->assertNull($this->getController()->getPaymentById($wrongId));
+        $this->assertNull($this->getController()->getMolliePaymentById($wrongId));
     }
 
     /** @test **/
@@ -66,7 +66,7 @@ class WebhookControllerTest extends BaseTestCase
         config(['app.debug' => true]);
         $this->assertTrue(config('app.debug'));
         $this->expectException(ApiException::class);
-        $this->assertNull($this->getController()->getPaymentById($wrongId));
+        $this->assertNull($this->getController()->getMolliePaymentById($wrongId));
     }
 
     /** @test **/
@@ -123,7 +123,7 @@ class WebhookControllerTest extends BaseTestCase
             'value' => '10.00',
         ];
         $payment->mandateId = 'mdt_dummy_mandate_id';
-        
+
         LocalPayment::createFromMolliePayment($payment, $user);
         $payment->status = 'failed';
 

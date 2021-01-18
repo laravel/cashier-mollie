@@ -17,7 +17,7 @@ class FirstPaymentHandler
     protected $owner;
 
     /** @var \Mollie\Api\Resources\Payment */
-    protected $payment;
+    protected $molliePayment;
 
     /** @var \Illuminate\Support\Collection */
     protected $actions;
@@ -25,11 +25,11 @@ class FirstPaymentHandler
     /**
      * FirstPaymentHandler constructor.
      *
-     * @param \Mollie\Api\Resources\Payment $payment
+     * @param \Mollie\Api\Resources\Payment $molliePayment
      */
-    public function __construct(MolliePayment $payment)
+    public function __construct(MolliePayment $molliePayment)
     {
-        $this->payment = $payment;
+        $this->molliePayment = $molliePayment;
         $this->owner = $this->extractOwner();
         $this->actions = $this->extractActions();
     }
@@ -42,26 +42,27 @@ class FirstPaymentHandler
     public function execute()
     {
         $order = DB::transaction(function () {
-            $this->owner->mollie_mandate_id = $this->payment->mandateId;
+            $this->owner->mollie_mandate_id = $this->molliePayment->mandateId;
             $this->owner->save();
 
             $orderItems = $this->executeActions();
 
             $order = Order::createProcessedFromItems($orderItems, [
-                'mollie_payment_id' => $this->payment->id,
-                'mollie_payment_status' => $this->payment->status,
+                'mollie_payment_id' => $this->molliePayment->id,
+                'mollie_payment_status' => $this->molliePayment->status,
             ]);
 
-            $payment = LocalPayment::findByPaymentIdOrFail($this->payment->id);
+            $payment = LocalPayment::findByPaymentIdOrFail($this->molliePayment->id);
             $payment->update([
                 'order_id' => $order->id,
-                'mollie_payment_status' => $this->payment->status,
+                'mollie_payment_status' => $this->molliePayment->status,
+                'mollie_mandate_id' => $this->molliePayment->mandateId,
             ]);
 
             return $order;
         });
 
-        event(new MandateUpdated($this->owner, $this->payment));
+        event(new MandateUpdated($this->owner, $this->molliePayment));
 
         return $order;
     }
@@ -73,8 +74,8 @@ class FirstPaymentHandler
      */
     protected function extractOwner()
     {
-        $ownerType = $this->payment->metadata->owner->type;
-        $ownerID = $this->payment->metadata->owner->id;
+        $ownerType = $this->molliePayment->metadata->owner->type;
+        $ownerID = $this->molliePayment->metadata->owner->id;
 
         return $ownerType::findOrFail($ownerID);
     }
@@ -86,7 +87,7 @@ class FirstPaymentHandler
      */
     protected function extractActions()
     {
-        $actions = new Collection((array) $this->payment->metadata->actions);
+        $actions = new Collection((array) $this->molliePayment->metadata->actions);
 
         return $actions->map(function ($actionMeta) {
             return $actionMeta->handler::createFromPayload(

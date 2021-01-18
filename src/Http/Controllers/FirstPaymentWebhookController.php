@@ -18,7 +18,7 @@ class FirstPaymentWebhookController extends BaseWebhookController
      */
     public function handleWebhook(Request $request)
     {
-        $payment = $this->getPaymentById($request->get('id'));
+        $payment = $this->getMolliePaymentById($request->get('id'));
 
         if ($payment) {
             if ($payment->isPaid()) {

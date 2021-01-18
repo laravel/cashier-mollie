@@ -20,7 +20,7 @@ class AftercareWebhookController extends BaseWebhookController
      */
     public function handleWebhook(Request $request)
     {
-        $payment = $this->getPaymentById($request->get('id'));
+        $payment = $this->getMolliePaymentById($request->get('id'));
 
         if ($payment && $payment->hasRefunds()) {
             $order = Order::findByMolliePaymentId($payment->id);

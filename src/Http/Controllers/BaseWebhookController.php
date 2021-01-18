@@ -26,7 +26,7 @@ abstract class BaseWebhookController
      * @return \Mollie\Api\Resources\Payment|null
      * @throws \Mollie\Api\Exceptions\ApiException
      */
-    public function getPaymentById(string $id, array $parameters = [])
+    public function getMolliePaymentById(string $id, array $parameters = [])
     {
         try {
             return $this->getMolliePayment->execute($id, $parameters);
