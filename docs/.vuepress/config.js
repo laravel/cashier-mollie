@@ -3,7 +3,7 @@ module.exports = {
   description: 'Laravel Cashier provides an expressive, fluent interface to subscriptions using Mollie\'s billing services.',
   head: [
     ['link', { rel: "apple-touch-icon", sizes: "180x180", href: "/assets/favicons/apple-touch-icon.png"}],
-    ['link', { rel: "icon", href: "/assets/favicons/favicon.png"}],
+    ['link', { rel: "icon", href: "/assets/favicon.svg", sizes: "any", type: "image/svg+xml"}],
     ['link', { rel: "manifest", href: "/assets/favicons/site.webmanifest"}],
     ['link', { rel: "mask-icon", href: "/assets/favicons/safari-pinned-tab.svg", color: "#3a0839"}],
     ['meta', { name: 'apple-mobile-web-app-capable', content: 'yes' }],
