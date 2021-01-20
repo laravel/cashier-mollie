@@ -4,7 +4,6 @@ namespace Laravel\Cashier\FirstPayment\Actions;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 use Laravel\Cashier\Coupon\Contracts\CouponRepository;
 use Laravel\Cashier\Coupon\RedeemedCoupon;
 use Laravel\Cashier\Order\OrderItem;
@@ -168,14 +167,7 @@ class StartSubscription extends BaseAction implements SubscriptionConfigurator
     public function execute()
     {
         if (empty($this->nextPaymentAt) && ! $this->isTrial()) {
-            if ($this->plan->interval()) {
-                $nextPaymentAt = Carbon::parse($this->plan->interval());
-            } elseif ($this->plan->intervalFixed() && Str::startsWith($this->plan->intervalPeriod(), 'month')) {
-                $nextPaymentAt = Carbon::now()->addMonthsNoOverflow($this->plan->intervalValue());
-            } else {
-                $nextPaymentAt = Carbon::parse($this->plan->intervalValue() . " " . $this->plan->intervalPeriod());
-            }
-
+            $nextPaymentAt = is_string($this->plan->interval()) ? Carbon::parse($this->plan->interval()) : $this->plan->interval()->getNextSubscriptionCycle();
             $this->builder()->nextPaymentAt($nextPaymentAt);
         }
 

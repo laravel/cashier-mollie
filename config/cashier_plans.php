@@ -2,6 +2,7 @@
 
 use Laravel\Cashier\Coupon\CouponOrderItemPreprocessor as ProcessCoupons;
 use Laravel\Cashier\Order\PersistOrderItemsPreprocessor as PersistOrderItems;
+use Laravel\Cashier\Plan\IntervalGenerator;
 
 return [
 
@@ -62,6 +63,7 @@ return [
              */
             // 'interval' => 1 month or
             'interval' => [
+                'generator' => IntervalGenerator::class,
                 'value' => 1,
                 'period' => 'month', /* day, month or year*/
                 'fixed' => false, /*  If fixed is true the interval is Carbon Base Interval Generator use NoOverflow, */

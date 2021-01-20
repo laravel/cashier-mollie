@@ -2,6 +2,7 @@
 
 namespace Laravel\Cashier\Tests\FirstPayment\Actions;
 
+use Carbon\Carbon;
 use Laravel\Cashier\FirstPayment\Actions\StartSubscription;
 use Laravel\Cashier\Mollie\Contracts\GetMollieMandate;
 use Laravel\Cashier\Mollie\GetMollieCustomer;
@@ -32,7 +33,7 @@ class StartSubscriptionWithPlanIntervalArrayTest extends BaseTestCase
         $action = new StartSubscription(
             $user,
             'default',
-            'withixedinterval-10-1'
+            'withfixedinterval-10-1'
         );
 
         $items = $action->execute();
@@ -44,7 +45,7 @@ class StartSubscriptionWithPlanIntervalArrayTest extends BaseTestCase
         $subscription = $user->subscription('default');
         $this->assertEquals(1, $subscription->quantity);
         $this->assertCarbon(now(), $subscription->cycle_started_at);
-        $this->assertCarbon(now()->addMonthNoOverflow(), $subscription->cycle_ends_at);
+        $this->assertCarbon(Carbon::parse('2019-02-28'), $subscription->cycle_ends_at);
     }
 
     /** @test */

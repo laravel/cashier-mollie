@@ -26,24 +26,9 @@ interface Plan
     public function description();
 
     /**
-     * @return string
+     * @return string|\Laravel\Cashier\Plan\IntervalGenerator
      */
     public function interval();
-
-    /**
-     * @return int
-     */
-    public function intervalValue();
-
-    /**
-     * @return string
-     */
-    public function intervalPeriod();
-
-    /**
-     * @return bool
-     */
-    public function intervalFixed();
 
     /**
      * @return string
