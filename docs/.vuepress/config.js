@@ -3,20 +3,17 @@ module.exports = {
   description: 'Laravel Cashier provides an expressive, fluent interface to subscriptions using Mollie\'s billing services.',
   head: [
     ['link', { rel: "apple-touch-icon", sizes: "180x180", href: "/assets/favicons/apple-touch-icon.png"}],
-    ['link', { rel: "icon", href: "/favicon.svg", sizes: "any", type: "image/svg+xml"}],
-    ['link', { rel: "manifest", href: "/assets/favicons/site.webmanifest"}],
-    ['link', { rel: "mask-icon", href: "/assets/favicons/safari-pinned-tab.svg"}],
-    ['meta', { name: 'apple-mobile-web-app-capable', content: 'yes' }],
-    ['meta', { name: 'apple-mobile-web-app-status-bar-style', content: 'black' }],
-    ['meta', { name: "msapplication-TileColor", content: "#ffffff"}],
-    ['meta', { name: "msapplication-config", content: "/assets/favicons/browserconfig.xml"}],
+    ['link', { rel: "icon", type: "image/png", sizes: "32x32", href: "/assets/favicons/favicon-32x32.png"}],
+    ['link', { rel: "icon", type: "image/png", sizes: "16x16", href: "/assets/favicons/favicon-16x16.png"}],
+    ['link', { rel: "manifest", href: "/assets/favicons/manifest.json"}],
+    ['link', { rel: "mask-icon", href: "/assets/favicons/safari-pinned-tab.svg", color: "#ffffff"}],
     ['meta', { name: "theme-color", content: "#ffffff"}],
     ['meta', { name: "viewport", content: "width=device-width"}],
     ['script', { src: "https://cdn.usefathom.com/script.js", spa: "auto", site: "ANMLOYPH", defer:true}]
 
   ],
   themeConfig: {
-    logo: '/favicon.svg',
+    logo: '/assets/img/cashier-mollie.svg',
     repo: 'laravel/cashier-mollie',
     authors: [
       {
