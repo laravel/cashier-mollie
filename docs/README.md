@@ -3,7 +3,7 @@
 <p align="center">
     <img src="./.vuepress/public/assets/pages/laravelcashiermollie.jpg" title="Laravel Cashier Mollie">
 </p>
-<img src="https://info.mollie.com/hubfs/github/laravel-cashier/editorLaravel.jpg" />
+<img src="https://info.mollie.com/hubfs/github/laravel-cashier/editorLaravel.jpg"  title="Laravel Cashier Mollie Example"/>
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/laravel/cashier-mollie.svg?style=flat-square)](https://packagist.org/packages/laravel/cashier-mollie)
 [![Github Actions](https://github.com/laravel/cashier-mollie/workflows/tests/badge.svg)](https://github.com/laravel/cashier-mollie/actions)
