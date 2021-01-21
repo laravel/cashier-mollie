@@ -60,7 +60,7 @@ return [
             /** Any context you want to pass to the handler */
             'context' => [
                 'description' => 'Extra Bonus ' . config('app.name'),
-                'percentage' => '10'
+                'percentage' => '10',
             ],
         ],
     ],

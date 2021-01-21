@@ -44,7 +44,7 @@ class PercentageDiscountHandler extends BaseCouponHandler
     {
         $percentage = $this->context('percentage');
 
-        if ($percentage < 1 || $percentage > 100 ) {
+        if ($percentage < 1 || $percentage > 100) {
             throw new CouponException('Percentage has to be between 1 and 100');
         }
 
@@ -54,7 +54,7 @@ class PercentageDiscountHandler extends BaseCouponHandler
         // calculate new price
         $discount = mollie_array_to_money([
             'currency' => $base->getCurrency(),
-            'value' => ($amount / 100) * $percentage
+            'value' => ($amount / 100) * $percentage,
         ]);
 
         return $discount->negative();
