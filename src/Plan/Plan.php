@@ -30,7 +30,7 @@ class Plan implements PlanContract
     /**
      * The billing period.
      *
-     * @var string|\Laravel\Cashier\Plan\IntervalGenerator
+     * @var \Laravel\Cashier\Plan\Contracts\IntervalGeneratorContract
      */
     protected $interval;
 
@@ -214,7 +214,7 @@ class Plan implements PlanContract
     }
 
     /**
-     * @return string|\Laravel\Cashier\Plan\IntervalGenerator
+     * @return \Laravel\Cashier\Plan\Contracts\IntervalGeneratorContract
      */
     public function interval()
     {
@@ -227,7 +227,7 @@ class Plan implements PlanContract
      */
     public function setInterval($interval)
     {
-        $this->interval = is_array($interval) ? new $interval['generator']($interval) : $interval;
+        $this->interval = is_array($interval) ? new $interval['generator']($interval) : new DefaultIntervalGenerator($interval);
 
         return $this;
     }

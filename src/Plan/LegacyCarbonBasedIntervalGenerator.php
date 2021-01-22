@@ -6,9 +6,10 @@ namespace Laravel\Cashier\Plan;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use Laravel\Cashier\Plan\Contracts\IntervalGeneratorContract;
 use Laravel\Cashier\Subscription;
 
-class IntervalGenerator
+class LegacyCarbonBasedIntervalGenerator implements IntervalGeneratorContract
 {
     /**
      *
@@ -29,7 +30,7 @@ class IntervalGenerator
      *
      * @return \Carbon\Carbon|\Carbon\Traits\Modifiers
      */
-    public function getNextSubscriptionCycle(Subscription  $subscription = null)
+    public function getEndOfTheNextSubscriptionCycle(Subscription  $subscription = null)
     {
         $cycle_ends_at = $subscription->cycle_ends_at ?? now();
         $subscription_started_at = $subscription->created_at ?? now();
@@ -38,10 +39,10 @@ class IntervalGenerator
             return Carbon::parse($this->value() . " " . $this->period());
         }
         if ($this->isMonthly() && $this->isFixed()) {
-            return $cycle_ends_at->copy()->addMonthsNoOverflow()->thisDayOrLast($subscription_started_at->day);
+            return $cycle_ends_at->addMonthsNoOverflow()->thisDayOrLastOfTheMonth($subscription_started_at->day);
         }
 
-        return $cycle_ends_at->copy()->modify('+' . $this->value() . ' '. $this->period());
+        return $cycle_ends_at->modify('+' . $this->value() . ' '. $this->period());
     }
 
     /**
@@ -82,10 +83,10 @@ class IntervalGenerator
         return Str::startsWith($this->period(), 'month');
     }
 
-    public function useCarbonThisDayOrLast()
+    protected function useCarbonThisDayOrLast()
     {
-        Carbon::macro('thisDayOrLast', function ($day) {
-            $last = $this->copy()->lastOfMonth();
+        Carbon::macro('thisDayOrLastOfTheMonth', function ($day) {
+            $last = $this->lastOfMonth();
 
             $this->day = ($day > $last->day) ? $last->day : $day;
 
