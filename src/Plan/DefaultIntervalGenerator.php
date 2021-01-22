@@ -27,6 +27,7 @@ class DefaultIntervalGenerator implements IntervalGeneratorContract
     public function getEndOfTheNextSubscriptionCycle(Subscription  $subscription = null)
     {
         $cycle_ends_at = $subscription->cycle_ends_at ?? now();
+
         return $cycle_ends_at->copy()->modify('+' . $this->interval);
     }
 }

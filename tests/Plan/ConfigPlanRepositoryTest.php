@@ -10,7 +10,6 @@ use Laravel\Cashier\Order\PersistOrderItemsPreprocessor;
 use Laravel\Cashier\Plan\ConfigPlanRepository;
 use Laravel\Cashier\Plan\Contracts\IntervalGeneratorContract;
 use Laravel\Cashier\Plan\Contracts\Plan;
-use Laravel\Cashier\Plan\DefaultIntervalGenerator;
 use Laravel\Cashier\Tests\BaseTestCase;
 
 class ConfigPlanRepositoryTest extends BaseTestCase
