@@ -26,7 +26,7 @@ class Plan implements PlanContract
      * @var array
      * @example ['ideal']
      */
-    protected $paymentMethod;
+    protected $planPaymentMethod;
 
     /**
      * The amount of the payment.
@@ -124,16 +124,16 @@ class Plan implements PlanContract
      */
     public function paymentMethod()
     {
-        return $this->paymentMethod ?? $this->firstPaymentMethod;
+        return $this->planPaymentMethod ?? $this->firstPaymentMethod;
     }
 
     /**
-     * @param  array  $paymentMethod
+     * @param  array  $planPaymentMethod
      * @return $this
      */
-    public function setMethod($paymentMethod)
+    public function setMethod($planPaymentMethod)
     {
-        $this->paymentMethod = $paymentMethod;
+        $this->planPaymentMethod = $planPaymentMethod;
 
         return $this;
     }
