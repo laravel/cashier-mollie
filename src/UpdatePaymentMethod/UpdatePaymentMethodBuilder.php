@@ -11,10 +11,6 @@ use Laravel\Cashier\Plan\Contracts\PlanRepository;
 use Laravel\Cashier\UpdatePaymentMethod\Contracts\UpdatePaymentMethodBuilder as Contract;
 use Money\Money;
 
-/**
- * Class UpdatePaymentMethodBuilder
- * @package Laravel\Cashier\UpdatePaymentMethod
- */
 class UpdatePaymentMethodBuilder implements Contract
 {
     /**
