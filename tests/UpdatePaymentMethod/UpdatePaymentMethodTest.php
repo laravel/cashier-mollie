@@ -8,6 +8,7 @@ use Laravel\Cashier\Events\MandateUpdated;
 use Laravel\Cashier\FirstPayment\Actions\AddBalance;
 use Laravel\Cashier\FirstPayment\FirstPaymentHandler;
 use Laravel\Cashier\Order\Order;
+use Laravel\Cashier\Payment as LocalPayment;
 use Laravel\Cashier\Tests\BaseTestCase;
 use Laravel\Cashier\Tests\Fixtures\User;
 use Mollie\Api\MollieApiClient;
@@ -25,6 +26,7 @@ class UpdatePaymentMethodTest extends BaseTestCase
         ]);
 
         $newPayment = $this->getNewMandatePaymentStub();
+        LocalPayment::createFromMolliePayment($newPayment, $owner);
 
         $newHandler = new FirstPaymentHandler($newPayment);
 
