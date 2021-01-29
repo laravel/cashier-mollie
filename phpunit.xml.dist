@@ -24,6 +24,7 @@
         <exclude>
             <group>generate_new_invoice_template</group>
             <group>mollie_integration</group>
+            <group>requires_manual_intervention</group>
         </exclude>
     </groups>
     <php>
@@ -36,6 +37,8 @@
 <!--        <env name="MOLLIE_KEY" value=""/>-->
 <!--        <env name="MANDATED_CUSTOMER_DIRECTDEBIT" value=""/>-->
 <!--        <env name="MANDATED_CUSTOMER_DIRECTDEBIT_MANDATE_ID" value=""/>-->
+<!--        <env name="REFUND_ID" value=""/>-->
+<!--        <env name="REFUND_PAYMENT_ID" value=""/>-->
 <!--        <env name="SUBSCRIPTION_MANDATE_PAYMENT_PAID_ID" value=""/>-->
 <!--        <env name="MANDATE_PAYMENT_PAID_ID" value=""/>-->
 <!--        <env name="PAYMENT_PAID_ID" value=""/>-->

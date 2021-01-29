@@ -4,7 +4,6 @@ namespace Laravel\Cashier\Order;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as BaseCollection;
-use Money\Currency;
 
 class OrderItemCollection extends Collection
 {

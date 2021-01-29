@@ -31,6 +31,7 @@ abstract class BaseTestCase extends TestCase
         $this->withFactories(__DIR__.'/database/factories');
 
         config(['cashier.webhook_url' => 'https://www.example.com/webhook']);
+        config(['cashier.aftercare_webhook_url' => 'https://www.example.com/aftercare-webhook']);
         config(['cashier.first_payment.webhook_url' => 'https://www.example.com/mandate-webhook']);
 
         if (! $this->interactWithMollieAPI) {
@@ -86,6 +87,10 @@ abstract class BaseTestCase extends TestCase
                     [
                         'class' => '\CreateAppliedCouponsTable',
                         'file_path' => $migrations_dir . '/create_applied_coupons_table.php.stub',
+                    ],
+                    [
+                        'class' => '\UpgradeToCashierV2',
+                        'file_path' => $migrations_dir . '/upgrade_to_cashier_v2.php.stub',
                     ],
                 ]
             )

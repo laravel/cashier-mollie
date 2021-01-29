@@ -16,13 +16,14 @@ use Laravel\Cashier\Mollie\Contracts\CreateMolliePayment;
 use Laravel\Cashier\Mollie\Contracts\GetMollieCustomer;
 use Laravel\Cashier\Mollie\Contracts\GetMollieMandate;
 use Laravel\Cashier\Mollie\Contracts\GetMolliePayment;
+use Laravel\Cashier\Payment;
 use Laravel\Cashier\SubscriptionBuilder\FirstPaymentSubscriptionBuilder;
 use Laravel\Cashier\SubscriptionBuilder\RedirectToCheckoutResponse;
 use Laravel\Cashier\Tests\BaseTestCase;
 use Mollie\Api\MollieApiClient;
 use Mollie\Api\Resources\Customer;
 use Mollie\Api\Resources\Mandate;
-use Mollie\Api\Resources\Payment;
+use Mollie\Api\Resources\Payment as MolliePayment;
 
 class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
 {
@@ -42,7 +43,7 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
     }
 
     /** @test */
-    public function createsMandatePaymentForSubscription()
+    public function createsAFirstPaymentForSubscription()
     {
         $firstPayment = config('cashier_plans.defaults.first_payment');
         $firstPayment["redirect_url"] = "https://foo-redirect-bar.com";
@@ -62,7 +63,7 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
 
         $this->assertInstanceOf(RedirectResponse::class, $response);
         $this->assertInstanceOf(RedirectToCheckoutResponse::class, $response);
-        $this->assertInstanceOf(Payment::class, $response->payment());
+        $this->assertInstanceOf(MolliePayment::class, $response->payment());
 
         $payload = $builder->getMandatePaymentBuilder()->getMolliePayload();
 
@@ -126,7 +127,7 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
 
         $this->assertInstanceOf(RedirectResponse::class, $response);
         $this->assertInstanceOf(RedirectToCheckoutResponse::class, $response);
-        $this->assertInstanceOf(Payment::class, $response->payment());
+        $this->assertInstanceOf(MolliePayment::class, $response->payment());
 
         $payload = $builder->getMandatePaymentBuilder()->getMolliePayload();
 
@@ -138,53 +139,59 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
     }
 
     /** @test */
-    public function handlesAPaidMandatePayment()
+    public function handlesAPaidFirstPayment()
     {
         $this->withoutExceptionHandling();
 
         Event::fake();
 
-        $this->mock(GetMolliePayment::class, function ($mock) {
-            $payment = new Payment(new MollieApiClient);
-            $payment->id = 'tr_unique_payment_id';
-            $payment->paidAt = Carbon::now()->toIso8601String();
-            $payment->mandateId = 'mdt_unique_mandate_id';
-            $payment->metadata = json_decode(json_encode([
-                "owner" => [
-                    "type" => get_class($this->user),
-                    "id" => 1,
-                ],
-                "actions" => [
-                    [
-                        "handler" => StartSubscription::class,
-                        "description" => "Monthly payment",
-                        "subtotal" => [
-                            "value" => "0.00",
-                            "currency" => "EUR",
-                        ],
-                        "taxPercentage" => 20,
-                        "plan" => "monthly-10-1",
-                        "name" => "default",
-                        "quantity" => 1,
-                        "nextPaymentAt" => now()->addDays(12)->toIso8601String(),
-                        "trialUntil" => now()->addDays(5)->toIso8601String(),
+        $molliePayment = new MolliePayment(new MollieApiClient);
+        $molliePayment->id = 'tr_unique_payment_id';
+        $molliePayment->paidAt = Carbon::now()->toIso8601String();
+        $molliePayment->mandateId = 'mdt_unique_mandate_id';
+        $molliePayment->amount = (object) [
+            'currency' => 'EUR',
+            'value' => '0.05',
+        ];
+        $molliePayment->metadata = json_decode(json_encode([
+            "owner" => [
+                "type" => get_class($this->user),
+                "id" => 1,
+            ],
+            "actions" => [
+                [
+                    "handler" => StartSubscription::class,
+                    "description" => "Monthly payment",
+                    "subtotal" => [
+                        "value" => "0.00",
+                        "currency" => "EUR",
                     ],
-                    [
-                        "handler" => AddGenericOrderItem::class,
-                        "description" => "Test mandate payment",
-                        "subtotal" => [
-                            "value" => "0.04",
-                            "currency" => "EUR",
-                        ],
-                        "taxPercentage" => 20,
-                    ],
+                    "taxPercentage" => 20,
+                    "plan" => "monthly-10-1",
+                    "name" => "default",
+                    "quantity" => 1,
+                    "nextPaymentAt" => now()->addDays(12)->toIso8601String(),
+                    "trialUntil" => now()->addDays(5)->toIso8601String(),
                 ],
-            ]));
+                [
+                    "handler" => AddGenericOrderItem::class,
+                    "description" => "Test mandate payment",
+                    "subtotal" => [
+                        "value" => "0.04",
+                        "currency" => "EUR",
+                    ],
+                    "taxPercentage" => 20,
+                ],
+            ],
+        ]));
 
+        Payment::createFromMolliePayment($molliePayment, $this->user);
+
+        $this->mock(GetMolliePayment::class, function ($mock) use ($molliePayment) {
             return $mock->shouldReceive('execute')
-                ->with('tr_unique_payment_id')
+                ->with('tr_unique_payment_id', [])
                 ->once()
-                ->andReturn($payment);
+                ->andReturn($molliePayment);
         });
 
         $this->mock(GetMollieMandate::class, function ($mock) {
@@ -330,14 +337,19 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
     protected function withMockedCreateMolliePayment(): void
     {
         $this->mock(CreateMolliePayment::class, function ($mock) {
-            $payment = new Payment(new MollieApiClient);
+            $payment = new MolliePayment(new MollieApiClient);
             $payment->id = 'tr_unique_payment_id';
+            $payment->amount = (object) [
+                'currency' => 'EUR',
+                'value' => '10.00',
+            ];
             $payment->_links = json_decode(json_encode([
                 'checkout' => [
                     'href' => 'https://foo-redirect-bar.com',
                     'type' => 'text/html',
                 ],
             ]));
+            $payment->mandateId = 'mdt_dummy_mandate_id';
 
             return $mock->shouldReceive('execute')->once()->andReturn($payment);
         });

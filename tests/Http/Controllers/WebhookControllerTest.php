@@ -11,13 +11,14 @@ use Laravel\Cashier\Http\Controllers\WebhookController;
 use Laravel\Cashier\Mollie\Contracts\GetMolliePayment;
 use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Order\OrderItemCollection;
+use Laravel\Cashier\Payment as LocalPayment;
 use Laravel\Cashier\Subscription;
 use Laravel\Cashier\Tests\BaseTestCase;
 use Laravel\Cashier\Tests\Fixtures\User;
 use Laravel\Cashier\Types\SubscriptionCancellationReason;
 use Mollie\Api\Exceptions\ApiException;
 use Mollie\Api\MollieApiClient;
-use Mollie\Api\Resources\Payment;
+use Mollie\Api\Resources\Payment as MolliePayment;
 
 class WebhookControllerTest extends BaseTestCase
 {
@@ -28,12 +29,12 @@ class WebhookControllerTest extends BaseTestCase
 
         $this->mock(GetMolliePayment::class, function (GetMolliePayment $mock) use ($id) {
             return $mock->shouldReceive('execute')
-                ->with($id)
+                ->with($id, [])
                 ->once()
-                ->andReturn(new Payment(new MollieApiClient));
+                ->andReturn(new MolliePayment(new MollieApiClient));
         });
 
-        $this->assertInstanceOf(Payment::class, $this->getController()->getPaymentById($id));
+        $this->assertInstanceOf(MolliePayment::class, $this->getController()->getMolliePaymentById($id));
     }
 
     /** @test **/
@@ -42,13 +43,13 @@ class WebhookControllerTest extends BaseTestCase
         $wrongId = 'sub_xxxxxxxxxxx';
         $this->mock(GetMolliePayment::class, function (GetMolliePayment $mock) use ($wrongId) {
             return $mock->shouldReceive('execute')
-                ->with($wrongId)
+                ->with($wrongId, [])
                 ->once()
                 ->andThrow(new ApiException);
         });
 
         $this->assertFalse(config('app.debug'));
-        $this->assertNull($this->getController()->getPaymentById($wrongId));
+        $this->assertNull($this->getController()->getMolliePaymentById($wrongId));
     }
 
     /** @test **/
@@ -57,7 +58,7 @@ class WebhookControllerTest extends BaseTestCase
         $wrongId = 'sub_xxxxxxxxxxx';
         $this->mock(GetMolliePayment::class, function (GetMolliePayment $mock) use ($wrongId) {
             return $mock->shouldReceive('execute')
-                ->with($wrongId)
+                ->with($wrongId, [])
                 ->once()
                 ->andThrow(new ApiException);
         });
@@ -65,7 +66,7 @@ class WebhookControllerTest extends BaseTestCase
         config(['app.debug' => true]);
         $this->assertTrue(config('app.debug'));
         $this->expectException(ApiException::class);
-        $this->assertNull($this->getController()->getPaymentById($wrongId));
+        $this->assertNull($this->getController()->getMolliePaymentById($wrongId));
     }
 
     /** @test **/
@@ -76,7 +77,7 @@ class WebhookControllerTest extends BaseTestCase
 
         $this->mock(GetMolliePayment::class, function (GetMolliePayment $mock) use ($id) {
             return $mock->shouldReceive('execute')
-                ->with($id)
+                ->with($id, [])
                 ->once()
                 ->andThrow(new ApiException);
         });
@@ -114,14 +115,22 @@ class WebhookControllerTest extends BaseTestCase
 
         $request = $this->getWebhookRequest($paymentId);
 
-        $this->mock(GetMolliePayment::class, function (GetMolliePayment $mock) use ($paymentId) {
-            $payment = new Payment(new MollieApiClient);
-            $payment->id = $paymentId;
-            $payment->status = 'failed';
+        $payment = new MolliePayment(new MollieApiClient);
+        $payment->id = $paymentId;
+        $payment->status = 'open';
+        $payment->amount = (object) [
+            'currency' => 'EUR',
+            'value' => '10.00',
+        ];
+        $payment->mandateId = 'mdt_dummy_mandate_id';
 
+        LocalPayment::createFromMolliePayment($payment, $user);
+        $payment->status = 'failed';
+
+        $this->mock(GetMolliePayment::class, function (GetMolliePayment $mock) use ($payment, $paymentId) {
             return $mock
                 ->shouldReceive('execute')
-                ->with($paymentId)
+                ->with($paymentId, [])
                 ->once()
                 ->andReturn($payment);
         });
@@ -142,6 +151,8 @@ class WebhookControllerTest extends BaseTestCase
         $this->assertMoneyEURCents(0, $order->getCreditUsed());
         $this->assertMoneyEURCents(500, $user->credit('EUR')->money());
 
+        $this->assertEquals('failed', LocalPayment::first()->mollie_payment_status);
+
         Event::assertDispatched(OrderPaymentFailed::class, function (OrderPaymentFailed $event) use ($order) {
             return $event->order->is($order);
         });
@@ -155,7 +166,7 @@ class WebhookControllerTest extends BaseTestCase
     }
 
     /** @test **/
-    public function handlesPaidPayment()
+    public function handlesPaymentPaid()
     {
         $this->withPackageMigrations();
         $this->withConfiguredPlans();
@@ -178,14 +189,21 @@ class WebhookControllerTest extends BaseTestCase
 
         $request = $this->getWebhookRequest($paymentId);
 
-        $this->mock(GetMolliePayment::class, function (GetMolliePayment $mock) use ($paymentId) {
-            $payment = new Payment(new MollieApiClient);
-            $payment->id = $paymentId;
-            $payment->status = 'paid';
+        $payment = new MolliePayment(new MollieApiClient);
+        $payment->id = $paymentId;
+        $payment->status = 'open';
+        $payment->amount = (object) [
+            'currency' => 'EUR',
+            'value' => '10.00',
+        ];
+        $payment->mandateId = 'mdt_dummy_mandate_id';
+        LocalPayment::createFromMolliePayment($payment, $user);
+        $payment->status = 'paid';
 
+        $this->mock(GetMolliePayment::class, function (GetMolliePayment $mock) use ($payment, $paymentId) {
             return $mock
                 ->shouldReceive('execute')
-                ->with($paymentId)
+                ->with($paymentId, [])
                 ->once()
                 ->andReturn($payment);
         });
@@ -195,6 +213,8 @@ class WebhookControllerTest extends BaseTestCase
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals('paid', $order->fresh()->mollie_payment_status);
         $this->assertTrue($subscription->fresh()->active());
+
+        $this->assertEquals('paid', LocalPayment::first()->mollie_payment_status);
 
         Event::assertDispatched(OrderPaymentPaid::class, function (OrderPaymentPaid $event) use ($order) {
             return $event->order->is($order);
@@ -217,13 +237,14 @@ class WebhookControllerTest extends BaseTestCase
         $request = $this->getWebhookRequest($paymentId);
 
         $this->mock(GetMolliePayment::class, function (GetMolliePayment $mock) use ($paymentId) {
-            $payment = new Payment(new MollieApiClient);
+            $payment = new MolliePayment(new MollieApiClient);
             $payment->id = $paymentId;
             $payment->status = 'paid';
+            $payment->mandateId = 'mdt_dummy_mandate_id';
 
             return $mock
                 ->shouldReceive('execute')
-                ->with($paymentId)
+                ->with($paymentId, [])
                 ->once()
                 ->andReturn($payment);
         });

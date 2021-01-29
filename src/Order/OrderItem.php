@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Laravel\Cashier\Order\Contracts\InteractsWithOrderItems;
 use Laravel\Cashier\Order\Contracts\InvoicableItem;
+use Laravel\Cashier\Refunds\RefundItem;
 use Laravel\Cashier\Traits\FormatsAmount;
 use Laravel\Cashier\Traits\HasOwner;
 
@@ -308,6 +309,38 @@ class OrderItem extends Model implements InvoicableItem
     {
         if ($this->orderableIsSet()) {
             $this->orderable_type::handlePaymentPaid($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Handle a payment refund on the order item.
+     * Invokes handlePaymentRefunded on the orderable model.
+     *
+     * @param \Laravel\Cashier\Refunds\RefundItem $refundItem
+     * @return $this
+     */
+    public function handlePaymentRefunded(RefundItem $refundItem)
+    {
+        if ($this->orderableIsSet()) {
+            $this->orderable_type::handlePaymentRefunded($refundItem);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Handle a failed payment refund on the order item.
+     * Invokes handlePaymentRefundFailed on the orderable model.
+     *
+     * @param \Laravel\Cashier\Refunds\RefundItem $refundItem
+     * @return $this
+     */
+    public function handlePaymentRefundFailed(RefundItem $refundItem)
+    {
+        if ($this->orderableIsSet()) {
+            $this->orderable_type::handlePaymentRefundFailed($refundItem);
         }
 
         return $this;

@@ -227,6 +227,16 @@ class Cashier
     }
 
     /**
+     * Get the aftercare webhook relative url.
+     *
+     * @return string
+     */
+    public static function aftercareWebhookUrl()
+    {
+        return self::pathFromUrl(config('cashier.aftercare_webhook_url'));
+    }
+
+    /**
      * Configure Cashier to not register its migrations.
      *
      * @return static

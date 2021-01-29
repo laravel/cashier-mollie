@@ -8,6 +8,11 @@ Route::namespace('\Laravel\Cashier\Http\Controllers')->group(function () {
         'WebhookController@handleWebhook'
     );
 
+    Route::name('webhooks.mollie.aftercare')->post(
+        Cashier::aftercareWebhookUrl(),
+        'AftercareWebhookController@handleWebhook'
+    );
+
     Route::name('webhooks.mollie.first_payment')->post(
         Cashier::firstPaymentWebhookUrl(),
         'FirstPaymentWebhookController@handleWebhook'

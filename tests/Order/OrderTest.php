@@ -72,6 +72,11 @@ class OrderTest extends BaseTestCase
         $this->mock(CreateMolliePayment::class, function ($mock) {
             $payment = new Payment(new MollieApiClient);
             $payment->id = 'tr_unique_payment_id';
+            $payment->amount = (object) [
+                'currency' => 'EUR',
+                'value' => '10.00',
+            ];
+            $payment->mandateId = 'mdt_dummy_mandate_id';
 
             return $mock->shouldReceive('execute')
                 ->once()
@@ -331,6 +336,11 @@ class OrderTest extends BaseTestCase
         $this->mock(CreateMolliePayment::class, function ($mock) {
             $payment = new Payment(new MollieApiClient);
             $payment->id = 'tr_unique_payment_id';
+            $payment->amount = (object) [
+                'currency' => 'EUR',
+                'value' => '10.00',
+            ];
+            $payment->mandateId = 'mdt_dummy_mandate_id';
 
             return $mock->shouldReceive('execute')
                 ->once()
@@ -635,33 +645,33 @@ class OrderTest extends BaseTestCase
     }
 
     /** @test */
-    public function findByPaymentIdWorks()
+    public function findByMolliePaymentIdWorks()
     {
-        $this->assertNull(Order::findByPaymentId('tr_xxxxx1234dummy'));
+        $this->assertNull(Order::findByMolliePaymentId('tr_xxxxx1234dummy'));
 
         $order = factory(Order::class)->create(['mollie_payment_id' => 'tr_xxxxx1234dummy']);
         $otherOrder = factory(Order::class)->create(['mollie_payment_id' => 'tr_wrong_order']);
 
-        $found = Order::findByPaymentId('tr_xxxxx1234dummy');
+        $found = Order::findByMolliePaymentId('tr_xxxxx1234dummy');
 
         $this->assertTrue($found->is($order));
         $this->assertTrue($found->isNot($otherOrder));
     }
 
     /** @test */
-    public function findByPaymentIdOrFailThrowsAnExceptionIfNotFound()
+    public function findByMolliePaymentIdOrFailThrowsAnExceptionIfNotFound()
     {
         $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
-        Order::findByPaymentIdOrFail('tr_xxxxx1234dummy');
+        Order::findByMolliePaymentIdOrFail('tr_xxxxx1234dummy');
     }
 
     /** @test */
-    public function findByPaymentIdOrFailWorks()
+    public function findByMolliePaymentIdOrFailWorks()
     {
         $order = factory(Order::class)->create(['mollie_payment_id' => 'tr_xxxxx1234dummy']);
         $otherOrder = factory(Order::class)->create(['mollie_payment_id' => 'tr_wrong_order']);
 
-        $found = Order::findByPaymentIdOrFail('tr_xxxxx1234dummy');
+        $found = Order::findByMolliePaymentIdOrFail('tr_xxxxx1234dummy');
 
         $this->assertTrue($found->is($order));
         $this->assertTrue($found->isNot($otherOrder));
