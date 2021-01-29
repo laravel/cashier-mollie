@@ -70,7 +70,7 @@ class UpdatePaymentMethodBuilder implements Contract
             if ($subscription->active()) {
                 $planModel = app(PlanRepository::class)::findOrFail($subscription->plan);
 
-                return $planModel->paymentMethod();
+                return $planModel->firstPaymentMethod();
             }
         })->filter()->unique()->collapse();
 

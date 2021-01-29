@@ -83,7 +83,7 @@ class ConfigPlanRepositoryTest extends BaseTestCase
 
         $this->assertNull($plan->firstPaymentDescription());
         $this->assertNull($plan->firstPaymentAmount());
-        $this->assertNull($plan->paymentMethod());
+        $this->assertNull($plan->firstPaymentMethod());
         $this->assertNull($plan->firstPaymentRedirectUrl());
         $this->assertNull($plan->firstPaymentWebhookUrl());
 
@@ -103,7 +103,7 @@ class ConfigPlanRepositoryTest extends BaseTestCase
 
         $this->assertEquals('Test first payment', $plan->firstPaymentDescription());
         $this->assertMoneyEURCents(5, $plan->firstPaymentAmount());
-        $this->assertEquals(['ideal'], $plan->paymentMethod());
+        $this->assertEquals(['ideal'], $plan->firstPaymentMethod());
         $this->assertEquals('https://www.foo-redirect-bar.com', $plan->firstPaymentRedirectUrl());
         $this->assertEquals('https://www.foo-webhook-bar.com', $plan->firstPaymentWebhookUrl());
 

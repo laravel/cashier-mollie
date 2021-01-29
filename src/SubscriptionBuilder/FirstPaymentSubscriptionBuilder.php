@@ -233,7 +233,7 @@ class FirstPaymentSubscriptionBuilder implements Contract
     protected function initializeFirstPaymentBuilder(Model $owner, $paymentOptions = [])
     {
         $this->firstPaymentBuilder = new FirstPaymentBuilder($owner, $paymentOptions);
-        $this->firstPaymentBuilder->setFirstPaymentMethod($this->plan->paymentMethod());
+        $this->firstPaymentBuilder->setFirstPaymentMethod($this->plan->firstPaymentMethod());
         $this->firstPaymentBuilder->setRedirectUrl($this->plan->firstPaymentRedirectUrl());
         $this->firstPaymentBuilder->setWebhookUrl($this->plan->firstPaymentWebhookUrl());
         $this->firstPaymentBuilder->setDescription($this->plan->firstPaymentDescription());

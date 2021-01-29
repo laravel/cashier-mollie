@@ -36,17 +36,6 @@ interface Plan
     public function name();
 
     /**
-     * @return array
-     */
-    public function paymentMethod();
-
-    /**
-     * @param array $paymentMethod
-     * @return Plan
-     */
-    public function setMethod($paymentMethod);
-
-    /**
      * The amount the customer is charged for a mandate payment.
      *
      * @return \Money\Money

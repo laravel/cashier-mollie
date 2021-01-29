@@ -21,14 +21,6 @@ class Plan implements PlanContract
     protected $name;
 
     /**
-     * The plan payment method
-     *
-     * @var array
-     * @example ['ideal']
-     */
-    protected $planPaymentMethod;
-
-    /**
      * The amount of the payment.
      *
      * @var \Money\Money
@@ -115,25 +107,6 @@ class Plan implements PlanContract
     public function setName(string $name)
     {
         $this->name = $name;
-
-        return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function paymentMethod()
-    {
-        return $this->planPaymentMethod ?? $this->firstPaymentMethod;
-    }
-
-    /**
-     * @param  array  $planPaymentMethod
-     * @return $this
-     */
-    public function setMethod($planPaymentMethod)
-    {
-        $this->planPaymentMethod = $planPaymentMethod;
 
         return $this;
     }
