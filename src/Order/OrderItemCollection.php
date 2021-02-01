@@ -40,7 +40,7 @@ class OrderItemCollection extends Collection
     public function whereOwner($owner)
     {
         return $this->filter(function ($item) use ($owner) {
-            return (string) $item->owner_id === (string) $owner->id
+            return (string) $item->owner_id === (string) $owner->getKey()
                 && $item->owner_type === get_class($owner);
         });
     }
@@ -53,9 +53,9 @@ class OrderItemCollection extends Collection
     public function chunkByOwner()
     {
         return $this->owners()->sortBy(function ($owner) {
-            return get_class($owner) . '_' . $owner->id;
+            return get_class($owner) . '_' . $owner->getKey();
         })->mapWithKeys(function ($owner) {
-            $key = get_class($owner) . '_' . $owner->id;
+            $key = get_class($owner) . '_' . $owner->getKey();
 
             return [$key => $this->whereOwner($owner)];
         });

@@ -110,7 +110,7 @@ class FirstPaymentBuilder
             'metadata' => [
                 'owner' => [
                     'type' => get_class($this->owner),
-                    'id' => $this->owner->id,
+                    'id' => $this->owner->getKey(),
                 ],
                 'actions' => $this->actions->toMolliePayload(),
             ],
