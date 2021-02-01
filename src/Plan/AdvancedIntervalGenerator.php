@@ -33,13 +33,10 @@ class AdvancedIntervalGenerator implements IntervalGeneratorContract
     public function getEndOfTheNextSubscriptionCycle(Subscription  $subscription = null)
     {
         $cycle_ends_at = $subscription->cycle_ends_at ?? now();
-        $subscription_started_at = $subscription->created_at ?? now();
+        $subscription_day = $this->dayOfStartSubscription($subscription);
 
-        if (! $cycle_ends_at) {
-            return Carbon::parse($this->value() . " " . $this->period());
-        }
         if ($this->isMonthly() && $this->isFixed()) {
-            return $cycle_ends_at->addMonthsNoOverflow()->thisDayOrLastOfTheMonth($subscription_started_at->day);
+            return $cycle_ends_at->addMonthsNoOverflow()->thisDayOrLastOfTheMonth($subscription_day);
         }
 
         return $cycle_ends_at->modify('+' . $this->value() . ' '. $this->period());
@@ -81,6 +78,15 @@ class AdvancedIntervalGenerator implements IntervalGeneratorContract
     protected function isMonthly()
     {
         return Str::startsWith($this->period(), 'month');
+    }
+
+    protected function dayOfStartSubscription(Subscription  $subscription = null)
+    {
+        if (isset($subscription->trial_ends_at) && ! is_null($subscription->trial_ends_at)) {
+            return $subscription->trial_ends_at->day;
+        }
+
+        return $subscription_started_at = $subscription->created_at->day ?? now()->day;
     }
 
     protected function useCarbonThisDayOrLast()
