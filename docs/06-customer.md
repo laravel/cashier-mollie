@@ -2,8 +2,17 @@
 
 ## Updating Customer payment mandates
 
-Coming soon.
+The `updatePaymentMethod` method may be used to update a customer's payment method information. This method redirecting the customer to the Mollie checkout to make the payment. Amount, redirect url and description for the update payment method can be set in `cashier.php` config.
 
+```php
+$user->updatePaymentMethod()->create(); // will add the amount to the user Balance
+```
+or
+```php
+$user->updatePaymentMethod()
+    ->addGenericItem() // will add the amount as an Order Item
+    ->create(); 
+```
 
 ## Customer balance
 
