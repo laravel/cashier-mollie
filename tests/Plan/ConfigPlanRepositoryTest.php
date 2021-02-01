@@ -16,7 +16,7 @@ class ConfigPlanRepositoryTest extends BaseTestCase
     protected $firstPaymentDefaultsArray = [
         'redirect_url' => 'https://www.foo-redirect-bar.com',
         'webhook_url' => 'https://www.foo-webhook-bar.com',
-        'method' => 'ideal',
+        'method' => ['ideal'],
         'amount' => [
             'value' => '0.05',
             'currency' => 'EUR',

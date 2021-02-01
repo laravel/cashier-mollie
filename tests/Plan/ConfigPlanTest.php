@@ -30,7 +30,7 @@ class ConfigPlanTest extends BaseTestCase
             ],
             'interval' => '1 month',
             'description' => 'Test subscription (monthly)',
-            'first_payment_method' => 'directdebit',
+            'first_payment_method' => ['directdebit'],
             'first_payment_amount' => [
                 'value' => '0.05',
                 'currency' => 'EUR',

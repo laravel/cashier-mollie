@@ -180,7 +180,7 @@ abstract class BaseTestCase extends TestCase
                     'first_payment' => [
                         'redirect_url' => 'https://www.example.com',
                         'webhook_url' => 'https://www.example.com/webhooks/mollie/first-payment',
-                        'method' => 'ideal',
+                        'method' => ['ideal'],
                         'amount' => [
                             'value' => '0.05',
                             'currency' => 'EUR',

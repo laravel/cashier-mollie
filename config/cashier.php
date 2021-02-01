@@ -89,4 +89,42 @@ return [
         'description' => 'Welcome to ' . config('app.name'),
     ],
 
+    /**
+     * Updating the payment method requires a customer to go through the hosted Mollie checkout to add a new Mandate for
+     * future recurring payments.
+     * @link https://docs.mollie.com/payments/recurring#payments-recurring-first-payment
+     */
+    'update_payment_method' => [
+
+        /**
+         * The default url the customer is redirected to after the Mollie payment method is changed in payment checkout screen. Can be
+         * overridden per Plan. You can use a `{payment_id}` placeholder here to easily retrieve the Mollie payment in
+         * your controller. Make sure you have set up a matching route.
+         */
+        'redirect_url' => config('app.url'),
+
+        /**
+         * The default amount for change payment method. Can be overridden per Plan and is added to user balance.
+         */
+        'amount' => [
+
+            /**
+             * A string containing the exact amount you want to charge for change the payment method, in the given currency.
+             * Make sure to set the right amount of decimals. Non-string values are not accepted by Mollie.
+             */
+            'value' => '1.00',
+
+            /**
+             * An ISO 4217 currency code. The currencies supported depend on the payment methods that are enabled on
+             * your Mollie account.
+             */
+            'currency' => 'EUR',
+        ],
+
+        /**
+         * The default description for the update payment method, visible on both the invoice and the customer bank records.
+         */
+        'description' => 'Update payment method for ' . config('app.name'),
+    ],
+
 ];
