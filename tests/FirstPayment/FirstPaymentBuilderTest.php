@@ -70,7 +70,7 @@ class FirstPaymentBuilderTest extends BaseTestCase
             'metadata' => [
                 'owner' => [
                     'type' => get_class($owner),
-                    'id' => $owner->id,
+                    'id' => $owner->getKey(),
                 ],
                 'actions' => [
                     [

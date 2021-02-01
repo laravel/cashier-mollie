@@ -71,7 +71,7 @@ class Payment extends Model
             'mollie_payment_id' => $payment->id,
             'mollie_payment_status' => $payment->status,
             'owner_type' => $owner->getMorphClass(),
-            'owner_id' => $owner->id,
+            'owner_id' => $owner->getKey(),
             'currency' => $payment->amount->currency,
             'amount' => (int) mollie_object_to_money($payment->amount)->getAmount(),
             'amount_refunded' => (int) $amountRefunded->getAmount(),
