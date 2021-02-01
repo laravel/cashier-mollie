@@ -12,6 +12,7 @@ use Laravel\Cashier\Credit\Credit;
 use Laravel\Cashier\Events\BalanceTurnedStale;
 use Laravel\Cashier\Events\OrderCreated;
 use Laravel\Cashier\Events\OrderPaymentFailed;
+use Laravel\Cashier\Events\OrderPaymentFailedDueToInvalidMandate;
 use Laravel\Cashier\Events\OrderPaymentPaid;
 use Laravel\Cashier\Events\OrderProcessed;
 use Laravel\Cashier\Exceptions\InvalidMandateException;
@@ -159,7 +160,12 @@ class Order extends Model
                 $this->total_due = $total->subtract($creditUsed)->getAmount();
             }
 
-            $minimumPaymentAmount = $this->ensureValidMandateAndMinimumPaymentAmountWhenTotalDuePositive();
+            try {
+                $minimumPaymentAmount = $this->ensureValidMandateAndMinimumPaymentAmountWhenTotalDuePositive();
+            } catch (InvalidMandateException $e) {
+                return $this->handlePaymentFailedDueToInvalidMandate();
+            }
+
             $totalDue = money($this->total_due, $this->currency);
 
             switch (true) {
@@ -398,6 +404,40 @@ class Order extends Model
             });
 
             $this->owner->validateMollieMandate();
+
+            return $this;
+        });
+    }
+
+    /**
+     * Handles a failed payment for the Order due to an invalid Mollie payment Mandate.
+     * Restores any credit used to the customer's balance and resets the credits applied to the Order.
+     * Invokes handlePaymentFailed() on each related OrderItem.
+     *
+     * @return $this
+     */
+    public function handlePaymentFailedDueToInvalidMandate()
+    {
+        return DB::transaction(function () {
+            if ($this->creditApplied()) {
+                $this->owner->addCredit($this->getCreditUsed());
+            }
+
+            $this->update([
+                'mollie_payment_id' => null,
+                'mollie_payment_status' => 'failed',
+                'balance_before' => 0,
+                'credit_used' => 0,
+                'processed_at' => now(),
+            ]);
+
+            Event::dispatch(new OrderPaymentFailedDueToInvalidMandate($this));
+
+            $this->items->each(function (OrderItem $item) {
+                $item->handlePaymentFailed();
+            });
+
+            $this->owner->clearMollieMandate();
 
             return $this;
         });
