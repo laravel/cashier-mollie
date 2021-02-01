@@ -104,7 +104,7 @@ class Order extends Model
             $total = $items->sum('total');
 
             $order = static::create(array_merge([
-                'owner_id' => $owner->id,
+                'owner_id' => $owner->getKey(),
                 'owner_type' => get_class($owner),
                 'number' => static::numberGenerator()->generate(),
                 'currency' => $currency,
