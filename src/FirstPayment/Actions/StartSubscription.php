@@ -146,7 +146,7 @@ class StartSubscription extends BaseAction implements SubscriptionConfigurator
     {
         return [
             'owner_type' => get_class($this->owner),
-            'owner_id' => $this->owner->id,
+            'owner_id' => $this->owner->getKey(),
             'process_at' => now(),
             'description' => $this->getDescription(),
             'currency' => $this->getCurrency(),
