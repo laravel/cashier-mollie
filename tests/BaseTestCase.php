@@ -8,7 +8,7 @@ use Illuminate\Support\Collection;
 use Laravel\Cashier\Coupon\Contracts\CouponRepository;
 use Laravel\Cashier\Coupon\Coupon;
 use Laravel\Cashier\Coupon\FixedDiscountHandler;
-use Laravel\Cashier\Plan\LegacyCarbonBasedIntervalGenerator;
+use Laravel\Cashier\Plan\AdvancedIntervalGenerator;
 use Laravel\Cashier\Tests\Database\Migrations\CreateUsersTable;
 use Laravel\Cashier\Tests\Fixtures\User;
 use Mockery;
@@ -253,7 +253,7 @@ abstract class BaseTestCase extends TestCase
                             'value' => '10.00',
                         ],
                         'interval' => [
-                            'generator' => LegacyCarbonBasedIntervalGenerator::class,
+                            'generator' => AdvancedIntervalGenerator::class,
                             'value' => 1,
                             'period' => 'month',
                             'fixed' => true,
@@ -266,7 +266,7 @@ abstract class BaseTestCase extends TestCase
                             'value' => '10.00',
                         ],
                         'interval' => [
-                            'generator' => LegacyCarbonBasedIntervalGenerator::class,
+                            'generator' => AdvancedIntervalGenerator::class,
                             'value' => 1,
                             'period' => 'month',
                             'fixed' => false,

@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 use Laravel\Cashier\Plan\Contracts\IntervalGeneratorContract;
 use Laravel\Cashier\Subscription;
 
-class LegacyCarbonBasedIntervalGenerator implements IntervalGeneratorContract
+class AdvancedIntervalGenerator implements IntervalGeneratorContract
 {
     /**
      *
