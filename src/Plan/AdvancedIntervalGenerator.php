@@ -34,7 +34,7 @@ class AdvancedIntervalGenerator extends BaseIntervalGenerator implements Interva
         $cycle_ends_at = $subscription->cycle_ends_at ?? now();
         $subscription_date = $this->startOfTheSubscription($subscription);
 
-        if ($this->isMonthly() && $this->isFixed()) {
+        if ($this->isMonthly() && ! $this->isMonthOverflow()) {
             return $cycle_ends_at->addMonthsNoOverflow($this->value())->thisDayOrLastOfTheMonth($subscription_date);
         }
 
@@ -72,10 +72,10 @@ class AdvancedIntervalGenerator extends BaseIntervalGenerator implements Interva
      *
      * @return bool
      */
-    protected function isFixed()
+    protected function isMonthOverflow()
     {
-        $fixed = Arr::get($this->configuration, 'fixed');
+        $monthOverflow = Arr::get($this->configuration, 'monthOverflow');
 
-        return is_bool($fixed) ? $fixed : false;
+        return is_bool($monthOverflow) ? $monthOverflow : false;
     }
 }

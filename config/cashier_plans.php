@@ -66,7 +66,7 @@ return [
                 'generator' => AdvancedIntervalGenerator::class,
                 'value' => 1,
                 'period' => 'month', /* day, month or year*/
-                'fixed' => false, /*  If fixed is true the interval is Carbon Base Interval Generator use NoOverflow, */
+                'monthOverflow' => true,
             ],
 
             /**
