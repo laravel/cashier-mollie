@@ -8,7 +8,6 @@ use Laravel\Cashier\Subscription;
 
 class BaseIntervalGenerator
 {
-
     /**
      * @param \Laravel\Cashier\Subscription|null $subscription
      *
@@ -31,7 +30,6 @@ class BaseIntervalGenerator
             $this->day = ($startOfTheSubscription->day > $last->day) ? $last->day : $startOfTheSubscription->day;
 
             return $this->parse($this->format('Y-m-d'). " ".$startOfTheSubscription->format('H:i:s'));
-
         });
     }
 }

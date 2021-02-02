@@ -3,7 +3,6 @@
 
 namespace Laravel\Cashier\Plan;
 
-use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Laravel\Cashier\Plan\Contracts\IntervalGeneratorContract;
