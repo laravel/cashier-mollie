@@ -92,7 +92,7 @@ class ConfigPlanRepositoryTest extends BaseTestCase
         $this->assertEquals('Test subscription (monthly)', $plan->description());
         $this->assertEquals('Test', $plan->name());
         $this->assertInstanceOf(IntervalGeneratorContract::class, $plan->interval());
-        $this->assertCarbon(now()->addMonth(), $plan->interval()->getEndOfTheNextSubscriptionCycle());
+        $this->assertCarbon(now()->addMonth(), $plan->interval()->getEndOfNextSubscriptionCycle());
         $this->assertInstanceOf(OrderItemPreprocessorCollection::class, $plan->orderItemPreprocessors());
         $this->assertCount(0, $plan->orderItemPreprocessors());
     }
@@ -113,7 +113,7 @@ class ConfigPlanRepositoryTest extends BaseTestCase
         $this->assertEquals('Test subscription (monthly)', $plan->description());
         $this->assertEquals('Test', $plan->name());
         $this->assertInstanceOf(IntervalGeneratorContract::class, $plan->interval());
-        $this->assertCarbon(now()->addMonth(), $plan->interval()->getEndOfTheNextSubscriptionCycle());
+        $this->assertCarbon(now()->addMonth(), $plan->interval()->getEndOfNextSubscriptionCycle());
         $this->assertInstanceOf(OrderItemPreprocessorCollection::class, $plan->orderItemPreprocessors());
         $this->assertCount(2, $plan->orderItemPreprocessors());
         $this->assertEquals([

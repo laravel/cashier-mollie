@@ -19,7 +19,7 @@ class BaseIntervalGenerator
             return $subscription->trial_ends_at;
         }
 
-        return $subscription_started_at = $subscription->created_at ?? now();
+        return $subscription->created_at ?? now();
     }
 
     protected function useCarbonThisDayOrLast()

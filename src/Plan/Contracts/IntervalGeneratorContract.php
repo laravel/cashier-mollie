@@ -12,5 +12,5 @@ interface IntervalGeneratorContract
      *
      * @return \Carbon\Carbon
      */
-    public function getEndOfTheNextSubscriptionCycle(Subscription  $subscription = null);
+    public function getEndOfNextSubscriptionCycle(Subscription $subscription = null);
 }

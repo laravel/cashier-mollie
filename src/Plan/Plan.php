@@ -28,7 +28,7 @@ class Plan implements PlanContract
     protected $amount;
 
     /**
-     * The billing period.
+     * The billing interval generator
      *
      * @var \Laravel\Cashier\Plan\Contracts\IntervalGeneratorContract
      */

@@ -167,7 +167,7 @@ class StartSubscription extends BaseAction implements SubscriptionConfigurator
     public function execute()
     {
         if (empty($this->nextPaymentAt) && ! $this->isTrial()) {
-            $this->builder()->nextPaymentAt($this->plan->interval()->getEndOfTheNextSubscriptionCycle());
+            $this->builder()->nextPaymentAt($this->plan->interval()->getEndOfNextSubscriptionCycle());
         }
 
 

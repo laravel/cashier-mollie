@@ -61,7 +61,7 @@ return [
             /**
              * The length of the billing cycle.
              */
-            // 'interval' => 1 month or
+            // 'interval' => '1 month' or
             'interval' => [
                 'generator' => AdvancedIntervalGenerator::class,
                 'value' => 1,

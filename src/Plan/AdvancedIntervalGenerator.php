@@ -29,7 +29,7 @@ class AdvancedIntervalGenerator extends BaseIntervalGenerator implements Interva
      *
      * @return \Carbon\Carbon|\Carbon\Traits\Modifiers
      */
-    public function getEndOfTheNextSubscriptionCycle(Subscription  $subscription = null)
+    public function getEndOfNextSubscriptionCycle(Subscription  $subscription = null)
     {
         $cycle_ends_at = $subscription->cycle_ends_at ?? now();
         $subscription_date = $this->startOfTheSubscription($subscription);

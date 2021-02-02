@@ -48,7 +48,7 @@ class ConfigPlanTest extends BaseTestCase
     public function createFromConfigArrays()
     {
         $this->assertMoneyEURCents(1000, $this->plan->amount());
-        $this->assertCarbon(now()->addMonth(), $this->plan->interval()->getEndOfTheNextSubscriptionCycle());
+        $this->assertCarbon(now()->addMonth(), $this->plan->interval()->getEndOfNextSubscriptionCycle());
         $this->assertEquals(['directdebit'], $this->plan->firstPaymentMethod());
         $this->assertEquals('Test subscription (monthly)', $this->plan->description());
         $this->assertMoneyEURCents(5, $this->plan->firstPaymentAmount());
