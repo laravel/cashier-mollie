@@ -470,10 +470,8 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
         }
 
         $item = DB::transaction(function () use (&$subscription, $item) {
-            $next_cycle_ends_at = $subscription->cycle_ends_at->copy()->modify('+' . $subscription->plan()->interval());
             $subscription->cycle_started_at = $subscription->cycle_ends_at;
-            $subscription->cycle_ends_at = $next_cycle_ends_at;
-
+            $subscription->cycle_ends_at = $subscription->plan()->interval()->getEndOfNextSubscriptionCycle($subscription);
             // Requires cleared scheduled order item before continuing
             $subscription->scheduled_order_item_id = null;
 

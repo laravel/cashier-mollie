@@ -277,6 +277,8 @@ class StartSubscriptionTest extends BaseTestCase
     /** @test */
     public function canStartDefaultSubscription()
     {
+        Carbon::setTestNow('2019-01-29');
+
         $user = $this->getMandatedUser(true, [
             'trial_ends_at' => now()->addWeek(), // on generic trial
         ]);
@@ -309,10 +311,10 @@ class StartSubscriptionTest extends BaseTestCase
         $subscription = $user->subscription('default');
         $this->assertEquals(2, $subscription->orderItems()->count());
         $this->assertCarbon(now(), $subscription->cycle_started_at);
-        $this->assertCarbon(now()->addMonth(), $subscription->cycle_ends_at);
+        $this->assertCarbon(Carbon::parse('2019-02-28'), $subscription->cycle_ends_at);
 
         $scheduledItem = $subscription->orderItems()->orderByDesc('process_at')->first();
-        $this->assertCarbon(now()->addMonth(), $scheduledItem->process_at);
+        $this->assertCarbon(Carbon::parse('2019-02-28'), $scheduledItem->process_at);
         $this->assertEquals(1000, $scheduledItem->total);
     }
 

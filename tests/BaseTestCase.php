@@ -8,6 +8,7 @@ use Illuminate\Support\Collection;
 use Laravel\Cashier\Coupon\Contracts\CouponRepository;
 use Laravel\Cashier\Coupon\Coupon;
 use Laravel\Cashier\Coupon\FixedDiscountHandler;
+use Laravel\Cashier\Plan\AdvancedIntervalGenerator;
 use Laravel\Cashier\Tests\Database\Migrations\CreateUsersTable;
 use Laravel\Cashier\Tests\Fixtures\User;
 use Mockery;
@@ -221,6 +222,61 @@ abstract class BaseTestCase extends TestCase
                         ],
                         'interval' => '1 weeks',
                         'description' => 'Twice as expensive monthly subscription',
+                    ],
+                ],
+            ],
+        ]);
+
+        return $this;
+    }
+
+    /**
+     * Configure some test plans.
+     *
+     * @return $this
+     */
+    protected function withConfiguredPlansWithIntervalArray()
+    {
+        config([
+            'cashier_plans' => [
+                'defaults' => [
+                    'first_payment' => [
+                        'redirect_url' => 'https://www.example.com',
+                        'webhook_url' => 'https://www.example.com/webhooks/mollie/first-payment',
+                        'method' => 'ideal',
+                        'amount' => [
+                            'value' => '0.05',
+                            'currency' => 'EUR',
+                        ],
+                        'description' => 'Test mandate payment',
+                    ],
+                ],
+                'plans' => [
+                    'withfixedinterval-10-1' => [
+                        'amount' => [
+                            'currency' => 'EUR',
+                            'value' => '10.00',
+                        ],
+                        'interval' => [
+                            'generator' => AdvancedIntervalGenerator::class,
+                            'value' => 1,
+                            'period' => 'month',
+                            'monthOverflow' => false,
+                        ],
+                        'description' => 'Monthly payment',
+                    ],
+                    'withoutfixedinterval-10-1' => [
+                        'amount' => [
+                            'currency' => 'EUR',
+                            'value' => '10.00',
+                        ],
+                        'interval' => [
+                            'generator' => AdvancedIntervalGenerator::class,
+                            'value' => 1,
+                            'period' => 'month',
+                            'monthOverflow' => true,
+                        ],
+                        'description' => 'Monthly payment',
                     ],
                 ],
             ],

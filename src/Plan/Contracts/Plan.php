@@ -26,7 +26,7 @@ interface Plan
     public function description();
 
     /**
-     * @return string
+     * @return \Laravel\Cashier\Plan\Contracts\IntervalGeneratorContract
      */
     public function interval();
 
