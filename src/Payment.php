@@ -3,6 +3,7 @@
 namespace Laravel\Cashier;
 
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Cashier\Casts\FirstPaymentActionsCast;
 use Laravel\Cashier\Mollie\Contracts\GetMolliePayment;
 use Laravel\Cashier\Order\ConvertsToMoney;
 use Laravel\Cashier\Order\Order;
@@ -41,6 +42,12 @@ class Payment extends Model
     protected $guarded = [];
 
     /**
+     * @var string[]
+     */
+    protected $casts = [
+        'first_payment_actions' => FirstPaymentActionsCast::class,
+    ];
+    /**
      * @param MolliePayment $payment
      * @param \Illuminate\Database\Eloquent\Model $owner
      * @param array $overrides
@@ -77,6 +84,7 @@ class Payment extends Model
             'amount_refunded' => (int) $amountRefunded->getAmount(),
             'amount_charged_back' => (int) $amountChargedBack->getAmount(),
             'mollie_mandate_id' => $payment->mandateId,
+            'first_payment_actions' => $payment->metadata->actions ?? null,
         ], $overrides));
     }
 

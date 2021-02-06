@@ -87,7 +87,8 @@ class FirstPaymentHandler
      */
     protected function extractActions()
     {
-        $actions = new Collection((array) $this->molliePayment->metadata->actions);
+        $payment = LocalPayment::findByPaymentId($this->molliePayment->id);
+        $actions = $payment->first_payment_actions->isNotEmpty() ? $payment->first_payment_actions : new Collection((array) $this->molliePayment->metadata->actions);
 
         return $actions->map(function ($actionMeta) {
             return $actionMeta->handler::createFromPayload(
