@@ -3,13 +3,11 @@
 
 namespace Laravel\Cashier\Casts;
 
-
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Support\Collection;
 
 class FirstPaymentActionsCast implements CastsAttributes
 {
-
     /**
      * @param \Illuminate\Database\Eloquent\Model $model
      * @param string $key

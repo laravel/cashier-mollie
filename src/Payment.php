@@ -47,6 +47,7 @@ class Payment extends Model
     protected $casts = [
         'first_payment_actions' => FirstPaymentActionsCast::class,
     ];
+
     /**
      * @param MolliePayment $payment
      * @param \Illuminate\Database\Eloquent\Model $owner
