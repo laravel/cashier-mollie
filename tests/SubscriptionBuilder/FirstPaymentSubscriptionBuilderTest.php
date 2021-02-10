@@ -84,31 +84,6 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
                     "type" => get_class($this->user),
                     "id" => 1,
                 ],
-                "actions" => [
-                    [
-                        "handler" => StartSubscription::class,
-                        "description" => "Monthly payment",
-                        "subtotal" => [
-                            "value" => "0.00",
-                            "currency" => "EUR",
-                        ],
-                        "taxPercentage" => 20,
-                        "plan" => "monthly-10-1",
-                        "name" => "default",
-                        "quantity" => 1,
-                        "nextPaymentAt" => now()->addDays(12)->toIso8601String(),
-                        "trialUntil" => now()->addDays(5)->toIso8601String(),
-                    ],
-                    [
-                        "handler" => AddGenericOrderItem::class,
-                        "description" => "Test mandate payment",
-                        "subtotal" => [
-                            "value" => "0.04",
-                            "currency" => "EUR",
-                        ],
-                        "taxPercentage" => 20,
-                    ],
-                ],
             ],
         ], $payload);
     }
@@ -131,7 +106,6 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
 
         $payload = $builder->getMandatePaymentBuilder()->getMolliePayload();
 
-        $this->assertEquals(3, $payload['metadata']['actions'][0]['quantity']);
         $this->assertEquals([
             'currency' => 'EUR',
             'value' => 36,

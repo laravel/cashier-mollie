@@ -72,7 +72,7 @@ class FirstPaymentHandlerTest extends BaseTestCase
         $this->assertInstanceOf(LocalPayment::class, $localPayment);
         $this->assertEquals('paid', $localPayment->mollie_payment_status);
         $this->assertMoneyEURCents(1000, $localPayment->getAmount());
-        $this->assertEquals(2, $localPayment->first_payment_actions->count());
+        $this->assertCount(2, $localPayment->first_payment_actions);
         $this->assertEquals(2, $order->items()->count());
 
         $this->assertNotNull($owner->mollie_mandate_id);

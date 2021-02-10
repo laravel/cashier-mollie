@@ -116,7 +116,6 @@ class FirstPaymentBuilder
                     'type' => get_class($this->owner),
                     'id' => $this->owner->getKey(),
                 ],
-                'actions' => $this->actions->toMolliePayload(),
             ],
         ], $this->options));
     }
@@ -132,6 +131,8 @@ class FirstPaymentBuilder
         $createMolliePayment = app()->make(CreateMolliePayment::class);
         $this->molliePayment = $createMolliePayment->execute($payload);
 
+        Payment::createFromMolliePayment($this->molliePayment, $this->owner, $this->actions->toMolliePayload());
+
         $redirectUrl = $payload['redirectUrl'];
 
         // Parse and update redirectUrl
@@ -143,8 +144,6 @@ class FirstPaymentBuilder
             $updateMolliePayment = app()->make(UpdateMolliePayment::class);
             $this->molliePayment = $updateMolliePayment->execute($this->molliePayment);
         }
-
-        Payment::createFromMolliePayment($this->molliePayment, $this->owner);
 
         return $this->molliePayment;
     }

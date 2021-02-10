@@ -51,21 +51,23 @@ class Payment extends Model
     /**
      * @param MolliePayment $payment
      * @param \Illuminate\Database\Eloquent\Model $owner
+     * @param array $actions
      * @param array $overrides
      * @return static
      */
-    public static function createFromMolliePayment(MolliePayment $payment, Model $owner, array $overrides = []): self
+    public static function createFromMolliePayment(MolliePayment $payment, Model $owner, array $actions = [], array $overrides = []): self
     {
-        return tap(static::makeFromMolliePayment($payment, $owner, $overrides))->save();
+        return tap(static::makeFromMolliePayment($payment, $owner, $actions, $overrides))->save();
     }
 
     /**
      * @param MolliePayment $payment
      * @param \Illuminate\Database\Eloquent\Model $owner
+     * @param array $actions
      * @param array $overrides
      * @return static
      */
-    public static function makeFromMolliePayment(MolliePayment $payment, Model $owner, array $overrides = []): self
+    public static function makeFromMolliePayment(MolliePayment $payment, Model $owner, array $actions = [], array $overrides = []): self
     {
         $amountChargedBack = $payment->amountChargedBack
             ? mollie_object_to_money($payment->amountChargedBack)
@@ -74,6 +76,8 @@ class Payment extends Model
         $amountRefunded = $payment->amountRefunded
             ? mollie_object_to_money($payment->amountRefunded)
             : money(0, $payment->amount->currency);
+
+        $localActions = ! empty($actions) ? $actions : $payment->metadata->actions ?? null;
 
         return static::make(array_merge([
             'mollie_payment_id' => $payment->id,
@@ -85,7 +89,7 @@ class Payment extends Model
             'amount_refunded' => (int) $amountRefunded->getAmount(),
             'amount_charged_back' => (int) $amountChargedBack->getAmount(),
             'mollie_mandate_id' => $payment->mandateId,
-            'first_payment_actions' => $payment->metadata->actions ?? null,
+            'first_payment_actions' => $localActions,
         ], $overrides));
     }
 
