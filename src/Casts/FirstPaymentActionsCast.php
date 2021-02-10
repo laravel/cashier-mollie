@@ -5,7 +5,6 @@ use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 
 class FirstPaymentActionsCast implements CastsAttributes
 {
-
     /**
      * @param \Illuminate\Database\Eloquent\Model $model
      * @param string $key
