@@ -131,7 +131,7 @@ class FirstPaymentBuilder
         $createMolliePayment = app()->make(CreateMolliePayment::class);
         $this->molliePayment = $createMolliePayment->execute($payload);
 
-        Payment::createFromMolliePayment($this->molliePayment, $this->owner, $this->actions->toMolliePayload());
+        Payment::createFromMolliePayment($this->molliePayment, $this->owner, $this->actions->toPlainArray());
 
         $redirectUrl = $payload['redirectUrl'];
 
