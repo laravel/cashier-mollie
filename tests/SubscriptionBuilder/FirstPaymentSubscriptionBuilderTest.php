@@ -86,6 +86,23 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
                 ],
             ],
         ], $payload);
+        $localPayment = Payment::find(1);
+        $this->assertEquals('Monthly payment', $localPayment->first_payment_actions[0]->description);
+        $this->assertEquals('Laravel\\Cashier\\FirstPayment\\Actions\\StartSubscription', $localPayment->first_payment_actions[0]->handler);
+        $this->assertEquals('EUR', $localPayment->first_payment_actions[0]->subtotal->currency);
+        $this->assertEquals(0, $localPayment->first_payment_actions[0]->subtotal->value);
+        $this->assertEquals(20, $localPayment->first_payment_actions[0]->taxPercentage);
+        $this->assertEquals('monthly-10-1', $localPayment->first_payment_actions[0]->plan);
+        $this->assertEquals('default', $localPayment->first_payment_actions[0]->name);
+        $this->assertEquals(1, $localPayment->first_payment_actions[0]->quantity);
+        $this->assertEquals(now()->addDays(12)->toIso8601String(), $localPayment->first_payment_actions[0]->nextPaymentAt);
+        $this->assertEquals(now()->addDays(5)->toIso8601String(), $localPayment->first_payment_actions[0]->trialUntil);
+
+        $this->assertEquals('Test mandate payment', $localPayment->first_payment_actions[1]->description);
+        $this->assertEquals('Laravel\\Cashier\\FirstPayment\\Actions\\AddGenericOrderItem', $localPayment->first_payment_actions[1]->handler);
+        $this->assertEquals('EUR', $localPayment->first_payment_actions[1]->subtotal->currency);
+        $this->assertEquals(0.04, $localPayment->first_payment_actions[1]->subtotal->value);
+        $this->assertEquals(20, $localPayment->first_payment_actions[1]->taxPercentage);
     }
 
     /** @test */
@@ -105,6 +122,9 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
         $this->assertInstanceOf(MolliePayment::class, $response->payment());
 
         $payload = $builder->getMandatePaymentBuilder()->getMolliePayload();
+
+        $localPayment = Payment::find(1);
+        $this->assertEquals(3, $localPayment->first_payment_actions[0]->quantity);
 
         $this->assertEquals([
             'currency' => 'EUR',
