@@ -72,26 +72,6 @@ class FirstPaymentBuilderTest extends BaseTestCase
                     'type' => get_class($owner),
                     'id' => $owner->getKey(),
                 ],
-                'actions' => [
-                    [
-                        'handler' => AddBalance::class,
-                        'subtotal' => [
-                            'value' => '5.00',
-                            'currency' => 'EUR',
-                        ],
-                        'taxPercentage' => 0,
-                        'description' => 'Test add balance 1',
-                    ],
-                    [
-                        'handler' => AddBalance::class,
-                        'subtotal' => [
-                            'value' => '5.00',
-                            'currency' => 'EUR',
-                        ],
-                        'taxPercentage' => 0,
-                        'description' => 'Test add balance 2',
-                    ],
-                ],
             ],
         ];
 

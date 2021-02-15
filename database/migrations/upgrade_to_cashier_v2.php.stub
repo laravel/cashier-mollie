@@ -58,6 +58,7 @@ class UpgradeToCashierV2 extends Migration
             $table->unsignedInteger('amount')->default(0);
             $table->unsignedInteger('amount_refunded')->default(0);
             $table->unsignedInteger('amount_charged_back')->default(0);
+            $table->text('first_payment_actions')->nullable();
             $table->timestamps();
         });
     }

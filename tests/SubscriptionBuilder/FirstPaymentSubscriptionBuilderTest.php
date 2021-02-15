@@ -84,33 +84,25 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
                     "type" => get_class($this->user),
                     "id" => 1,
                 ],
-                "actions" => [
-                    [
-                        "handler" => StartSubscription::class,
-                        "description" => "Monthly payment",
-                        "subtotal" => [
-                            "value" => "0.00",
-                            "currency" => "EUR",
-                        ],
-                        "taxPercentage" => 20,
-                        "plan" => "monthly-10-1",
-                        "name" => "default",
-                        "quantity" => 1,
-                        "nextPaymentAt" => now()->addDays(12)->toIso8601String(),
-                        "trialUntil" => now()->addDays(5)->toIso8601String(),
-                    ],
-                    [
-                        "handler" => AddGenericOrderItem::class,
-                        "description" => "Test mandate payment",
-                        "subtotal" => [
-                            "value" => "0.04",
-                            "currency" => "EUR",
-                        ],
-                        "taxPercentage" => 20,
-                    ],
-                ],
             ],
         ], $payload);
+        $localPayment = Payment::find(1);
+        $this->assertEquals('Monthly payment', $localPayment->first_payment_actions[0]->description);
+        $this->assertEquals('Laravel\\Cashier\\FirstPayment\\Actions\\StartSubscription', $localPayment->first_payment_actions[0]->handler);
+        $this->assertEquals('EUR', $localPayment->first_payment_actions[0]->subtotal->currency);
+        $this->assertEquals(0, $localPayment->first_payment_actions[0]->subtotal->value);
+        $this->assertEquals(20, $localPayment->first_payment_actions[0]->taxPercentage);
+        $this->assertEquals('monthly-10-1', $localPayment->first_payment_actions[0]->plan);
+        $this->assertEquals('default', $localPayment->first_payment_actions[0]->name);
+        $this->assertEquals(1, $localPayment->first_payment_actions[0]->quantity);
+        $this->assertEquals(now()->addDays(12)->toIso8601String(), $localPayment->first_payment_actions[0]->nextPaymentAt);
+        $this->assertEquals(now()->addDays(5)->toIso8601String(), $localPayment->first_payment_actions[0]->trialUntil);
+
+        $this->assertEquals('Test mandate payment', $localPayment->first_payment_actions[1]->description);
+        $this->assertEquals('Laravel\\Cashier\\FirstPayment\\Actions\\AddGenericOrderItem', $localPayment->first_payment_actions[1]->handler);
+        $this->assertEquals('EUR', $localPayment->first_payment_actions[1]->subtotal->currency);
+        $this->assertEquals(0.04, $localPayment->first_payment_actions[1]->subtotal->value);
+        $this->assertEquals(20, $localPayment->first_payment_actions[1]->taxPercentage);
     }
 
     /** @test */
@@ -131,7 +123,9 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
 
         $payload = $builder->getMandatePaymentBuilder()->getMolliePayload();
 
-        $this->assertEquals(3, $payload['metadata']['actions'][0]['quantity']);
+        $localPayment = Payment::find(1);
+        $this->assertEquals(3, $localPayment->first_payment_actions[0]->quantity);
+
         $this->assertEquals([
             'currency' => 'EUR',
             'value' => 36,
