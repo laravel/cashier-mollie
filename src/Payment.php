@@ -3,7 +3,6 @@
 namespace Laravel\Cashier;
 
 use Illuminate\Database\Eloquent\Model;
-use Laravel\Cashier\Casts\FirstPaymentActionsCast;
 use Laravel\Cashier\Mollie\Contracts\GetMolliePayment;
 use Laravel\Cashier\Order\ConvertsToMoney;
 use Laravel\Cashier\Order\Order;
@@ -45,7 +44,7 @@ class Payment extends Model
      * @var string[]
      */
     protected $casts = [
-        'first_payment_actions' => FirstPaymentActionsCast::class,
+        'first_payment_actions' => 'object',
     ];
 
     /**
