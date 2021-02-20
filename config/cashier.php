@@ -127,4 +127,38 @@ return [
         'description' => 'Update payment method for ' . config('app.name'),
     ],
 
+    /**
+     * A one off payment may require a customer to go through the Mollie checkout screen,
+     * but only if they don't have a valid mandate.
+     */
+    'one_off_payment' => [
+
+        /**
+         * The one off payment webhook url is called by Mollie on one off payment status updates.
+         * Can be overridden per invoice. You can use either a relative or absolute url.
+         * To override this webhook url on invoice level add the 'webhookUrl' option.
+         */
+        'webhook_url' => 'webhooks/mollie/one-off-payment',
+
+        /**
+         * The default url the customer is redirected to after the Mollie one off payment checkout screen. Can be
+         * overridden per invoice. You can use a `{payment_id}` placeholder here to easily retrieve the Mollie payment
+         * in your controller. Make sure you have set up a matching route.
+         */
+        'redirect_url' => config('app.url'),
+
+        /**
+         * If you wish to limit the payment methods your customers can use, you may
+         * fill the array with \Mollie\Api\Types\PaymentMethod you wish to allow.
+         * Leaving it as an empty array defaults to all payment methods.
+         * @see \Mollie\Api\Types\PaymentMethod
+         */
+        'active_payment_methods' => [],
+
+        /**
+         * The default description for a one off payment, visible on both the invoice and the customer bank records.
+         */
+        'description' => 'Payment for ' . config('app.name'),
+    ],
+
 ];

@@ -17,4 +17,9 @@ Route::namespace('\Laravel\Cashier\Http\Controllers')->group(function () {
         Cashier::firstPaymentWebhookUrl(),
         'FirstPaymentWebhookController@handleWebhook'
     );
+
+    Route::name('webhooks.mollie.one_off_payment')->post(
+        Cashier::oneOffPaymentWebhookUrl(),
+        'OneOffPaymentWebhookController@handleWebhook'
+    );
 });

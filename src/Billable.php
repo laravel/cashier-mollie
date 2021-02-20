@@ -13,12 +13,12 @@ use Laravel\Cashier\Exceptions\InvalidMandateException;
 use Laravel\Cashier\Mollie\Contracts\CreateMollieCustomer;
 use Laravel\Cashier\Mollie\Contracts\GetMollieCustomer;
 use Laravel\Cashier\Mollie\Contracts\GetMollieMandate;
-use Laravel\Cashier\Order\Invoice;
 use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Order\OrderItem;
 use Laravel\Cashier\Plan\Contracts\PlanRepository;
 use Laravel\Cashier\SubscriptionBuilder\FirstPaymentSubscriptionBuilder;
 use Laravel\Cashier\SubscriptionBuilder\MandatedSubscriptionBuilder;
+use Laravel\Cashier\Traits\ManagesInvoices;
 use Laravel\Cashier\Traits\PopulatesMollieCustomerFields;
 use Laravel\Cashier\UpdatePaymentMethod\UpdatePaymentMethodBuilder;
 use Mollie\Api\Exceptions\ApiException;
@@ -29,6 +29,7 @@ use Money\Money;
 trait Billable
 {
     use PopulatesMollieCustomerFields;
+    use ManagesInvoices;
 
     /**
      * Get all of the subscriptions for the billable model.
@@ -374,33 +375,6 @@ trait Billable
     public function taxPercentage()
     {
         return $this->tax_percentage ?? 0;
-    }
-
-    /**
-     * Get the invoice instances for this model.
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    public function invoices()
-    {
-        return $this->orders->invoices();
-    }
-
-    /**
-     * Create an invoice download response.
-     *
-     * @param $orderId
-     * @param null|array $data
-     * @param string $view
-     * @param \Dompdf\Options $options
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function downloadInvoice($orderId, $data = [], $view = Invoice::DEFAULT_VIEW, Options $options = null)
-    {
-        /** @var Order $order */
-        $order = $this->orders()->where('id', $orderId)->firstOrFail();
-
-        return $order->invoice()->download($data, $view, $options);
     }
 
     /**

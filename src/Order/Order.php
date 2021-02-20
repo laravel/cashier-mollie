@@ -8,6 +8,7 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
+use Laravel\Cashier\Cashier;
 use Laravel\Cashier\Credit\Credit;
 use Laravel\Cashier\Events\BalanceTurnedStale;
 use Laravel\Cashier\Events\OrderCreated;
@@ -90,29 +91,15 @@ class Order extends Model
                 $items = $items->preprocess();
             }
 
-            if ($items->currencies()->count() > 1) {
-                throw new LogicException('Creating an order requires items to have a single currency.');
-            }
-
-            if ($items->owners()->count() > 1) {
-                throw new LogicException('Creating an order requires items to have a single owner.');
-            }
-
-            $currency = $items->first()->currency;
-            $owner = $items->first()->owner;
-
-            $total = $items->sum('total');
-
-            $order = static::create(array_merge([
-                'owner_id' => $owner->getKey(),
-                'owner_type' => get_class($owner),
-                'number' => static::numberGenerator()->generate(),
-                'currency' => $currency,
-                'subtotal' => $items->sum('subtotal'),
-                'tax' => $items->sum('tax'),
-                'total' => $total,
-                'total_due' => $total,
-            ], $overrides));
+            $order = self::make(
+                $items->first()->owner,
+                $items,
+                array_merge([
+                    'number' => static::numberGenerator()->generate(),
+                    'currency' => $items->first()->currency,
+                ], $overrides)
+            );
+            $order->save();
 
             $items->each(function (OrderItem $item) use ($order, $process_items) {
                 $item->update(['order_id' => $order->id]);
@@ -126,6 +113,44 @@ class Order extends Model
 
             return $order;
         });
+    }
+
+    /**
+     * Create a new concept Order for a specific Owner with Order Items.
+     *
+     * @param Model $owner
+     * @param OrderItemCollection $items
+     * @param array $overrides
+     * @return Order
+     */
+    public static function make(Model $owner, OrderItemCollection $items, array $overrides = [])
+    {
+        $currencies = $items->currencies();
+
+        // Check if the invoice + order item currencies match
+        if ($overrides['currency'] ?? false) {
+            $currencies->add($overrides['currency']);
+        }
+
+        if ($items->currencies()->count() > 1) {
+            throw new LogicException('Creating an order requires items to have a single currency.');
+        }
+
+        if ($items->owners()->count() > 1) {
+            throw new LogicException('Creating an order requires items to have a single owner.');
+        }
+
+        $order = new self(array_merge([
+            'owner_id' => $owner->getKey(),
+            'owner_type' => $owner->getMorphClass(),
+            'currency' => Cashier::usesCurrency(),
+            'subtotal' => $items->sum('subtotal'),
+            'tax' => $items->sum('tax'),
+            'total' => $total = $items->sum('total'),
+            'total_due' => $total,
+        ], $overrides));
+
+        return $order->setRelation('items', $items);
     }
 
     /**
@@ -497,6 +522,7 @@ class Order extends Model
             $localPayment = Payment::findByPaymentIdOrFail($molliePayment->id);
             $localPayment->update([
                 'mollie_payment_status' => 'paid',
+                'order_id' => $this->id,
             ]);
 
             Event::dispatch(new OrderPaymentPaid($this));

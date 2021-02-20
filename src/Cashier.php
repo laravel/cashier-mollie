@@ -237,6 +237,16 @@ class Cashier
     }
 
     /**
+     * Get the one off payment webhook relative url.
+     *
+     * @return string
+     */
+    public static function oneOffPaymentWebhookUrl()
+    {
+        return self::pathFromUrl(config('cashier.one_off_payment.webhook_url'));
+    }
+
+    /**
      * Configure Cashier to not register its migrations.
      *
      * @return static
