@@ -8,3 +8,4 @@ phpunit.xml
 .idea
 .phpstorm.meta.php
 .php_cs.cache
+html
