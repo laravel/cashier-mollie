@@ -80,27 +80,27 @@ class StartSubscription extends BaseAction implements SubscriptionConfigurator
         // The coupon will be handled manually by this action
         $action->builder()->skipCouponHandling();
 
-        if(isset($payload['taxPercentage'])) {
+        if (isset($payload['taxPercentage'])) {
             $action->withTaxPercentage($payload['taxPercentage']);
         }
 
-        if(isset($payload['trialUntil'])) {
+        if (isset($payload['trialUntil'])) {
             $action->trialUntil(Carbon::parse($payload['trialUntil']));
         }
 
-        if(isset($payload['trialDays'])) {
+        if (isset($payload['trialDays'])) {
             $action->trialDays($payload['trialDays']);
         }
 
-        if(isset($payload['skipTrial']) && $payload['skipTrial']) {
+        if (isset($payload['skipTrial']) && $payload['skipTrial']) {
             $action->skipTrial();
         }
 
-        if(isset($payload['quantity'])) {
+        if (isset($payload['quantity'])) {
             $action->quantity($payload['quantity']);
         }
 
-        if(isset($payload['coupon'])) {
+        if (isset($payload['coupon'])) {
             $action->withCoupon($payload['coupon']);
         }
 
@@ -146,7 +146,7 @@ class StartSubscription extends BaseAction implements SubscriptionConfigurator
     {
         return [
             'owner_type' => get_class($this->owner),
-            'owner_id' => $this->owner->id,
+            'owner_id' => $this->owner->getKey(),
             'process_at' => now(),
             'description' => $this->getDescription(),
             'currency' => $this->getCurrency(),
@@ -166,9 +166,10 @@ class StartSubscription extends BaseAction implements SubscriptionConfigurator
      */
     public function execute()
     {
-        if(empty($this->nextPaymentAt) && !$this->isTrial()) {
-            $this->builder()->nextPaymentAt(Carbon::parse($this->plan->interval()));
+        if (empty($this->nextPaymentAt) && ! $this->isTrial()) {
+            $this->builder()->nextPaymentAt($this->plan->interval()->getEndOfNextSubscriptionCycle());
         }
+
 
         // Create the subscription, scheduling the next payment
         $subscription = $this->builder()->create();
@@ -179,11 +180,11 @@ class StartSubscription extends BaseAction implements SubscriptionConfigurator
             ->create($this->processedOrderItemData())
             ->toCollection();
 
-        if($this->coupon) {
+        if ($this->coupon) {
             $redeemedCoupon = RedeemedCoupon::record($this->coupon, $subscription);
 
-            if(!$this->isTrial()) {
-                $processedItems =  $this->coupon->applyTo($redeemedCoupon, $processedItems);
+            if (! $this->isTrial()) {
+                $processedItems = $this->coupon->applyTo($redeemedCoupon, $processedItems);
             }
         }
 
@@ -295,7 +296,7 @@ class StartSubscription extends BaseAction implements SubscriptionConfigurator
      */
     protected function isTrial()
     {
-        return ! ( empty($this->trialDays) && empty($this->trialUntil) );
+        return ! (empty($this->trialDays) && empty($this->trialUntil));
     }
 
     /**
@@ -306,7 +307,7 @@ class StartSubscription extends BaseAction implements SubscriptionConfigurator
      */
     public function builder()
     {
-        if($this->builder === null) {
+        if ($this->builder === null) {
             $this->builder = new MandatedSubscriptionBuilder(
                 $this->owner,
                 $this->name,

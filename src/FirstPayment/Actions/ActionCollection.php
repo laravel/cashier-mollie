@@ -17,11 +17,12 @@ class ActionCollection extends Collection
 
     protected function validate()
     {
-        if($this->isNotEmpty()) {
+        if ($this->isNotEmpty()) {
             $firstAmount = $this->first()->getTotal();
             $this->each(function (BaseAction $item) use ($firstAmount) {
-                if(! $item->getTotal()->isSameCurrency($firstAmount))
+                if (! $item->getTotal()->isSameCurrency($firstAmount)) {
                     throw new CurrencyMismatchException('All actions must be in the same currency');
+                }
             });
         }
     }
@@ -33,7 +34,7 @@ class ActionCollection extends Collection
     {
         $total = money(0, $this->getCurrency());
 
-        $this->each(function(BaseAction $item) use (&$total) {
+        $this->each(function (BaseAction $item) use (&$total) {
             $total = $total->add($item->getTotal());
         });
 
@@ -45,7 +46,7 @@ class ActionCollection extends Collection
      */
     public function getCurrency()
     {
-        if($this->isNotEmpty()) {
+        if ($this->isNotEmpty()) {
             return $this->first()->getTotal()->getCurrency()->getCode();
         }
 
@@ -55,14 +56,14 @@ class ActionCollection extends Collection
     /**
      * @return array
      */
-    public function toMolliePayload()
+    public function toPlainArray()
     {
         $payload = [];
         foreach ($this->items as $item) {
             /** @var \Laravel\Cashier\FirstPayment\Actions\BaseAction $item */
             $itemPayload = $item->getPayload();
 
-            if(!empty($itemPayload)) {
+            if (! empty($itemPayload)) {
                 $payload[] = $itemPayload;
             }
         }

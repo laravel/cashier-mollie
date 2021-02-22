@@ -17,7 +17,7 @@ class EventServiceProviderTest extends BaseTestCase
         $event = new OrderPaymentPaid(factory(Order::class)->make());
         Event::dispatch($event);
 
-        Event::assertDispatched(OrderInvoiceAvailable::class, function($e) use ($event) {
+        Event::assertDispatched(OrderInvoiceAvailable::class, function ($e) use ($event) {
             return $e->order === $event->order;
         });
     }

@@ -18,11 +18,13 @@ class FirstPaymentWebhookController extends BaseWebhookController
      */
     public function handleWebhook(Request $request)
     {
-        $payment = $this->getPaymentById($request->get('id'));
+        $payment = $this->getMolliePaymentById($request->get('id'));
 
         if ($payment) {
             if ($payment->isPaid()) {
                 $order = (new FirstPaymentHandler($payment))->execute();
+                $payment->webhookUrl = route('webhooks.mollie.aftercare');
+                $payment->update();
 
                 Event::dispatch(new FirstPaymentPaid($payment, $order));
             } elseif ($payment->isFailed()) {

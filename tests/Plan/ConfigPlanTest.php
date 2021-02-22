@@ -30,7 +30,7 @@ class ConfigPlanTest extends BaseTestCase
             ],
             'interval' => '1 month',
             'description' => 'Test subscription (monthly)',
-            'first_payment_method' => 'directdebit',
+            'first_payment_method' => ['directdebit'],
             'first_payment_amount' => [
                 'value' => '0.05',
                 'currency' => 'EUR',
@@ -48,8 +48,8 @@ class ConfigPlanTest extends BaseTestCase
     public function createFromConfigArrays()
     {
         $this->assertMoneyEURCents(1000, $this->plan->amount());
-        $this->assertEquals('1 month', $this->plan->interval());
-        $this->assertEquals('directdebit', $this->plan->firstPaymentMethod());
+        $this->assertCarbon(now()->addMonth(), $this->plan->interval()->getEndOfNextSubscriptionCycle());
+        $this->assertEquals(['directdebit'], $this->plan->firstPaymentMethod());
         $this->assertEquals('Test subscription (monthly)', $this->plan->description());
         $this->assertMoneyEURCents(5, $this->plan->firstPaymentAmount());
         $this->assertEquals('Test mandate payment', $this->plan->firstPaymentDescription());

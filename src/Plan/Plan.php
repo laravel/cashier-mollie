@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace Laravel\Cashier\Plan;
 
+use Laravel\Cashier\FirstPayment\Traits\PaymentMethodString;
 use Laravel\Cashier\Order\OrderItemPreprocessorCollection;
 use Laravel\Cashier\Plan\Contracts\Plan as PlanContract;
 use Money\Money;
 
 class Plan implements PlanContract
 {
+    use PaymentMethodString;
+
     /**
      * A unique reference for this plan.
      *
@@ -25,10 +28,9 @@ class Plan implements PlanContract
     protected $amount;
 
     /**
-     * The billing frequency.
+     * The billing interval generator
      *
-     * @var string
-     * @example 1 month
+     * @var \Laravel\Cashier\Plan\Contracts\IntervalGeneratorContract
      */
     protected $interval;
 
@@ -49,8 +51,8 @@ class Plan implements PlanContract
     /**
      * The first payment method
      *
-     * @var string
-     * @example ideal
+     * @var array
+     * @example ['ideal']
      */
     protected $firstPaymentMethod;
 
@@ -104,6 +106,7 @@ class Plan implements PlanContract
     public function setName(string $name)
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -146,7 +149,7 @@ class Plan implements PlanContract
     }
 
     /**
-     * @return string
+     * @return array
      */
     public function firstPaymentMethod()
     {
@@ -154,10 +157,10 @@ class Plan implements PlanContract
     }
 
     /**
-     * @param string $firstPaymentMethod
+     * @param  array $firstPaymentMethod
      * @return $this
      */
-    public function setFirstPaymentMethod(?string $firstPaymentMethod)
+    public function setFirstPaymentMethod($firstPaymentMethod)
     {
         $this->firstPaymentMethod = $firstPaymentMethod;
 
@@ -207,7 +210,7 @@ class Plan implements PlanContract
     }
 
     /**
-     * @return string
+     * @return \Laravel\Cashier\Plan\Contracts\IntervalGeneratorContract
      */
     public function interval()
     {
@@ -215,12 +218,12 @@ class Plan implements PlanContract
     }
 
     /**
-     * @param string $interval
+     * @param array|string $interval
      * @return $this
      */
-    public function setInterval(string $interval)
+    public function setInterval($interval)
     {
-        $this->interval = $interval;
+        $this->interval = is_array($interval) ? new $interval['generator']($interval) : new DefaultIntervalGenerator($interval);
 
         return $this;
     }

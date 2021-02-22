@@ -5,21 +5,20 @@
 
 <img src="https://info.mollie.com/hubfs/github/laravel-cashier/editorLaravel.jpg" />
 
-<!--
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/mollie/laravel-cashier.svg?style=flat-square)](https://packagist.org/packages/mollie/laravel-cashier)
--->
-[![Build Status](https://travis-ci.org/laravel/cashier-mollie.svg?branch=master)](https://travis-ci.org/laravel/cashier-mollie)
-<!--
-[![SensioLabsInsight](https://img.shields.io/sensiolabs/i/xxxxxxxxx.svg?style=flat-square)](https://insight.sensiolabs.com/projects/xxxxxxxxx)
-[![Quality Score](https://img.shields.io/scrutinizer/g/mollie/:package_name.svg?style=flat-square)](https://scrutinizer-ci.com/g/mollie/:package_name)
-[![Total Downloads](https://img.shields.io/packagist/dt/mollie/:package_name.svg?style=flat-square)](https://packagist.org/packages/mollie/:package_name)
--->
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/laravel/cashier-mollie.svg?style=flat-square)](https://packagist.org/packages/laravel/cashier-mollie)
+[![Github Actions](https://github.com/laravel/cashier-mollie/workflows/tests/badge.svg)](https://github.com/laravel/cashier-mollie/actions)
 
 Laravel Cashier provides an expressive, fluent interface to subscriptions using [Mollie](https://www.mollie.com)'s billing services.
 
 ## Installation
 
-You can pull this package in using composer:
+First, make sure to add the Mollie key to your `.env` file. You can obtain an API key from the [Mollie dashboard](https://www.mollie.com/dashboard/developers/api-keys):
+
+```dotenv
+MOLLIE_KEY="test_xxxxxxxxxxx"
+```
+
+Next, pull this package in using composer:
 
 ```bash
 composer require laravel/cashier-mollie "^1.0"
@@ -43,10 +42,10 @@ Once you have pulled in the package:
 
 3. Run the migrations: `php artisan migrate`
 
-4. Set the `MOLLIE_KEY` in your .env file. You can obtain an API key from the [Mollie dashboard](https://www.mollie.com/dashboard/developers/api-keys):
+4. Ensure you have properly configured the `MOLLIE_KEY` in your .env file. You can obtain an API key from the [Mollie dashboard](https://www.mollie.com/dashboard/developers/api-keys):
 
     ```dotenv
-   MOLLIE_KEY="test_xxxxxxxxxxx"
+   MOLLIE_KEY="test_xxxxxxxxxxxxxxxxxxxxxx"
     ```
 
 5. Prepare the configuration files:
@@ -505,7 +504,7 @@ __Use these with care:__
 
 ```php
 $credit = $user->credit('EUR');
-$user->addCredit(new Amount(10, 'EUR')); // add €10.00
+$user->addCredit(money(10, 'EUR')); // add €10.00
 $user->hasCredit('EUR');
 ```
 
@@ -568,6 +567,10 @@ An Invoice is available on the Order. Access it using `$event->order->invoice()`
 
 #### `OrderPaymentFailed` event
 The payment for an order has failed.
+
+#### `OrderPaymentFailedDueToInvalidMandate` event
+The payment for an order has failed due to an invalid payment mandate. This happens for example when the customer's
+credit card has expired.
 
 #### `OrderPaymentPaid` event
 The payment for an order was successful. 

@@ -6,21 +6,23 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
-use Laravel\Cashier\Events\SubscriptionResumed;
-use Laravel\Cashier\Order\Contracts\InteractsWithOrderItems;
-use Laravel\Cashier\Order\Contracts\PreprocessesOrderItems;
 use Laravel\Cashier\Coupon\AppliedCoupon;
 use Laravel\Cashier\Coupon\Contracts\AcceptsCoupons;
 use Laravel\Cashier\Coupon\RedeemedCoupon;
-use Laravel\Cashier\Events\SubscriptionStarted;
 use Laravel\Cashier\Events\SubscriptionCancelled;
 use Laravel\Cashier\Events\SubscriptionPlanSwapped;
 use Laravel\Cashier\Events\SubscriptionQuantityUpdated;
+use Laravel\Cashier\Events\SubscriptionResumed;
+use Laravel\Cashier\Events\SubscriptionStarted;
+use Laravel\Cashier\Order\Contracts\InteractsWithOrderItems;
+use Laravel\Cashier\Order\Contracts\PreprocessesOrderItems;
 use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Order\OrderItem;
 use Laravel\Cashier\Order\OrderItemCollection;
 use Laravel\Cashier\Plan\Contracts\Plan;
 use Laravel\Cashier\Plan\Contracts\PlanRepository;
+use Laravel\Cashier\Refunds\Contracts\IsRefundable;
+use Laravel\Cashier\Refunds\RefundItem;
 use Laravel\Cashier\Traits\HasOwner;
 use Laravel\Cashier\Types\SubscriptionCancellationReason;
 use LogicException;
@@ -43,7 +45,7 @@ use Money\Money;
  * @property float cycle_progress
  * @property float cycle_left
  */
-class Subscription extends Model implements InteractsWithOrderItems, PreprocessesOrderItems, AcceptsCoupons
+class Subscription extends Model implements InteractsWithOrderItems, PreprocessesOrderItems, AcceptsCoupons, IsRefundable
 {
     use HasOwner;
 
@@ -420,7 +422,8 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
                 'quantity' => $this->quantity ?: 1,
                 'tax_percentage' => $this->tax_percentage,
                 'description' => $plan->description(),
-            ], $item_overrides
+            ],
+            $item_overrides
         ));
 
         if ($fill_link) {
@@ -467,10 +470,8 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
         }
 
         $item = DB::transaction(function () use (&$subscription, $item) {
-            $next_cycle_ends_at = $subscription->cycle_ends_at->copy()->modify('+' . $subscription->plan()->interval());
             $subscription->cycle_started_at = $subscription->cycle_ends_at;
-            $subscription->cycle_ends_at = $next_cycle_ends_at;
-
+            $subscription->cycle_ends_at = $subscription->plan()->interval()->getEndOfNextSubscriptionCycle($subscription);
             // Requires cleared scheduled order item before continuing
             $subscription->scheduled_order_item_id = null;
 
@@ -484,7 +485,7 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
             return $item;
         });
 
-        if($plan_swapped) {
+        if ($plan_swapped) {
             Event::dispatch(new SubscriptionPlanSwapped($subscription, $previousPlan));
         }
 
@@ -562,6 +563,16 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
     public static function handlePaymentPaid(OrderItem $item)
     {
         // Subscriptions are prolonged optimistically (so before payment is being completely processed).
+    }
+
+    public static function handlePaymentRefunded(RefundItem $refundItem)
+    {
+        //
+    }
+
+    public static function handlePaymentRefundFailed(RefundItem $refundItem)
+    {
+        //
     }
 
     /**

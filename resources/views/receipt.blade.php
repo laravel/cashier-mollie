@@ -155,8 +155,8 @@
                                             @if($invoice->hasStartingBalance())
                                             <tr>
                                                 <td style="padding-top:16px;padding-bottom:16px">
-                                                    Balance before: {{ $invoice->completedBalance() }}
-                                                    Balance after: {{ $invoice->startingBalance() }}
+                                                    Balance before: {{ $invoice->startingBalance() }}
+                                                    Balance after: {{ $invoice->completedBalance() }}
                                                 </td>
                                             </tr>
                                             @endif

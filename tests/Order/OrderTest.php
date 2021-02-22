@@ -4,10 +4,14 @@ namespace Laravel\Cashier\Tests\Order;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Event;
-use Laravel\Cashier\Order\Contracts\MinimumPayment;
 use Laravel\Cashier\Events\BalanceTurnedStale;
 use Laravel\Cashier\Events\OrderCreated;
+use Laravel\Cashier\Events\OrderPaymentFailedDueToInvalidMandate;
 use Laravel\Cashier\Events\OrderProcessed;
+use Laravel\Cashier\Mollie\Contracts\CreateMolliePayment;
+use Laravel\Cashier\Mollie\Contracts\GetMollieCustomer;
+use Laravel\Cashier\Mollie\Contracts\GetMollieMandate;
+use Laravel\Cashier\Mollie\Contracts\GetMollieMethodMinimumAmount;
 use Laravel\Cashier\Order\Invoice;
 use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Order\OrderCollection;
@@ -16,6 +20,10 @@ use Laravel\Cashier\Order\OrderItemCollection;
 use Laravel\Cashier\Subscription;
 use Laravel\Cashier\Tests\BaseTestCase;
 use Laravel\Cashier\Tests\Fixtures\User;
+use Mollie\Api\MollieApiClient;
+use Mollie\Api\Resources\Customer;
+use Mollie\Api\Resources\Mandate;
+use Mollie\Api\Resources\Payment;
 use Mollie\Api\Types\PaymentStatus;
 
 class OrderTest extends BaseTestCase
@@ -28,11 +36,59 @@ class OrderTest extends BaseTestCase
     }
 
     /** @test */
-    public function canCreateFromOrderItems()
+    public function canCreateFromOrderItemsAndProcess()
     {
         Carbon::setTestNow(Carbon::parse('2018-01-01'));
         Event::fake();
-        $user = $this->getMandatedUser(true, ['id' => 2]);
+
+        $this->mock(GetMollieMandate::class, function ($mock) {
+            $mandate = new Mandate(new MollieApiClient);
+            $mandate->id = 'mdt_unique_mandate_id';
+            $mandate->status = 'valid';
+            $mandate->method = 'directdebit';
+
+            return $mock->shouldReceive('execute')
+                ->with('cst_unique_customer_id', 'mdt_unique_mandate_id')
+                ->once()
+                ->andReturn($mandate);
+        });
+
+        $this->mock(GetMollieCustomer::class, function ($mock) {
+            $customer = new Customer(new MollieApiClient);
+            $customer->id = 'cst_unique_customer_id';
+
+            return $mock->shouldReceive('execute')
+                ->with('cst_unique_customer_id')
+                ->once()
+                ->andReturn($customer);
+        });
+
+        $this->mock(GetMollieMethodMinimumAmount::class, function ($mock) {
+            return $mock->shouldReceive('execute')
+                ->with('directdebit', 'EUR')
+                ->once()
+                ->andReturn(money(10, 'EUR'));
+        });
+
+        $this->mock(CreateMolliePayment::class, function ($mock) {
+            $payment = new Payment(new MollieApiClient);
+            $payment->id = 'tr_unique_payment_id';
+            $payment->amount = (object) [
+                'currency' => 'EUR',
+                'value' => '10.00',
+            ];
+            $payment->mandateId = 'mdt_dummy_mandate_id';
+
+            return $mock->shouldReceive('execute')
+                ->once()
+                ->andReturn($payment);
+        });
+
+        $user = $this->getMandatedUser(true, [
+            'id' => 2,
+            'mollie_mandate_id' => 'mdt_unique_mandate_id',
+            'mollie_customer_id' => 'cst_unique_customer_id',
+        ]);
         $subscription = $this->createMonthlySubscription();
 
         $subscription->orderItems()->saveMany(
@@ -71,7 +127,7 @@ class OrderTest extends BaseTestCase
 
         $this->assertDispatchedOrderProcessed($order);
 
-        $this->assertNotNull($order->mollie_payment_id);
+        $this->assertEquals('tr_unique_payment_id', $order->mollie_payment_id);
         $this->assertEquals('open', $order->mollie_payment_status);
     }
 
@@ -110,7 +166,6 @@ class OrderTest extends BaseTestCase
         $this->assertSame('1', $scheduled_item->quantity);
         $this->assertSame('1000', $scheduled_item->unit_price);
         $this->assertSame('0', $scheduled_item->tax_percentage);
-
     }
 
     /** @test */
@@ -188,8 +243,6 @@ class OrderTest extends BaseTestCase
         $this->assertSame("0", $order->total_due);
         $this->assertSame(1000, $order->credit_used);
         $this->assertSame("1500", $order->balance_before);
-
-
     }
 
     /** @test */
@@ -252,7 +305,54 @@ class OrderTest extends BaseTestCase
     {
         Event::fake();
 
-        $user = $this->getMandatedUser(true);
+        $this->mock(GetMollieMandate::class, function ($mock) {
+            $mandate = new Mandate(new MollieApiClient);
+            $mandate->id = 'mdt_unique_mandate_id';
+            $mandate->status = 'valid';
+            $mandate->method = 'directdebit';
+
+            return $mock->shouldReceive('execute')
+                ->with('cst_unique_customer_id', 'mdt_unique_mandate_id')
+                ->once()
+                ->andReturn($mandate);
+        });
+
+        $this->mock(GetMollieCustomer::class, function ($mock) {
+            $customer = new Customer(new MollieApiClient);
+            $customer->id = 'cst_unique_customer_id';
+
+            return $mock->shouldReceive('execute')
+                ->with('cst_unique_customer_id')
+                ->once()
+                ->andReturn($customer);
+        });
+
+        $this->mock(GetMollieMethodMinimumAmount::class, function ($mock) {
+            return $mock->shouldReceive('execute')
+                ->with('directdebit', 'EUR')
+                ->once()
+                ->andReturn(money(10, 'EUR'));
+        });
+
+        $this->mock(CreateMolliePayment::class, function ($mock) {
+            $payment = new Payment(new MollieApiClient);
+            $payment->id = 'tr_unique_payment_id';
+            $payment->amount = (object) [
+                'currency' => 'EUR',
+                'value' => '10.00',
+            ];
+            $payment->mandateId = 'mdt_dummy_mandate_id';
+
+            return $mock->shouldReceive('execute')
+                ->once()
+                ->andReturn($payment);
+        });
+
+        $user = $this->getMandatedUser(true, [
+            'id' => 2,
+            'mollie_mandate_id' => 'mdt_unique_mandate_id',
+            'mollie_customer_id' => 'cst_unique_customer_id',
+        ]);
 
         $order = $user->orders()->save(factory(Order::class)->make([
             'total' => 1025,
@@ -268,15 +368,59 @@ class OrderTest extends BaseTestCase
         $this->assertNotNull($order->mollie_payment_id);
         $this->assertEquals('open', $order->mollie_payment_status);
 
-        $payment = mollie()->payments()->get($order->mollie_payment_id);
-        $this->assertEquals($this->getMandatedCustomerId(), $payment->customerId);
-        $this->assertEquals("10.25", $payment->amount->value);
-        $this->assertEquals("EUR", $payment->amount->currency);
-        $this->assertEquals("directdebit", $payment->method);
-        $this->assertEquals("recurring", $payment->sequenceType);
-        $this->assertEquals('https://www.example.com/webhook', $payment->webhookUrl);
-
         $this->assertDispatchedOrderProcessed($order);
+    }
+
+    /** @test */
+    public function handlesAnInvalidMandateWhenProcessingThePayment()
+    {
+        Event::fake();
+
+        $this->mock(GetMollieMandate::class, function ($mock) {
+            $mandate = new Mandate(new MollieApiClient);
+            $mandate->id = 'mdt_unique_mandate_id';
+            $mandate->status = 'invalid';
+            $mandate->method = 'directdebit';
+
+            return $mock->shouldReceive('execute')
+                ->with('cst_unique_customer_id', 'mdt_unique_mandate_id')
+                ->once()
+                ->andReturn($mandate);
+        });
+
+        $this->mock(GetMollieCustomer::class, function ($mock) {
+            $customer = new Customer(new MollieApiClient);
+            $customer->id = 'cst_unique_customer_id';
+
+            return $mock->shouldReceive('execute')
+                ->with('cst_unique_customer_id')
+                ->once()
+                ->andReturn($customer);
+        });
+
+        $user = $this->getMandatedUser(true, [
+            'id' => 2,
+            'mollie_mandate_id' => 'mdt_unique_mandate_id',
+            'mollie_customer_id' => 'cst_unique_customer_id',
+        ]);
+
+        $order = $user->orders()->save(factory(Order::class)->make([
+            'total' => 1025,
+            'total_due' => 1025,
+            'currency' => 'EUR',
+        ]));
+        $this->assertFalse($order->isProcessed());
+        $this->assertFalse($user->hasCredit('EUR'));
+
+        $order->processPayment();
+
+        $this->assertTrue($order->isProcessed());
+        $this->assertNull($order->mollie_payment_id);
+        $this->assertEquals('failed', $order->mollie_payment_status);
+
+        Event::assertDispatched(OrderPaymentFailedDueToInvalidMandate::class, function ($event) use ($order) {
+            return $order->is($event->order);
+        });
     }
 
     /** @test */
@@ -284,13 +428,40 @@ class OrderTest extends BaseTestCase
     {
         Event::fake();
 
-        $this->mock(MinimumPayment::class, function($mock) {
-            $mock
-                ->shouldReceive('forMollieMandate')
+        $this->mock(GetMollieMandate::class, function ($mock) {
+            $mandate = new Mandate(new MollieApiClient);
+            $mandate->id = 'mdt_unique_mandate_id';
+            $mandate->status = 'valid';
+            $mandate->method = 'directdebit';
+
+            return $mock->shouldReceive('execute')
+                ->with('cst_unique_customer_id', 'mdt_unique_mandate_id')
+                ->once()
+                ->andReturn($mandate);
+        });
+
+        $this->mock(GetMollieCustomer::class, function ($mock) {
+            $customer = new Customer(new MollieApiClient);
+            $customer->id = 'cst_unique_customer_id';
+
+            return $mock->shouldReceive('execute')
+                ->with('cst_unique_customer_id')
+                ->once()
+                ->andReturn($customer);
+        });
+
+        $this->mock(GetMollieMethodMinimumAmount::class, function ($mock) {
+            return $mock->shouldReceive('execute')
+                ->with('directdebit', 'EUR')
+                ->once()
                 ->andReturn(money(100, 'EUR'));
         });
 
-        $user = $this->getMandatedUser(true);
+        $user = $this->getMandatedUser(true, [
+            'id' => 2,
+            'mollie_mandate_id' => 'mdt_unique_mandate_id',
+            'mollie_customer_id' => 'cst_unique_customer_id',
+        ]);
         $subscription = $user->subscriptions()->save(factory(Subscription::class)->make([
             'plan' => 'monthly-10-1',
         ]));
@@ -378,7 +549,7 @@ class OrderTest extends BaseTestCase
 
         $this->assertDispatchedOrderProcessed($order);
 
-        Event::assertDispatched(BalanceTurnedStale::class, function($event) use ($credit) {
+        Event::assertDispatched(BalanceTurnedStale::class, function ($event) use ($credit) {
             return $credit->is($event->credit);
         });
     }
@@ -469,8 +640,8 @@ class OrderTest extends BaseTestCase
         $this->assertMoneyEURCents(5308, $order->getTax());
         $this->assertEquals(29998, $order->total);
         $this->assertMoneyEURCents(29998, $order->getTotal());
-        $this->assertEquals(0, $order->total_due);
-        $this->assertMoneyEURCents(0, $order->getTotalDue());
+        $this->assertEquals(29998, $order->refresh()->total_due);
+        $this->assertMoneyEURCents(29998, $order->getTotalDue());
         $this->assertEquals('2018-0000-0001', $order->number);
         $this->assertNull($order->mollie_payment_id);
 
@@ -527,33 +698,33 @@ class OrderTest extends BaseTestCase
     }
 
     /** @test */
-    public function findByPaymentIdWorks()
+    public function findByMolliePaymentIdWorks()
     {
-        $this->assertNull(Order::findByPaymentId('tr_xxxxx1234dummy'));
+        $this->assertNull(Order::findByMolliePaymentId('tr_xxxxx1234dummy'));
 
         $order = factory(Order::class)->create(['mollie_payment_id' => 'tr_xxxxx1234dummy']);
         $otherOrder = factory(Order::class)->create(['mollie_payment_id' => 'tr_wrong_order']);
 
-        $found = Order::findByPaymentId('tr_xxxxx1234dummy');
+        $found = Order::findByMolliePaymentId('tr_xxxxx1234dummy');
 
         $this->assertTrue($found->is($order));
         $this->assertTrue($found->isNot($otherOrder));
     }
 
     /** @test */
-    public function findByPaymentIdOrFailThrowsAnExceptionIfNotFound()
+    public function findByMolliePaymentIdOrFailThrowsAnExceptionIfNotFound()
     {
         $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
-        Order::findByPaymentIdOrFail('tr_xxxxx1234dummy');
+        Order::findByMolliePaymentIdOrFail('tr_xxxxx1234dummy');
     }
 
     /** @test */
-    public function findByPaymentIdOrFailWorks()
+    public function findByMolliePaymentIdOrFailWorks()
     {
         $order = factory(Order::class)->create(['mollie_payment_id' => 'tr_xxxxx1234dummy']);
         $otherOrder = factory(Order::class)->create(['mollie_payment_id' => 'tr_wrong_order']);
 
-        $found = Order::findByPaymentIdOrFail('tr_xxxxx1234dummy');
+        $found = Order::findByMolliePaymentIdOrFail('tr_xxxxx1234dummy');
 
         $this->assertTrue($found->is($order));
         $this->assertTrue($found->isNot($otherOrder));
@@ -579,11 +750,10 @@ class OrderTest extends BaseTestCase
         $filename = __DIR__.'/../../example_invoice_output.html';
         $some_content = 'Invoice dummy';
 
-        if(collect($this->getGroups())->contains('generate_new_invoice_template')) {
+        if (collect($this->getGroups())->contains('generate_new_invoice_template')) {
             $this->assertFileIsWritable($filename);
 
             if (is_writable($filename)) {
-
                 if (! $handle = fopen($filename, 'w')) {
                     echo "Cannot open file ($filename)";
                     exit;

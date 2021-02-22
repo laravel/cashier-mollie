@@ -2,8 +2,8 @@
 
 namespace Laravel\Cashier\Order\Contracts;
 
-interface InvoicableItem {
-
+interface InvoicableItem
+{
     /**
      * @return \Money\Money
      */

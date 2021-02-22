@@ -195,10 +195,10 @@ class Cashier
      */
     public static function getLocale(Model $owner)
     {
-        if(method_exists($owner, 'getLocale')) {
+        if (method_exists($owner, 'getLocale')) {
             $locale = $owner->getLocale();
 
-            if(!empty($locale)) {
+            if (! empty($locale)) {
                 return $locale;
             }
         }
@@ -224,6 +224,16 @@ class Cashier
     public static function firstPaymentWebhookUrl()
     {
         return self::pathFromUrl(config('cashier.first_payment.webhook_url'));
+    }
+
+    /**
+     * Get the aftercare webhook relative url.
+     *
+     * @return string
+     */
+    public static function aftercareWebhookUrl()
+    {
+        return self::pathFromUrl(config('cashier.aftercare_webhook_url'));
     }
 
     /**
