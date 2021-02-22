@@ -147,7 +147,7 @@ trait ManagesInvoices
      * Invoice the billable entity outside of the regular billing cycle.
      *
      * @param array $paymentOptions
-     * @return \Laravel\Cashier\Order\Order|\Laravel\Cashier\SubscriptionBuilder\RedirectToCheckoutResponse|bool
+     * @return \Laravel\Cashier\Order\Order|\Laravel\Cashier\SubscriptionBuilder\RedirectToCheckoutResponse
      */
     public function invoice(array $paymentOptions = [])
     {
@@ -189,8 +189,8 @@ trait ManagesInvoices
     {
         // Normalize the payment options. Remove this to prevent 422 from Mollie
         unset($oneOffPaymentOptions['currency']);
-
         $builder = new OneOffPaymentBuilder($this, $oneOffPaymentOptions);
+
         $builder->forItems($items);
         $builder->setRedirectUrl(config('cashier.one_off_payment.redirect_url'));
         $builder->setWebhookUrl(config('cashier.one_off_payment.webhook_url'));

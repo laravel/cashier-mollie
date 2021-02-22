@@ -194,4 +194,12 @@ class OneOffPaymentBuilder
 
         return $this;
     }
+
+    /**
+     * @return \Mollie\Api\Resources\Payment|null
+     */
+    public function getMolliePayment()
+    {
+        return $this->molliePayment;
+    }
 }

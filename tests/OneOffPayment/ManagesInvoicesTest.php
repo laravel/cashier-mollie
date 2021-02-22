@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Event;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\Events\OrderCreated;
 use Laravel\Cashier\Events\OrderProcessed;
+use Laravel\Cashier\Exceptions\UnauthorizedInvoiceAccessException;
 use Laravel\Cashier\Mollie\Contracts\CreateMolliePayment;
 use Laravel\Cashier\Mollie\Contracts\GetMollieCustomer;
 use Laravel\Cashier\Mollie\Contracts\GetMollieMandate;
@@ -20,9 +21,8 @@ use Laravel\Cashier\Tests\Fixtures\User;
 use Mollie\Api\MollieApiClient;
 use Mollie\Api\Resources\Customer;
 use Mollie\Api\Resources\Mandate;
-use Mollie\Api\Resources\Payment;
 use Mollie\Api\Resources\Payment as MolliePayment;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class ManagesInvoicesTest extends BaseTestCase
 {
@@ -58,13 +58,38 @@ class ManagesInvoicesTest extends BaseTestCase
     }
 
     /** @test */
+    public function canAccessOnlyOwnedInvoice()
+    {
+        $owner = $this->getCustomerUser();
+        $user = $this->getCustomerUser();
+        $items = factory(OrderItem::class, 2)
+            ->states(['EUR'])
+            ->create([
+                'owner_id' => $owner->getKey(),
+                'owner_type' => $owner->getMorphClass(),
+                'unit_price' => 12150,
+                'quantity' => 1,
+                'tax_percentage' => 21.5,
+                'orderable_type' => null,
+                'orderable_id' => null,
+            ]);
+        $order = Order::createFromItems($items);
+
+        $createdInvoice = $order->fresh()->invoice();
+
+        $this->expectException(UnauthorizedInvoiceAccessException::class);
+        $foundInvoice = $user->findInvoice($order->id);
+    }
+
+    /** @test */
     public function canFindInvoiceOrFail()
     {
+        $owner = $this->getCustomerUser();
         $user = $this->getCustomerUser();
         $items = factory(OrderItem::class, 2)
             ->states(['unlinked', 'EUR'])
             ->create([
-                'owner_id' => $user->id,
+                'owner_id' => $owner->id,
                 'owner_type' => User::class,
                 'unit_price' => 12150,
                 'quantity' => 1,
@@ -73,17 +98,17 @@ class ManagesInvoicesTest extends BaseTestCase
         $order = Order::createFromItems($items, [
             'balance_before' => 500,
             'credit_used' => 500,
-            'owner_type' => $user->getMorphClass(),
-            'owner_id' => $user->getKey(),
+            'owner_type' => $owner->getMorphClass(),
+            'owner_id' => $owner->getKey(),
         ]);
 
         $createdInvoice = $order->fresh()->invoice();
-        $foundInvoice = $user->findInvoiceOrFail($order->id);
+        $foundInvoice = $owner->findInvoiceOrFail($order->id);
 
         $this->assertEquals($createdInvoice, $foundInvoice);
 
-        $this->expectException(NotFoundHttpException::class);
-        $this->assertNull($user->findInvoiceOrFail('non-existing-order'));
+        $this->expectException(AccessDeniedHttpException::class);
+        $foundInvoice = $user->findInvoiceOrFail($order->id);
     }
 
     /** @test */
@@ -164,6 +189,28 @@ class ManagesInvoicesTest extends BaseTestCase
     }
 
     /** @test */
+    public function canInvoiceOpenTabWithoutAMandate()
+    {
+        Event::fake();
+        $this->withMockedGetMollieCustomer();
+        $this->withMockedCreateMolliePayment();
+
+        $customerUser = $this->getCustomerUser();
+
+        // We put something on the tab in EUR
+        $customerUser->tab('A potato', 100);
+
+        $response = $customerUser->invoice();
+        $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertInstanceOf(RedirectToCheckoutResponse::class, $response);
+        $this->assertInstanceOf(MolliePayment::class, $response->payment());
+        $this->assertFalse($customerUser->validMollieMandate());
+
+        Event::assertNotDispatched(OrderProcessed::class);
+        Event::assertNotDispatched(OrderCreated::class);
+    }
+
+    /** @test */
     public function canOverrideCurrencyWhenUsingInvoiceFor()
     {
         Event::fake();
@@ -237,17 +284,21 @@ class ManagesInvoicesTest extends BaseTestCase
     protected function withMockedCreateMolliePayment(): void
     {
         $this->mock(CreateMolliePayment::class, function ($mock) {
-            $payment = new Payment(new MollieApiClient);
+            $payment = new MolliePayment(new MollieApiClient);
             $payment->id = 'tr_unique_payment_id';
             $payment->amount = (object) [
                 'currency' => 'EUR',
                 'value' => '10.00',
             ];
+            $payment->_links = json_decode(json_encode([
+                'checkout' => [
+                    'href' => 'https://foo-redirect-bar.com',
+                    'type' => 'text/html',
+                ],
+            ]));
             $payment->mandateId = 'mdt_dummy_mandate_id';
 
-            return $mock->shouldReceive('execute')
-                ->once()
-                ->andReturn($payment);
+            return $mock->shouldReceive('execute')->once()->andReturn($payment);
         });
     }
 
