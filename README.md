@@ -568,6 +568,10 @@ An Invoice is available on the Order. Access it using `$event->order->invoice()`
 #### `OrderPaymentFailed` event
 The payment for an order has failed.
 
+#### `OrderPaymentFailedDueToInvalidMandate` event
+The payment for an order has failed due to an invalid payment mandate. This happens for example when the customer's
+credit card has expired.
+
 #### `OrderPaymentPaid` event
 The payment for an order was successful. 
 

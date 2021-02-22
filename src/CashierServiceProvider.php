@@ -5,6 +5,7 @@ namespace Laravel\Cashier;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Cashier\Console\Commands\CashierInstall;
 use Laravel\Cashier\Console\Commands\CashierRun;
+use Laravel\Cashier\Console\Commands\CashierUpdate;
 use Laravel\Cashier\Coupon\ConfigCouponRepository;
 use Laravel\Cashier\Coupon\Contracts\CouponRepository;
 use Laravel\Cashier\Mollie\RegistersMollieInteractions;
@@ -17,7 +18,7 @@ class CashierServiceProvider extends ServiceProvider
 {
     use RegistersMollieInteractions;
 
-    const PACKAGE_VERSION = '1.14.0';
+    const PACKAGE_VERSION = '1.15.0';
 
     /**
      * Bootstrap the application services.
@@ -25,9 +26,11 @@ class CashierServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->mergeConfig();
+
         if (Cashier::$registersRoutes) {
             $this->loadRoutesFrom(__DIR__.'/../routes/webhooks.php');
         }
+
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'cashier');
         $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'cashier');
 
@@ -38,6 +41,7 @@ class CashierServiceProvider extends ServiceProvider
             $this->publishConfig('cashier-configs');
             $this->publishViews('cashier-views');
             $this->publishTranslations('cashier-translations');
+            $this->publishUpdate('cashier-update');
         }
 
         $this->configureCurrency();
@@ -63,6 +67,7 @@ class CashierServiceProvider extends ServiceProvider
         $this->commands([
             CashierInstall::class,
             CashierRun::class,
+            CashierUpdate::class,
         ]);
 
         $this->app->register(EventServiceProvider::class);
@@ -87,6 +92,18 @@ class CashierServiceProvider extends ServiceProvider
                 __DIR__.'/../database/migrations/create_orders_table.php.stub' => database_path($prefix.'_create_orders_table.php'),
                 __DIR__.'/../database/migrations/create_order_items_table.php.stub' => database_path($prefix.'_create_order_items_table.php'),
                 __DIR__.'/../database/migrations/create_subscriptions_table.php.stub' => database_path($prefix.'_create_subscriptions_table.php'),
+                __DIR__.'/../database/migrations/upgrade_to_cashier_v2.php.stub' => database_path($prefix.'_upgrade_to_cashier_v2.php'),
+            ], $tag);
+        }
+    }
+
+    protected function publishUpdate(string $tag)
+    {
+        if (Cashier::$runsMigrations) {
+            $prefix = 'migrations/'.date('Y_m_d_His', time());
+
+            $this->publishes([
+                __DIR__.'/../database/migrations/upgrade_to_cashier_v2.php.stub' => database_path($prefix.'_upgrade_to_cashier_v2.php'),
             ], $tag);
         }
     }

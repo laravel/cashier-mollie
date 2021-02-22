@@ -9,6 +9,7 @@ use Laravel\Cashier\FirstPayment\Actions\ActionCollection;
 use Laravel\Cashier\FirstPayment\Traits\PaymentMethodString;
 use Laravel\Cashier\Mollie\Contracts\CreateMolliePayment;
 use Laravel\Cashier\Mollie\Contracts\UpdateMolliePayment;
+use Laravel\Cashier\Payment;
 use Mollie\Api\Types\SequenceType;
 
 class FirstPaymentBuilder
@@ -39,7 +40,7 @@ class FirstPaymentBuilder
     /**
      * The Mollie PaymentMethod
      *
-     * @var string
+     * @var array
      */
     protected $method;
 
@@ -113,9 +114,8 @@ class FirstPaymentBuilder
             'metadata' => [
                 'owner' => [
                     'type' => get_class($this->owner),
-                    'id' => $this->owner->id,
+                    'id' => $this->owner->getKey(),
                 ],
-                'actions' => $this->actions->toMolliePayload(),
             ],
         ], $this->options));
     }
@@ -130,6 +130,8 @@ class FirstPaymentBuilder
         /** @var CreateMolliePayment $createMolliePayment */
         $createMolliePayment = app()->make(CreateMolliePayment::class);
         $this->molliePayment = $createMolliePayment->execute($payload);
+
+        Payment::createFromMolliePayment($this->molliePayment, $this->owner, $this->actions->toPlainArray());
 
         $redirectUrl = $payload['redirectUrl'];
 
@@ -147,7 +149,7 @@ class FirstPaymentBuilder
     }
 
     /**
-     * @param array|string $method
+     * @param array $method
      * @return FirstPaymentBuilder
      */
     public function setFirstPaymentMethod($method)

@@ -56,7 +56,7 @@ class ActionCollection extends Collection
     /**
      * @return array
      */
-    public function toMolliePayload()
+    public function toPlainArray()
     {
         $payload = [];
         foreach ($this->items as $item) {

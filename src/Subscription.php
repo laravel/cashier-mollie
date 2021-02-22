@@ -21,6 +21,8 @@ use Laravel\Cashier\Order\OrderItem;
 use Laravel\Cashier\Order\OrderItemCollection;
 use Laravel\Cashier\Plan\Contracts\Plan;
 use Laravel\Cashier\Plan\Contracts\PlanRepository;
+use Laravel\Cashier\Refunds\Contracts\IsRefundable;
+use Laravel\Cashier\Refunds\RefundItem;
 use Laravel\Cashier\Traits\HasOwner;
 use Laravel\Cashier\Types\SubscriptionCancellationReason;
 use LogicException;
@@ -43,7 +45,7 @@ use Money\Money;
  * @property float cycle_progress
  * @property float cycle_left
  */
-class Subscription extends Model implements InteractsWithOrderItems, PreprocessesOrderItems, AcceptsCoupons
+class Subscription extends Model implements InteractsWithOrderItems, PreprocessesOrderItems, AcceptsCoupons, IsRefundable
 {
     use HasOwner;
 
@@ -468,10 +470,8 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
         }
 
         $item = DB::transaction(function () use (&$subscription, $item) {
-            $next_cycle_ends_at = $subscription->cycle_ends_at->copy()->modify('+' . $subscription->plan()->interval());
             $subscription->cycle_started_at = $subscription->cycle_ends_at;
-            $subscription->cycle_ends_at = $next_cycle_ends_at;
-
+            $subscription->cycle_ends_at = $subscription->plan()->interval()->getEndOfNextSubscriptionCycle($subscription);
             // Requires cleared scheduled order item before continuing
             $subscription->scheduled_order_item_id = null;
 
@@ -566,6 +566,16 @@ class Subscription extends Model implements InteractsWithOrderItems, Preprocesse
     public static function handlePaymentPaid(OrderItem $item)
     {
         // Subscriptions are prolonged optimistically (so before payment is being completely processed).
+    }
+
+    public static function handlePaymentRefunded(RefundItem $refundItem)
+    {
+        //
+    }
+
+    public static function handlePaymentRefundFailed(RefundItem $refundItem)
+    {
+        //
     }
 
     /**
