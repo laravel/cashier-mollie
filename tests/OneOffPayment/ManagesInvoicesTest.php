@@ -2,7 +2,6 @@
 
 namespace Laravel\Cashier\Tests\OneOffPayment;
 
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Event;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\Events\OrderCreated;
@@ -15,14 +14,11 @@ use Laravel\Cashier\Mollie\Contracts\GetMollieMethodMinimumAmount;
 use Laravel\Cashier\Order\Invoice;
 use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Order\OrderItem;
-use Laravel\Cashier\SubscriptionBuilder\RedirectToCheckoutResponse;
 use Laravel\Cashier\Tests\BaseTestCase;
 use Laravel\Cashier\Tests\Fixtures\User;
 use Mollie\Api\MollieApiClient;
 use Mollie\Api\Resources\Customer;
 use Mollie\Api\Resources\Mandate;
-use Mollie\Api\Resources\Payment as MolliePayment;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class ManagesInvoicesTest extends BaseTestCase
 {
