@@ -22,7 +22,6 @@ use Mollie\Api\MollieApiClient;
 use Mollie\Api\Resources\Customer;
 use Mollie\Api\Resources\Mandate;
 use Mollie\Api\Resources\Payment as MolliePayment;
-use Laravel\Cashier\Payment as LocalPayment;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class ManagesInvoicesTest extends BaseTestCase
