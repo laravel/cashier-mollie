@@ -23,6 +23,7 @@ use Mollie\Api\Resources\Customer;
 use Mollie\Api\Resources\Mandate;
 use Mollie\Api\Resources\Payment as MolliePayment;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ManagesInvoicesTest extends BaseTestCase
 {
@@ -109,6 +110,85 @@ class ManagesInvoicesTest extends BaseTestCase
 
         $this->expectException(AccessDeniedHttpException::class);
         $foundInvoice = $user->findInvoiceOrFail($order->id);
+    }
+
+    /** @test */
+    public function findInvoiceOrFailthrowIfEmpty()
+    {
+        $owner = $this->getCustomerUser();
+
+        $items = factory(OrderItem::class, 2)
+            ->states(['unlinked', 'EUR'])
+            ->create([
+                'owner_id' => $owner->id,
+                'owner_type' => User::class,
+                'unit_price' => 12150,
+                'quantity' => 1,
+                'tax_percentage' => 21.5,
+            ]);
+        $order = Order::createFromItems($items, [
+            'balance_before' => 500,
+            'credit_used' => 500,
+            'owner_type' => $owner->getMorphClass(),
+            'owner_id' => $owner->getKey(),
+        ]);
+
+        $createdInvoice = $order->invoice();
+        $this->expectException(NotFoundHttpException::class);
+        $foundInvoice = $owner->findInvoiceOrFail(2);
+    }
+
+    /** @test */
+    public function canDownloadInvoice()
+    {
+        $owner = $this->getCustomerUser();
+        $items = factory(OrderItem::class, 2)
+            ->states(['unlinked', 'EUR'])
+            ->create([
+                'owner_id' => $owner->id,
+                'owner_type' => User::class,
+                'unit_price' => 12150,
+                'quantity' => 1,
+                'tax_percentage' => 21.5,
+            ]);
+        $order = Order::createFromItems($items, [
+            'balance_before' => 500,
+            'credit_used' => 500,
+            'owner_type' => $owner->getMorphClass(),
+            'owner_id' => $owner->getKey(),
+        ]);
+
+        $createdInvoice = $order->invoice();
+
+        $response = $owner->downloadInvoice(1);
+
+        $this->assertTrue($response->headers->get('content-description') == 'File Transfer');
+        $this->assertTrue($response->headers->get('content-type') == 'application/pdf');
+    }
+
+    /** @test */
+    public function returnFalseOnInvoiceWithoutItems()
+    {
+        $owner = $this->getCustomerUser();
+
+        $itemsToOrder = factory(OrderItem::class, 2)
+            ->states(['unlinked', 'EUR'])
+            ->create([
+                'owner_id' => $owner->id,
+                'owner_type' => User::class,
+                'unit_price' => 12150,
+                'quantity' => 1,
+                'tax_percentage' => 21.5,
+                'process_at' => now()->subMonth(),
+            ]);
+        $order = Order::createFromItems($itemsToOrder, [
+            'owner_type' => $owner->getMorphClass(),
+            'owner_id' => $owner->getKey(),
+        ]);
+
+        $createdInvoice = $owner->invoice();
+
+        $this->assertFalse($createdInvoice);
     }
 
     /** @test */
@@ -266,6 +346,16 @@ class ManagesInvoicesTest extends BaseTestCase
         $this->assertInstanceOf(OrderItem::class, $secondItem);
         $this->assertSame('A premium quality potato', $firstItem->description);
         $this->assertSame('A high quality carrot', $secondItem->description);
+    }
+
+    /** @test */
+    public function returnFalseIfGetTheUpcomingInvoiceIsNull()
+    {
+        $user = $this->getUser();
+
+        $upcomingInvoice = $user->upcomingInvoice();
+
+        $this->assertFalse($upcomingInvoice);
     }
 
     protected function withMockedGetMollieCustomer($times = 1)
