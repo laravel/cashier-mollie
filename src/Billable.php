@@ -19,6 +19,7 @@ use Laravel\Cashier\Plan\Contracts\PlanRepository;
 use Laravel\Cashier\SubscriptionBuilder\FirstPaymentSubscriptionBuilder;
 use Laravel\Cashier\SubscriptionBuilder\MandatedSubscriptionBuilder;
 use Laravel\Cashier\Traits\ManagesInvoices;
+use Laravel\Cashier\Traits\ManagesOneOffPayments;
 use Laravel\Cashier\Traits\PopulatesMollieCustomerFields;
 use Laravel\Cashier\UpdatePaymentMethod\UpdatePaymentMethodBuilder;
 use Mollie\Api\Exceptions\ApiException;
@@ -30,6 +31,7 @@ trait Billable
 {
     use PopulatesMollieCustomerFields;
     use ManagesInvoices;
+    use ManagesOneOffPayments;
 
     /**
      * Get all of the subscriptions for the billable model.
