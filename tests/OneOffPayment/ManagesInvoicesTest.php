@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Event;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\Events\OrderCreated;
 use Laravel\Cashier\Events\OrderProcessed;
-use Laravel\Cashier\Exceptions\UnauthorizedInvoiceAccessException;
 use Laravel\Cashier\Mollie\Contracts\CreateMolliePayment;
 use Laravel\Cashier\Mollie\Contracts\GetMollieCustomer;
 use Laravel\Cashier\Mollie\Contracts\GetMollieMandate;
@@ -22,7 +21,6 @@ use Mollie\Api\MollieApiClient;
 use Mollie\Api\Resources\Customer;
 use Mollie\Api\Resources\Mandate;
 use Mollie\Api\Resources\Payment as MolliePayment;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ManagesInvoicesTest extends BaseTestCase
@@ -56,60 +54,6 @@ class ManagesInvoicesTest extends BaseTestCase
 
         $this->assertEquals($createdInvoice, $foundInvoice);
         $this->assertNull($user->findInvoice('non-existing-order'));
-    }
-
-    /** @test */
-    public function canAccessOnlyOwnedInvoice()
-    {
-        $owner = $this->getCustomerUser();
-        $user = $this->getCustomerUser();
-        $items = factory(OrderItem::class, 2)
-            ->states(['EUR'])
-            ->create([
-                'owner_id' => $owner->getKey(),
-                'owner_type' => $owner->getMorphClass(),
-                'unit_price' => 12150,
-                'quantity' => 1,
-                'tax_percentage' => 21.5,
-                'orderable_type' => null,
-                'orderable_id' => null,
-            ]);
-        $order = Order::createFromItems($items);
-
-        $createdInvoice = $order->fresh()->invoice();
-
-        $this->expectException(UnauthorizedInvoiceAccessException::class);
-        $foundInvoice = $user->findInvoice($order->id);
-    }
-
-    /** @test */
-    public function canFindInvoiceOrFail()
-    {
-        $owner = $this->getCustomerUser();
-        $user = $this->getCustomerUser();
-        $items = factory(OrderItem::class, 2)
-            ->states(['unlinked', 'EUR'])
-            ->create([
-                'owner_id' => $owner->id,
-                'owner_type' => User::class,
-                'unit_price' => 12150,
-                'quantity' => 1,
-                'tax_percentage' => 21.5,
-            ]);
-        $order = Order::createFromItems($items, [
-            'balance_before' => 500,
-            'credit_used' => 500,
-            'owner_type' => $owner->getMorphClass(),
-            'owner_id' => $owner->getKey(),
-        ]);
-
-        $createdInvoice = $order->fresh()->invoice();
-        $foundInvoice = $owner->findInvoiceOrFail($order->id);
-
-        $this->assertEquals($createdInvoice, $foundInvoice);
-
-        $this->expectException(AccessDeniedHttpException::class);
-        $foundInvoice = $user->findInvoiceOrFail($order->id);
     }
 
     /** @test */

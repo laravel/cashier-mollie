@@ -6,15 +6,12 @@ namespace Laravel\Cashier\Traits;
 use Dompdf\Options;
 use Illuminate\Support\Str;
 use Laravel\Cashier\Cashier;
-use Laravel\Cashier\Exceptions\UnauthorizedInvoiceAccessException;
 use Laravel\Cashier\OneOffPayment\OneOffPaymentBuilder;
 use Laravel\Cashier\Order\Invoice;
 use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Order\OrderItem;
 use Laravel\Cashier\Order\OrderItemCollection;
 use Laravel\Cashier\SubscriptionBuilder\RedirectToCheckoutResponse;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 trait ManagesOneOffPayments
 {

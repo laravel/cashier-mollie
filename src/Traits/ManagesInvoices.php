@@ -6,14 +6,9 @@ namespace Laravel\Cashier\Traits;
 use Dompdf\Options;
 use Illuminate\Support\Str;
 use Laravel\Cashier\Cashier;
-use Laravel\Cashier\Exceptions\UnauthorizedInvoiceAccessException;
-use Laravel\Cashier\OneOffPayment\OneOffPaymentBuilder;
 use Laravel\Cashier\Order\Invoice;
 use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Order\OrderItem;
-use Laravel\Cashier\Order\OrderItemCollection;
-use Laravel\Cashier\SubscriptionBuilder\RedirectToCheckoutResponse;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 trait ManagesInvoices
@@ -23,7 +18,6 @@ trait ManagesInvoices
      *
      * @param string $orderId
      * @return Invoice|null
-     * @throws \Laravel\Cashier\Exceptions\UnauthorizedInvoiceAccessException
      */
     public function findInvoice($orderId)
     {
@@ -32,10 +26,6 @@ trait ManagesInvoices
 
         if (is_null($order)) {
             return null;
-        }
-
-        if ($order->owner->isNot($this)) {
-            throw new UnauthorizedInvoiceAccessException;
         }
 
         return $order->invoice();
@@ -51,11 +41,7 @@ trait ManagesInvoices
      */
     public function findInvoiceOrFail($id)
     {
-        try {
-            $invoice = $this->findInvoice($id);
-        } catch (UnauthorizedInvoiceAccessException $exception) {
-            throw new AccessDeniedHttpException;
-        }
+        $invoice = $this->findInvoice($id);
 
         if (is_null($invoice)) {
             throw new NotFoundHttpException;
