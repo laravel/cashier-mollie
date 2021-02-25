@@ -61,12 +61,6 @@ class OneOffPaymentBuilderTest extends BaseTestCase
             ],
             'redirectUrl' => 'https://www.example.com',
             'webhookUrl' => 'https://www.example.com/mandate-webhook',
-            'metadata' => [
-                'owner' => [
-                    'type' => $owner->getMorphClass(),
-                    'id' => $owner->getKey(),
-                ],
-            ],
         ];
         $this->assertEquals($check_payload, $payload);
         $this->assertNotEmpty($customerId);
