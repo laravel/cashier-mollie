@@ -153,7 +153,7 @@ return [
          * Leaving it as an empty array defaults to all payment methods.
          * @see \Mollie\Api\Types\PaymentMethod
          */
-        'active_payment_methods' => [],
+        'method' => [],
 
         /**
          * The default description for a one off payment, visible on both the invoice and the customer bank records.
