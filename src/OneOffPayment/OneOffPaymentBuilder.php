@@ -21,7 +21,7 @@ class OneOffPaymentBuilder
     protected $owner;
 
     /**
-     * A collection of BaseAction items. These actions will be executed by the OneOffPaymentHandler
+     * A collection of items that will be added to the Order
      *
      * @var OrderItemCollection
      */
@@ -80,7 +80,7 @@ class OneOffPaymentBuilder
     }
 
     /**
-     * Define actions to be executed once the payment has been paid.
+     * Define items that will be added to the Order
      *
      * @param OrderItemCollection $items
      * @return $this
@@ -108,12 +108,6 @@ class OneOffPaymentBuilder
             'amount' => money_to_mollie_array($this->items->total()),
             'webhookUrl' => $this->webhookUrl,
             'redirectUrl' => $this->redirectUrl,
-            'metadata' => [
-                'owner' => [
-                    'type' => get_class($this->owner),
-                    'id' => $this->owner->getKey(),
-                ],
-            ],
         ], $this->options));
     }
 
