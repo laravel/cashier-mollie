@@ -28,7 +28,7 @@ class OneOffPaymentHandler
     {
         $this->molliePayment = $molliePayment;
         $this->owner = $this->extractOwner();
-        $this->items = $this->extractItems();
+        $this->items = $this->getItemsToBeProcessed();
     }
 
     /**
@@ -75,7 +75,7 @@ class OneOffPaymentHandler
      *
      * @return \Illuminate\Support\Collection
      */
-    protected function extractItems()
+    protected function getItemsToBeProcessed()
     {
         return $this->items = OrderItem::shouldProcess()
             ->forOwner($this->owner)
@@ -90,15 +90,5 @@ class OneOffPaymentHandler
     public function getOwner()
     {
         return $this->owner;
-    }
-
-    /**
-     * Retrieve all Action objects.
-     *
-     * @return \Laravel\Cashier\Order\OrderItemCollection
-     */
-    public function getItems()
-    {
-        return $this->items;
     }
 }
