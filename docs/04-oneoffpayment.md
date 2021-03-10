@@ -1,4 +1,4 @@
-# One-off charges
+# One-off payment
 
 Sometimes you may want to have your customers pay for a one-time fee.
 An example of this could be a lifetime license for you product.
@@ -37,7 +37,7 @@ $orderItem = $user->tab('A potato, not very premium', 100, [
 ]);
 ```
 
-The order items that you put on the tab can be manually invoiced [using the `invoice` method](#invoicing-items-on-the-tab).
+The order items that you put on the tab can be manually invoiced [using the `invoiceTab` method](#invoicing-items-on-the-tab).
 If you only wish to put one item on the tab and invoice it immediately [have a look at `invoiceFor`](#putting-one-item-on-the-tab-and-invoicing-it-immediately).
 
 > **Important note:**
@@ -80,33 +80,33 @@ $result = $user->invoiceFor('Something', 1000, [
 ```
 
 ## Invoicing items on the tab
-If you wish to try to invoice open items on the tab immediately, you can use the `invoice` method.
-Calling the invoice method will collect all open order items (the open tab) that are due for processing and puts them on an order.
+If you wish to try to invoice open items on the tab immediately, you can use the `invoiceTab` method.
+Calling the invoiceTab method will collect all open order items (the open tab) that are due for processing and puts them on an order.
 If you leave the currency unspecified it will try to invoice the default currency.
 
 ### Inspecting the current open tab
 
-To check what the order (+ invoice) would look like of you were to call the `invoice` method now, you can use the `upcomingInvoice` method.
+To check what the order (+ invoice) would look like of you were to call the `invoiceTab` method now, you can use the `upcomingInvoiceTab` method.
 
 ```php
 // Simple, default currency.
-$order = $user->upcomingInvoice();
-$invoice = $order->invoice('concept', now());
+$order = $user->upcomingInvoiceTab();
+$invoice = $order->invoiceTab('concept', now());
 // Other currency than default.
-$order = $user->upcomingInvoice(['currency' => 'USD']);
+$order = $user->upcomingInvoiceTab(['currency' => 'USD']);
 ```
 
-If you like what you see, you can call the `invoice` method.
+If you like what you see, you can call the `invoiceTab` method.
 
 ```php
-$result = $user->invoice();
+$result = $user->invoiceTab();
 ```
 
 ### Invoicing the items in default currency on the tab
-If you wish to invoice the items in the default currency simply call the `invoice` method.
+If you wish to invoice the items in the default currency simply call the `invoiceTab` method.
 
 ```php
-$result = $user->invoice(['description' => 'Something that will get on invoice & user bank records.']);
+$result = $user->invoiceTab(['description' => 'Something that will get on invoice & user bank records.']);
 if ($result === false) {
     // There was no open tab due for processing in the currency you tried to invoice.
 } elseif (is_a($result, RedirectRedirectToCheckoutResponse::class)) {
@@ -124,12 +124,12 @@ If you wish to invoice the items on the tab that are not in the default currency
 The rest of the steps are the same as invoicing in the default currency.
 
 ```php
-$invoice = $user->invoice(['currency' => 'USD']);
+$invoice = $user->invoiceTab(['currency' => 'USD']);
 ```
 
 ## Putting one item on the tab and invoicing it immediately
 If you wish to put one item on the tab and invoice it immediately, you can use the `invoiceFor` method.
-This is basically a shortcut for using `tab` and `invoice` consecutively.
+This is basically a shortcut for using `tab` and `invoiceTab` consecutively.
 
 If something like the following is your scenario:
 ```php
@@ -140,12 +140,12 @@ $orderItem = $user->tab('Premium item', 30000, [
         'Another line'
     ],
 ]);
-$result = $user->invoice([
+$result = $user->invoiceTab([
     'currency' => 'USD',
     // Note: the description will be visible on the invoice & customer bank records.
     'description' => 'Lifetime license for my product',
 ]);
-// Do the invoice handling like documented at the `invoice` method.
+// Do the invoice handling like documented at the `invoiceTab` method.
 ```
 
 You may rewrite this as:
@@ -162,10 +162,10 @@ $result = $user->invoiceFor(
             'Another line'
         ],
     ],
-    // Invoice options (same as 1st parameter of `invoice`)
+    // Invoice options (same as 1st parameter of `invoiceTab`)
     [
        'description' => 'Lifetime license for my product',
     ]
 );
-// Do the invoice handling like documented at the `invoice` method.
+// Do the invoice handling like documented at the `invoiceTab` method.
 ```
