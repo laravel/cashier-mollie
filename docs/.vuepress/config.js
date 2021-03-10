@@ -38,7 +38,7 @@ module.exports = {
         '/01-instalation',
         '/02-subscriptions',
         '/03-trials',
-        '/04-oneoffcharges',
+        '/04-oneoffpayment',
         '/05-metered',
         '/06-customer',
         '/07-invoices',
