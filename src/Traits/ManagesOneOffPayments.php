@@ -124,4 +124,29 @@ trait ManagesOneOffPayments
 
         return RedirectToCheckoutResponse::forPayment($builder->create());
     }
+
+    /**
+     * Get the entity's upcoming invoice in memory. You can inspect it,
+     * and if you like what you see you can use the `invoice` method.
+     *
+     * @param array $overrides
+     * @return \Laravel\Cashier\Order\Order|bool
+     */
+    public function upcomingInvoiceTab(array $overrides = [])
+    {
+        $parameters = array_merge(['currency' => Cashier::usesCurrency()], $overrides);
+        $parameters['currency'] = Str::upper($parameters['currency']);
+
+        $items = OrderItem::shouldProcess()
+            ->forOwner($this)
+            ->ofCurrency($parameters['currency'])
+            ->isTab()
+            ->get();
+
+        if ($items->isEmpty()) {
+            return false;
+        }
+
+        return Order::make($this, $items, $parameters);
+    }
 }
