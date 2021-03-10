@@ -39,8 +39,4 @@ class CashierUpdate extends Command
 
         $this->info('Cashier was updated successfully.');
     }
-
-    protected function storeMolliePaymentsLocally()
-    {
-    }
 }
