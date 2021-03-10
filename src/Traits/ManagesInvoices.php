@@ -4,11 +4,8 @@
 namespace Laravel\Cashier\Traits;
 
 use Dompdf\Options;
-use Illuminate\Support\Str;
-use Laravel\Cashier\Cashier;
 use Laravel\Cashier\Order\Invoice;
 use Laravel\Cashier\Order\Order;
-use Laravel\Cashier\Order\OrderItem;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 trait ManagesInvoices
@@ -77,5 +74,4 @@ trait ManagesInvoices
 
         return $order->invoice()->download($data, $view, $options);
     }
-
 }
