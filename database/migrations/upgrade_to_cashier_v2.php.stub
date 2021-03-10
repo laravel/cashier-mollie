@@ -18,6 +18,10 @@ class UpgradeToCashierV2 extends Migration
             $table->unsignedInteger('amount_charged_back')->default(0);
         });
 
+        Schema::table('order_items', function (Blueprint $table) {
+            $table->boolean('is_tab')->default(FALSE);
+        });
+
         Schema::create('refunds', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('owner_type');
@@ -73,6 +77,9 @@ class UpgradeToCashierV2 extends Migration
         // Requires "doctrine/dbal" in composer.json
         // Schema::table('orders', function (Blueprint $table) {
         //     $table->dropColumn(['amount_refunded', 'amount_charged_back']);
+        // });
+        // Schema::table('order_items', function (Blueprint $table) {
+        //     $table->dropColumn('is_tab');
         // });
 
         Schema::dropIfExists('refunds');

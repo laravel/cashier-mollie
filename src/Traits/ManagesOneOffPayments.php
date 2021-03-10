@@ -37,6 +37,7 @@ trait ManagesOneOffPayments
             'owner_type' => $this->getMorphClass(),
             'owner_id' => $this->getKey(),
             'order_id' => null,
+            'is_tab' => true,
         ]);
 
         $attributes['currency'] = Str::upper($attributes['currency']);
@@ -63,7 +64,7 @@ trait ManagesOneOffPayments
         $this->tab($description, $amount, $tabOptions);
 
         // Force the invoice method to use the same currency as the order item.
-        return $this->invoice($paymentOptions);
+        return $this->invoiceTab($paymentOptions);
     }
 
     /**
@@ -72,7 +73,7 @@ trait ManagesOneOffPayments
      * @param array $paymentOptions
      * @return \Laravel\Cashier\Order\Order|\Laravel\Cashier\SubscriptionBuilder\RedirectToCheckoutResponse
      */
-    public function invoice(array $paymentOptions = [])
+    public function invoiceTab(array $paymentOptions = [])
     {
         // Normalize currency; set to default if it's missing, capitalize it.
         if (! ($paymentOptions['currency'] ?? false)) {
@@ -84,6 +85,7 @@ trait ManagesOneOffPayments
         $itemsToOrder = OrderItem::shouldProcess()
             ->forOwner($this)
             ->ofCurrency($paymentOptions['currency'])
+            ->isTab()
             ->get();
 
         // No open order items for this user with the specified currency

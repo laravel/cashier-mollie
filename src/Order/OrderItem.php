@@ -155,6 +155,18 @@ class OrderItem extends Model implements InvoicableItem
     }
 
     /**
+     * Limits the query to Order Items that are past the process_at date.
+     * This includes both processed and unprocessed items.
+     *
+     * @param $query
+     * @return mixed
+     */
+    public function scopeIsTab($query)
+    {
+        return $query->where('is_tab', true);
+    }
+
+    /**
      * Limits the query to Order Items that belong to a specific owner.
      *
      * @param $query

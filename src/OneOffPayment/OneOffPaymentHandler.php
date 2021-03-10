@@ -79,6 +79,7 @@ class OneOffPaymentHandler
     {
         return $this->items = OrderItem::shouldProcess()
             ->forOwner($this->owner)
+            ->isTab()
             ->get();
     }
 

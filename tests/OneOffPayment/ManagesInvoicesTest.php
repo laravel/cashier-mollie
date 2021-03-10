@@ -130,7 +130,7 @@ class ManagesInvoicesTest extends BaseTestCase
             'owner_id' => $owner->getKey(),
         ]);
 
-        $createdInvoice = $owner->invoice();
+        $createdInvoice = $owner->invoiceTab();
 
         $this->assertFalse($createdInvoice);
     }
@@ -167,7 +167,7 @@ class ManagesInvoicesTest extends BaseTestCase
         $mandatedCustomer->tab('A potato', 1000);
 
         // We have an order
-        $order = $mandatedCustomer->invoice();
+        $order = $mandatedCustomer->invoiceTab();
 
         // Order got processed
         $this->assertTrue($order->isProcessed());
@@ -224,7 +224,7 @@ class ManagesInvoicesTest extends BaseTestCase
         // We put something on the tab in EUR
         $customerUser->tab('A potato', 100);
 
-        $response = $customerUser->invoice();
+        $response = $customerUser->invoiceTab();
         $this->assertInstanceOf(RedirectResponse::class, $response);
         $this->assertInstanceOf(RedirectToCheckoutResponse::class, $response);
         $this->assertInstanceOf(MolliePayment::class, $response->payment());
