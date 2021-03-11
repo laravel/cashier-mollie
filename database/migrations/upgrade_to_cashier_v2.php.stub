@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class UpgradeToCashierV2 extends Migration
 {
@@ -16,6 +16,10 @@ class UpgradeToCashierV2 extends Migration
         Schema::table('orders', function (Blueprint $table) {
             $table->unsignedInteger('amount_refunded')->default(0);
             $table->unsignedInteger('amount_charged_back')->default(0);
+        });
+
+        Schema::table('order_items', function (Blueprint $table) {
+            $table->boolean('is_tab')->default(false);
         });
 
         Schema::create('refunds', function (Blueprint $table) {
@@ -74,10 +78,12 @@ class UpgradeToCashierV2 extends Migration
         // Schema::table('orders', function (Blueprint $table) {
         //     $table->dropColumn(['amount_refunded', 'amount_charged_back']);
         // });
+        //Schema::table('orders', function (Blueprint $table) {
+        //     $table->dropColumn('is_tab');
+        // });
 
         Schema::dropIfExists('refunds');
         Schema::dropIfExists('refund_items');
         Schema::dropIfExists('payments');
-
     }
 }
