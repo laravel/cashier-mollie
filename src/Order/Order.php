@@ -25,6 +25,7 @@ use Mollie\Api\Types\PaymentStatus;
 
 /**
  * @method static create(array $data)
+ * @property string mollie_payment_status
  */
 class Order extends Model
 {
