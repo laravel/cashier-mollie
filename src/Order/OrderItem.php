@@ -167,18 +167,6 @@ class OrderItem extends Model implements InvoicableItem
     }
 
     /**
-     * Limits the query to Order Items of a specified currency.
-     *
-     * @param $query
-     * @param string $currency
-     * @return mixed
-     */
-    public function scopeOfCurrency($query, $currency)
-    {
-        return $query->where('currency', $currency);
-    }
-
-    /**
      * Create a new Eloquent Collection instance.
      *
      * @param  array  $models
