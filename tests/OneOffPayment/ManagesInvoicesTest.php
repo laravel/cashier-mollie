@@ -274,7 +274,7 @@ class ManagesInvoicesTest extends BaseTestCase
         $user->tab('A premium quality potato', 1000);
         $user->tab('A high quality carrot', 800);
 
-        $inMemoryOrder = $user->upcomingInvoiceTab(['number' => 'Concept']);
+        $inMemoryOrder = $user->upcomingOrderForTab(['number' => 'Concept']);
 
         $this->assertFalse($inMemoryOrder->exists);
         $this->assertFalse($inMemoryOrder->isProcessed());
@@ -297,7 +297,7 @@ class ManagesInvoicesTest extends BaseTestCase
     {
         $user = $this->getUser();
 
-        $upcomingInvoice = $user->upcomingInvoiceTab();
+        $upcomingInvoice = $user->upcomingOrderForTab();
 
         $this->assertFalse($upcomingInvoice);
     }

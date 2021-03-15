@@ -132,7 +132,7 @@ trait ManagesOneOffPayments
      * @param array $overrides
      * @return \Laravel\Cashier\Order\Order|bool
      */
-    public function upcomingInvoiceTab(array $overrides = [])
+    public function upcomingOrderForTab(array $overrides = [])
     {
         $parameters = array_merge(['currency' => Cashier::usesCurrency()], $overrides);
         $parameters['currency'] = Str::upper($parameters['currency']);
