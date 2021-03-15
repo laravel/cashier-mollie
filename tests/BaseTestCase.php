@@ -101,6 +101,14 @@ abstract class BaseTestCase extends TestCase
                         'class' => '\CreateRefundsTable',
                         'file_path' => $migrations_dir . '/create_refunds_table.php.stub',
                     ],
+                    [
+                        'class' => '\CreateTabsTable',
+                        'file_path' => $migrations_dir . '/create_tabs_table.php.stub',
+                    ],
+                    [
+                        'class' => '\CreateTabItemsTable',
+                        'file_path' => $migrations_dir . '/create_tab_items_table.php.stub',
+                    ],
                 ]
             )
         );
