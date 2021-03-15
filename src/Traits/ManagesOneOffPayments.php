@@ -7,42 +7,39 @@ use Dompdf\Options;
 use Illuminate\Support\Str;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\OneOffPayment\OneOffPaymentBuilder;
+use Laravel\Cashier\OneOffPayment\Tab;
+use Laravel\Cashier\OneOffPayment\TabItemCollection;
 use Laravel\Cashier\Order\Invoice;
 use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Order\OrderItem;
-use Laravel\Cashier\Order\OrderItemCollection;
 use Laravel\Cashier\SubscriptionBuilder\RedirectToCheckoutResponse;
 
 trait ManagesOneOffPayments
 {
     /**
-     * Add an invoice item to the customer's upcoming invoice.
+     * Add an open tab to the customer.
      *
-     * @param string $description
-     * @param int $amount
      * @param array $overrides
-     * @return OrderItem
+     * @return Tab
      */
-    public function tab($description, $amount, array $overrides = [])
+    public function newTab($overrides = [])
     {
         $defaultOptions = [
             'currency' => Cashier::usesCurrency(),
-            'unit_price' => $amount,
-            'tax_percentage' => $this->taxPercentage(),
-            'description' => $description,
-            'process_at' => now()->subMinute(), // Next time Cashier runs, or when using `invoice` method.
+            'tax' => $this->taxPercentage(),
         ];
 
         $attributes = array_merge($defaultOptions, $overrides, [
             'owner_type' => $this->getMorphClass(),
             'owner_id' => $this->getKey(),
+            'subtotal' => 0,
+            'total' => 0,
             'order_id' => null,
-            'is_tab' => true,
         ]);
 
         $attributes['currency'] = Str::upper($attributes['currency']);
 
-        return OrderItem::create($attributes);
+        return Tab::create($attributes);
     }
 
     /**
@@ -54,16 +51,18 @@ trait ManagesOneOffPayments
      * @param array $paymentOptions
      * @return \Laravel\Cashier\Order\Order|bool
      */
-    public function invoiceFor($description, $amount, array $tabOptions = [], $paymentOptions = [])
+    public function invoiceFor($description, $amount, array $tabOptions = [],  array $itemOptions = [], $paymentOptions = [])
     {
         if ($tabOptions['currency'] ?? false) {
             $tabOptions['currency'] = Str::upper($tabOptions['currency']);
             $paymentOptions['currency'] = $tabOptions['currency'];
         }
 
-        $this->tab($description, $amount, $tabOptions);
+        $tab = $this->newTab($tabOptions);
 
-        // Force the invoice method to use the same currency as the order item.
+        $tab->add($description, $amount, $itemOptions);
+        $tab->close();
+
         return $this->invoiceTab($paymentOptions);
     }
 
@@ -106,17 +105,17 @@ trait ManagesOneOffPayments
      * Create a new RedirectToCheckoutResponse for a one off payment.
      *
      * @link https://docs.mollie.com/reference/v2/payments-api/create-payment#parameters
-     * @param OrderItemCollection $items
+     * @param TabItemCollection $items
      * @param array $oneOffPaymentOptions !Overrides the Mollie payment options
      * @return RedirectToCheckoutResponse
      */
-    protected function newOneOffPaymentViaCheckout(OrderItemCollection $items, array $oneOffPaymentOptions = [])
+    protected function newOneOffPaymentViaCheckout(TabItemCollection $items, array $oneOffPaymentOptions = [])
     {
         // Normalize the payment options. Remove this to prevent 422 from Mollie
         unset($oneOffPaymentOptions['currency']);
         $builder = new OneOffPaymentBuilder($this, $oneOffPaymentOptions);
 
-        $builder->forItems($items);
+        $builder->addItems($items);
         $builder->setRedirectUrl(config('cashier.one_off_payment.redirect_url'));
         $builder->setWebhookUrl(config('cashier.one_off_payment.webhook_url'));
         $builder->setDescription(config('cashier.one_off_payment.description'));

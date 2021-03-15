@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class UpgradeToCashierV2 extends Migration
 {
@@ -16,10 +16,6 @@ class UpgradeToCashierV2 extends Migration
         Schema::table('orders', function (Blueprint $table) {
             $table->unsignedInteger('amount_refunded')->default(0);
             $table->unsignedInteger('amount_charged_back')->default(0);
-        });
-
-        Schema::table('order_items', function (Blueprint $table) {
-            $table->boolean('is_tab')->default(FALSE);
         });
 
         Schema::create('refunds', function (Blueprint $table) {
@@ -65,6 +61,32 @@ class UpgradeToCashierV2 extends Migration
             $table->text('first_payment_actions')->nullable();
             $table->timestamps();
         });
+
+        Schema::create('tabs', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->dateTime('process_at')->nullable();
+            $table->string('owner_type');
+            $table->unsignedBigInteger('owner_id');
+            $table->unsignedBigInteger('order_id')->nullable();
+            $table->string('currency', 3);
+            $table->integer('subtotal');
+            $table->integer('tax');
+            $table->integer('total');
+            $table->timestamps();
+        });
+
+        Schema::create('tab_items', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->unsignedBigInteger('tab_id');
+            $table->string('owner_type');
+            $table->unsignedBigInteger('owner_id');
+            $table->string('description');
+            $table->text('description_extra_lines')->nullable();
+            $table->unsignedInteger('quantity');
+            $table->integer('unit_price');
+            $table->decimal('tax_percentage', 6, 4);
+            $table->timestamps();
+        });
     }
 
     /**
@@ -78,13 +100,11 @@ class UpgradeToCashierV2 extends Migration
         // Schema::table('orders', function (Blueprint $table) {
         //     $table->dropColumn(['amount_refunded', 'amount_charged_back']);
         // });
-        // Schema::table('order_items', function (Blueprint $table) {
-        //     $table->dropColumn('is_tab');
-        // });
 
         Schema::dropIfExists('refunds');
         Schema::dropIfExists('refund_items');
         Schema::dropIfExists('payments');
-
+        Schema::dropIfExists('tabs');
+        Schema::dropIfExists('tab_items');
     }
 }

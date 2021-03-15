@@ -72,22 +72,16 @@ class OneOffPaymentBuilder
     public function __construct(Model $owner, array $options = [])
     {
         $this->owner = $owner;
-        $this->items = new OrderItemCollection;
+        $this->items = new TabItemCollection;
         $this->options = $options;
         $this->description = config('app.name', 'One off payment');
         $this->redirectUrl = url(config('cashier.one_off_payment.redirect_url', config('cashier.redirect_url')));
         $this->webhookUrl = url(config('cashier.one_off_payment.webhook_url'));
     }
 
-    /**
-     * Define items that will be added to the Order
-     *
-     * @param OrderItemCollection $items
-     * @return $this
-     */
-    public function forItems(OrderItemCollection $items)
+    public function addItems(TabItemCollection $items): self
     {
-        $this->items = $items;
+        $this->items = $this->items->concat($items);
 
         return $this;
     }
