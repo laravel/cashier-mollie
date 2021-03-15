@@ -98,7 +98,7 @@ class Tab extends Model
     {
         $defaultOptions = [
             'unit_price' => $amount,
-            'tax_percentage' => $this->tax_percentage,
+            'tax_percentage' => $this->owner->taxPercentage() ?: 0,
             'description' => $description,
         ];
         $attributes = array_merge($defaultOptions, $overrides, [
@@ -109,7 +109,7 @@ class Tab extends Model
         return $this->items()->create($attributes);
     }
 
-    public function execute($process_at = null)
+    public function close($process_at = null)
     {
         $this->process_at = $process_at ?? now()->subMinute();
 

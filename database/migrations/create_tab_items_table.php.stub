@@ -20,7 +20,7 @@ class CreateTabItemsTable extends Migration
             $table->unsignedBigInteger('owner_id');
             $table->string('description');
             $table->text('description_extra_lines')->nullable();
-            $table->unsignedInteger('quantity');
+            $table->unsignedInteger('quantity')->default(1);
             $table->integer('unit_price');
             $table->decimal('tax_percentage', 6, 4);
             $table->timestamps();

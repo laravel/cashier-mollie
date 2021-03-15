@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\OneOffPayment\OneOffPaymentBuilder;
 use Laravel\Cashier\OneOffPayment\Tab;
+use Laravel\Cashier\OneOffPayment\TabCollection;
 use Laravel\Cashier\OneOffPayment\TabItemCollection;
 use Laravel\Cashier\Order\Invoice;
 use Laravel\Cashier\Order\Order;
@@ -61,7 +62,7 @@ trait ManagesOneOffPayments
         $tab = $this->newTab($tabOptions);
 
         $tab->add($description, $amount, $itemOptions);
-        $tab->close();
+        $tab->execute();
 
         return $this->invoiceTab($paymentOptions);
     }
@@ -81,41 +82,40 @@ trait ManagesOneOffPayments
         $paymentOptions['currency'] = Str::upper($paymentOptions['currency']);
 
         // Check if there's something to invoice
-        $itemsToOrder = OrderItem::shouldProcess()
+        $tabsToOrder = Tab::shouldProcess()
             ->whereOwner($this)
             ->whereCurrency($paymentOptions['currency'])
-            ->isTab()
             ->get();
 
         // No open order items for this user with the specified currency
-        if ($itemsToOrder->isEmpty()) {
+        if ($tabsToOrder->isEmpty()) {
             return false;
         }
-
+        dd($tabsToOrder->items());
         if ($this->validateMollieMandate()) {
-            return Order::createFromItems($itemsToOrder, [
+            return Order::createFromItems($tabsToOrder->items, [
                 'currency' => $paymentOptions['currency'],
             ])->processPayment();
         }
 
-        return $this->newOneOffPaymentViaCheckout($itemsToOrder, $paymentOptions);
+        return $this->newOneOffPaymentViaCheckout($tabsToOrder->items, $paymentOptions);
     }
 
     /**
      * Create a new RedirectToCheckoutResponse for a one off payment.
      *
      * @link https://docs.mollie.com/reference/v2/payments-api/create-payment#parameters
-     * @param TabItemCollection $items
+     * @param \Laravel\Cashier\OneOffPayment\TabItemCollection $tabItems
      * @param array $oneOffPaymentOptions !Overrides the Mollie payment options
      * @return RedirectToCheckoutResponse
      */
-    protected function newOneOffPaymentViaCheckout(TabItemCollection $items, array $oneOffPaymentOptions = [])
+    protected function newOneOffPaymentViaCheckout(TabItemCollection $tabItems, array $oneOffPaymentOptions = []): RedirectToCheckoutResponse
     {
         // Normalize the payment options. Remove this to prevent 422 from Mollie
         unset($oneOffPaymentOptions['currency']);
         $builder = new OneOffPaymentBuilder($this, $oneOffPaymentOptions);
-
-        $builder->addItems($items);
+        dd($tabItems);
+        $builder->addItems($tabItems);
         $builder->setRedirectUrl(config('cashier.one_off_payment.redirect_url'));
         $builder->setWebhookUrl(config('cashier.one_off_payment.webhook_url'));
         $builder->setDescription(config('cashier.one_off_payment.description'));
