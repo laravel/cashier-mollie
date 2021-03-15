@@ -78,7 +78,7 @@ class OneOffPaymentHandler
     protected function getItemsToBeProcessed()
     {
         return $this->items = OrderItem::shouldProcess()
-            ->forOwner($this->owner)
+            ->whereOwner($this->owner)
             ->isTab()
             ->get();
     }

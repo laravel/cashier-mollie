@@ -167,19 +167,6 @@ class OrderItem extends Model implements InvoicableItem
     }
 
     /**
-     * Limits the query to Order Items that belong to a specific owner.
-     *
-     * @param $query
-     * @param Model $owner
-     * @return mixed
-     */
-    public function scopeForOwner($query, Model $owner)
-    {
-        return $query->where('owner_type', $owner->getMorphClass())
-            ->where('owner_id', $owner->getKey());
-    }
-
-    /**
      * Limits the query to Order Items of a specified currency.
      *
      * @param $query

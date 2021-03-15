@@ -83,7 +83,7 @@ trait ManagesOneOffPayments
 
         // Check if there's something to invoice
         $itemsToOrder = OrderItem::shouldProcess()
-            ->forOwner($this)
+            ->whereOwner($this)
             ->ofCurrency($paymentOptions['currency'])
             ->isTab()
             ->get();
@@ -138,7 +138,7 @@ trait ManagesOneOffPayments
         $parameters['currency'] = Str::upper($parameters['currency']);
 
         $items = OrderItem::shouldProcess()
-            ->forOwner($this)
+            ->whereOwner($this)
             ->ofCurrency($parameters['currency'])
             ->isTab()
             ->get();
