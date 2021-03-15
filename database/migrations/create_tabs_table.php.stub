@@ -1,0 +1,39 @@
+<?php
+
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
+
+class CreateTabsTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('tabs', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->dateTime('process_at')->nullable();
+            $table->string('owner_type');
+            $table->unsignedBigInteger('owner_id');
+            $table->unsignedBigInteger('order_id')->nullable();
+            $table->string('currency', 3);
+            $table->integer('subtotal');
+            $table->integer('tax');
+            $table->integer('total');
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('tabs');
+    }
+}
