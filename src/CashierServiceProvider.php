@@ -93,6 +93,8 @@ class CashierServiceProvider extends ServiceProvider
                 __DIR__.'/../database/migrations/create_payments_table.php.stub' => database_path($prefix.'_create_payments_table.php'),
                 __DIR__.'/../database/migrations/create_refund_items_table.php.stub' => database_path($prefix.'_create_refund_items_table.php'),
                 __DIR__.'/../database/migrations/create_refunds_table.php.stub' => database_path($prefix.'_create_refunds_table.php'),
+                __DIR__.'/../database/migrations/create_tabs_table.php.stub' => database_path($prefix.'_create_tabs_table.php'),
+                __DIR__.'/../database/migrations/create_tab_items_table.php.stub' => database_path($prefix.'_create_tab_items_table.php'),
             ], $tag);
         }
     }
