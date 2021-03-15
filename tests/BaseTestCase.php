@@ -90,8 +90,16 @@ abstract class BaseTestCase extends TestCase
                         'file_path' => $migrations_dir . '/create_applied_coupons_table.php.stub',
                     ],
                     [
-                        'class' => '\UpgradeToCashierV2',
-                        'file_path' => $migrations_dir . '/upgrade_to_cashier_v2.php.stub',
+                        'class' => '\CreatePaymentsTable',
+                        'file_path' => $migrations_dir . '/create_payments_table.php.stub',
+                    ],
+                    [
+                        'class' => '\CreateRefundItemsTable',
+                        'file_path' => $migrations_dir . '/create_refund_items_table.php.stub',
+                    ],
+                    [
+                        'class' => '\CreateRefundsTable',
+                        'file_path' => $migrations_dir . '/create_refunds_table.php.stub',
                     ],
                 ]
             )
