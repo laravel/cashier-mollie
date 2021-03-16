@@ -57,7 +57,6 @@ class TabItem extends Model
         return new TabItemCollection($models);
     }
 
-
     /**
      * Return the tab for this tab item.
      *
