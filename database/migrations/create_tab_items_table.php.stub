@@ -16,6 +16,7 @@ class CreateTabItemsTable extends Migration
         Schema::create('tab_items', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('tab_id');
+            $table->unsignedBigInteger('order_item_id')->nullable();
             $table->string('owner_type');
             $table->unsignedBigInteger('owner_id');
             $table->string('description');

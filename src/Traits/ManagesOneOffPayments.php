@@ -91,7 +91,7 @@ trait ManagesOneOffPayments
         if ($tabsToOrder->isEmpty()) {
             return false;
         }
-        dd($tabsToOrder->items());
+        dd($tabsToOrder);
         if ($this->validateMollieMandate()) {
             return Order::createFromItems($tabsToOrder->items, [
                 'currency' => $paymentOptions['currency'],

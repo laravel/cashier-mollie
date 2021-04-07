@@ -5,6 +5,7 @@ namespace Laravel\Cashier\OneOffPayment;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Laravel\Cashier\Events\OrderProcessed;
@@ -92,6 +93,11 @@ class Tab extends Model
     public function items(): HasMany
     {
         return $this->hasMany(TabItem::class);
+    }
+
+    public function order(): HasOne
+    {
+        return $this->hasOne(Order::class, 'id', 'order_id');
     }
 
     public function add($description, $amount, $overrides = []): Model
