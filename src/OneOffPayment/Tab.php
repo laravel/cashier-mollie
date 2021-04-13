@@ -17,7 +17,6 @@ use Laravel\Cashier\Traits\HasOwner;
  * @property string owner_type
  * @property int owner_id
  * @property int|null order_id
- * @property \Laravel\Cashier\OneOffPayment\TabItemCollection items
  * @property Order order
  */
 class Tab extends Model
@@ -25,18 +24,6 @@ class Tab extends Model
     use HasOwner;
 
     protected $guarded = [];
-
-    /**
-     * Create a new Tab Collection instance.
-     *
-     * @param  array  $models
-     *
-     * @return \Laravel\Cashier\OneOffPayment\TabCollection
-     */
-    public function newCollection(array $models = [])
-    {
-        return new TabCollection($models);
-    }
 
     /**
      * Scope the query to only include unprocessed tab.
@@ -100,7 +87,7 @@ class Tab extends Model
         return $this->hasOne(Order::class, 'id', 'order_id');
     }
 
-    public function add($description, $amount, $overrides = []): Model
+    public function addItem($description, $amount, $overrides = []): Model
     {
         $defaultOptions = [
             'unit_price' => $amount,
@@ -115,7 +102,23 @@ class Tab extends Model
         return $this->items()->create($attributes);
     }
 
-    public function close($process_at = null)
+    public function closeNow()
+    {
+        $this->processAt(now());
+    }
+
+    public function closeAt($process_time)
+    {
+        $this->processAt($process_time);
+    }
+
+    public function cancel()
+    {
+        $this->items()->delete();
+        $this->delete();
+    }
+
+    protected function processAt($process_at = null)
     {
         $this->process_at = $process_at ?? now()->subMinute();
 

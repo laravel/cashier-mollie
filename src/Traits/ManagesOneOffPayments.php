@@ -61,8 +61,9 @@ trait ManagesOneOffPayments
 
         $tab = $this->newTab($tabOptions);
 
-        $tab->add($description, $amount, $itemOptions);
-        $tab->execute();
+        $tab->addItem($description, $amount, $itemOptions);
+
+        $tab->closeNow();
 
         return $this->invoiceTab($paymentOptions);
     }
@@ -91,8 +92,11 @@ trait ManagesOneOffPayments
         if ($tabsToOrder->isEmpty()) {
             return false;
         }
-        dd($tabsToOrder);
+
         if ($this->validateMollieMandate()) {
+
+            //TODO here I am
+
             return Order::createFromItems($tabsToOrder->items, [
                 'currency' => $paymentOptions['currency'],
             ])->processPayment();

@@ -5,7 +5,9 @@ namespace Laravel\Cashier\OneOffPayment;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Laravel\Cashier\Order\ConvertsToMoney;
+use Laravel\Cashier\Order\OrderItem;
 use Laravel\Cashier\Traits\HasOwner;
 use Money\Money;
 
@@ -46,19 +48,6 @@ class TabItem extends Model
     protected $guarded = [];
 
     /**
-     * Create a new RefundItemCollection instance.
-     *
-     * @param array $models
-     *
-     * @return \Laravel\Cashier\OneOffPayment\TabItemCollection
-     */
-    public function newCollection(array $models = []): TabItemCollection
-    {
-        return new TabItemCollection($models);
-    }
-
-
-    /**
      * Return the tab for this tab item.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -66,6 +55,14 @@ class TabItem extends Model
     public function tab(): BelongsTo
     {
         return $this->belongsTo(Tab::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function orderItem(): HasOne
+    {
+        return $this->hasOne(OrderItem::class, 'id', 'order_item_id');
     }
 
     /**
