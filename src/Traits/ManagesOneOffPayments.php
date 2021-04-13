@@ -8,7 +8,6 @@ use Illuminate\Support\Str;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\OneOffPayment\OneOffPaymentBuilder;
 use Laravel\Cashier\OneOffPayment\Tab;
-use Laravel\Cashier\OneOffPayment\TabCollection;
 use Laravel\Cashier\OneOffPayment\TabItemCollection;
 use Laravel\Cashier\Order\Invoice;
 use Laravel\Cashier\Order\Order;
