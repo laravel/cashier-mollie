@@ -1,6 +1,6 @@
 <?php
 
-namespace Laravel\Cashier\OneOffPayment;
+namespace Laravel\Cashier\OneOffPayments;
 
 use Illuminate\Support\Facades\DB;
 use Laravel\Cashier\Order\Order;

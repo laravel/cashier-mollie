@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Laravel\Cashier\OneOffPayment;
+namespace Laravel\Cashier\OneOffPayments;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;

@@ -3,13 +3,11 @@
 
 namespace Laravel\Cashier\Traits;
 
-use Dompdf\Options;
 use Illuminate\Support\Str;
 use Laravel\Cashier\Cashier;
-use Laravel\Cashier\OneOffPayment\OneOffPaymentBuilder;
-use Laravel\Cashier\OneOffPayment\Tab;
-use Laravel\Cashier\OneOffPayment\TabItemCollection;
-use Laravel\Cashier\Order\Invoice;
+use Laravel\Cashier\OneOffPayments\OneOffPaymentBuilder;
+use Laravel\Cashier\OneOffPayments\Tab;
+use Laravel\Cashier\OneOffPayments\TabItemCollection;
 use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Order\OrderItem;
 use Laravel\Cashier\SubscriptionBuilder\RedirectToCheckoutResponse;
@@ -51,7 +49,7 @@ trait ManagesOneOffPayments
      * @param array $paymentOptions
      * @return \Laravel\Cashier\Order\Order|bool
      */
-    public function invoiceFor($description, $amount, array $tabOptions = [],  array $itemOptions = [], $paymentOptions = [])
+    public function chargeFor($description, $amount, array $tabOptions = [],  array $itemOptions = [], $paymentOptions = [])
     {
         if ($tabOptions['currency'] ?? false) {
             $tabOptions['currency'] = Str::upper($tabOptions['currency']);
@@ -108,7 +106,7 @@ trait ManagesOneOffPayments
      * Create a new RedirectToCheckoutResponse for a one off payment.
      *
      * @link https://docs.mollie.com/reference/v2/payments-api/create-payment#parameters
-     * @param \Laravel\Cashier\OneOffPayment\TabItemCollection $tabItems
+     * @param \Laravel\Cashier\OneOffPayments\TabItemCollection $tabItems
      * @param array $oneOffPaymentOptions !Overrides the Mollie payment options
      * @return RedirectToCheckoutResponse
      */

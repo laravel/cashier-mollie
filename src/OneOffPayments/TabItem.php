@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Laravel\Cashier\OneOffPayment;
+namespace Laravel\Cashier\OneOffPayments;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -46,6 +46,17 @@ class TabItem extends Model
      * @var string[]|bool
      */
     protected $guarded = [];
+
+    /**
+     * Create a new Eloquent Collection instance.
+     *
+     * @param array $models
+     * @return \Laravel\Cashier\OneOffPayments\TabItemCollection
+     */
+    public function newCollection(array $models = [])
+    {
+        return new TabItemCollection($models);
+    }
 
     /**
      * Return the tab for this tab item.

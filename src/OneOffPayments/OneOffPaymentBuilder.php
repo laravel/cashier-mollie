@@ -1,6 +1,6 @@
 <?php
 
-namespace Laravel\Cashier\OneOffPayment;
+namespace Laravel\Cashier\OneOffPayments;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
