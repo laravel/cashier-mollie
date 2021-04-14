@@ -58,7 +58,7 @@ class ManagesTabsTest extends BaseTestCase
     }
 
     /** @test */
-    public function returnFalseIfGetTheUpcomingInvoiceIsNull()
+    public function returnFalseIfThereIsNoUpcomingInvoice()
     {
         $user = $this->getUser();
 

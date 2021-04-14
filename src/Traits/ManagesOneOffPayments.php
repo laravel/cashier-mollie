@@ -15,6 +15,32 @@ use Laravel\Cashier\SubscriptionBuilder\RedirectToCheckoutResponse;
 trait ManagesOneOffPayments
 {
     /**
+     * Invoice the customer for the given amount and generate an invoice immediately.
+     *
+     * @param string $description
+     * @param int $amount
+     * @param array $tabOptions
+     * @param array $itemOptions
+     * @param array $paymentOptions
+     * @return \Laravel\Cashier\Order\Order|bool
+     */
+    public function chargeFor($description, $amount, array $tabOptions = [],  array $itemOptions = [], array $paymentOptions = [])
+    {
+        if ($tabOptions['currency'] ?? false) {
+            $tabOptions['currency'] = Str::upper($tabOptions['currency']);
+            $paymentOptions['currency'] = $tabOptions['currency'];
+        }
+
+        $tab = $this->newTab($tabOptions);
+
+        $tab->addItem($description, $amount, $itemOptions);
+
+        $tab->closeNow();
+
+        return $this->invoiceTab($paymentOptions);
+    }
+
+    /**
      * Add an open tab to the customer.
      *
      * @param array $overrides
@@ -22,6 +48,8 @@ trait ManagesOneOffPayments
      */
     public function newTab($overrides = [])
     {
+        // TODO offload to builder
+
         $defaultOptions = [
             'currency' => Cashier::usesCurrency(),
             'tax' => $this->taxPercentage(),
@@ -41,31 +69,6 @@ trait ManagesOneOffPayments
     }
 
     /**
-     * Invoice the customer for the given amount and generate an invoice immediately.
-     *
-     * @param string $description
-     * @param int $amount
-     * @param array $tabOptions
-     * @param array $paymentOptions
-     * @return \Laravel\Cashier\Order\Order|bool
-     */
-    public function chargeFor($description, $amount, array $tabOptions = [],  array $itemOptions = [], $paymentOptions = [])
-    {
-        if ($tabOptions['currency'] ?? false) {
-            $tabOptions['currency'] = Str::upper($tabOptions['currency']);
-            $paymentOptions['currency'] = $tabOptions['currency'];
-        }
-
-        $tab = $this->newTab($tabOptions);
-
-        $tab->addItem($description, $amount, $itemOptions);
-
-        $tab->closeNow();
-
-        return $this->invoiceTab($paymentOptions);
-    }
-
-    /**
      * Invoice the billable entity outside of the regular billing cycle.
      *
      * @param array $paymentOptions
@@ -73,6 +76,8 @@ trait ManagesOneOffPayments
      */
     public function invoiceTab(array $paymentOptions = [])
     {
+        // TODO move to Tab model
+
         // Normalize currency; set to default if it's missing, capitalize it.
         if (! ($paymentOptions['currency'] ?? false)) {
             $paymentOptions['currency'] = Cashier::usesCurrency();
@@ -112,6 +117,8 @@ trait ManagesOneOffPayments
      */
     protected function newOneOffPaymentViaCheckout(TabItemCollection $tabItems, array $oneOffPaymentOptions = []): RedirectToCheckoutResponse
     {
+        // TODO nuke, handle by FirstPaymentBuilder/Handler instead
+
         // Normalize the payment options. Remove this to prevent 422 from Mollie
         unset($oneOffPaymentOptions['currency']);
         $builder = new OneOffPaymentBuilder($this, $oneOffPaymentOptions);
@@ -134,6 +141,8 @@ trait ManagesOneOffPayments
      */
     public function upcomingOrderForTab(array $overrides = [])
     {
+        // TODO move to Tab
+
         $parameters = array_merge(['currency' => Cashier::usesCurrency()], $overrides);
         $parameters['currency'] = Str::upper($parameters['currency']);
 
