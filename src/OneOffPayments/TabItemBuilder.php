@@ -2,7 +2,6 @@
 
 namespace Laravel\Cashier\OneOffPayments;
 
-use Illuminate\Database\Eloquent\Model;
 use Money\Money;
 
 class TabItemBuilder

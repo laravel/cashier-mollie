@@ -6,13 +6,10 @@ namespace Laravel\Cashier\Traits;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Str;
 use Laravel\Cashier\Cashier;
-use Laravel\Cashier\OneOffPayments\OneOffPaymentBuilder;
 use Laravel\Cashier\OneOffPayments\Tab;
 use Laravel\Cashier\OneOffPayments\TabBuilder;
-use Laravel\Cashier\OneOffPayments\TabItemCollection;
 use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Order\OrderItem;
-use Laravel\Cashier\SubscriptionBuilder\RedirectToCheckoutResponse;
 
 trait ManagesOneOffPayments
 {

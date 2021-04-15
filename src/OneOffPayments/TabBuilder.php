@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class TabBuilder
 {
     protected Model $owner;
+
     protected string $currency;
+
     protected float $defaultTaxPercentage;
 
     public function __construct(Model $owner, string $currency)
