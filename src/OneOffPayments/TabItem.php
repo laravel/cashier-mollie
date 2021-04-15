@@ -6,6 +6,7 @@ namespace Laravel\Cashier\OneOffPayments;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Laravel\Cashier\Order\Contracts\InteractsWithOrderItems;
 use Laravel\Cashier\Order\ConvertsToMoney;
 use Laravel\Cashier\Order\OrderItem;
 use Laravel\Cashier\Traits\HasOwner;
@@ -21,12 +22,13 @@ use Money\Money;
  * @property int total
  * @property string owner_type
  * @property mixed owner_id
+ * @property int|null order_item_id
  * @property string description
  * @property array<string> description_extra_lines
  * @method static create(array $array)
  * @method static make(array $array)
  */
-class TabItem extends Model
+class TabItem extends Model implements InteractsWithOrderItems
 {
     use ConvertsToMoney;
     use HasOwner;
@@ -112,7 +114,7 @@ class TabItem extends Model
      * @return float
      * @example 21.5
      */
-    public function getTaxPercentage()
+    public function getTaxPercentage(): float
     {
         return (float) $this->tax_percentage;
     }
@@ -167,5 +169,29 @@ class TabItem extends Model
     public function getCurrency(): string
     {
         return $this->currency;
+    }
+
+    public static function preprocessOrderItem(OrderItem $item)
+    {
+        // Nothing to do here
+
+        return $item->toCollection();
+    }
+
+    public static function processOrderItem(OrderItem $item)
+    {
+        // TODO if exists, call processOrderItem on tabbed item
+    }
+
+    public static function handlePaymentFailed(OrderItem $item)
+    {
+        // TODO mark as failed, fire event
+        // TODO if exists, call handlePaymentFailed on tabbed item
+    }
+
+    public static function handlePaymentPaid(OrderItem $item)
+    {
+        // TODO: mark as paid, fire event
+        // TODO if exists, call handlePaymentPaid on tabbed item
     }
 }

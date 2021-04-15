@@ -3,10 +3,12 @@
 
 namespace Laravel\Cashier\Traits;
 
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Str;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\OneOffPayments\OneOffPaymentBuilder;
 use Laravel\Cashier\OneOffPayments\Tab;
+use Laravel\Cashier\OneOffPayments\TabBuilder;
 use Laravel\Cashier\OneOffPayments\TabItemCollection;
 use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\Order\OrderItem;
@@ -14,6 +16,11 @@ use Laravel\Cashier\SubscriptionBuilder\RedirectToCheckoutResponse;
 
 trait ManagesOneOffPayments
 {
+    public function tabs(): MorphMany
+    {
+        return $this->morphMany(Tab::class, 'owner');
+    }
+
     /**
      * Invoice the customer for the given amount and generate an invoice immediately.
      *
@@ -41,31 +48,14 @@ trait ManagesOneOffPayments
     }
 
     /**
-     * Add an open tab to the customer.
+     * Prepare a tab for the customer.
      *
-     * @param array $overrides
-     * @return Tab
+     * @return \Laravel\Cashier\OneOffPayments\TabBuilder
      */
-    public function newTab($overrides = [])
+    public function newTab()
     {
-        // TODO offload to builder
-
-        $defaultOptions = [
-            'currency' => Cashier::usesCurrency(),
-            'tax' => $this->taxPercentage(),
-        ];
-
-        $attributes = array_merge($defaultOptions, $overrides, [
-            'owner_type' => $this->getMorphClass(),
-            'owner_id' => $this->getKey(),
-            'subtotal' => 0,
-            'total' => 0,
-            'order_id' => null,
-        ]);
-
-        $attributes['currency'] = Str::upper($attributes['currency']);
-
-        return Tab::create($attributes);
+        return (new TabBuilder($this, Cashier::usesCurrency()))
+            ->withDefaultTaxPercentage($this->taxPercentage());
     }
 
     /**
@@ -73,6 +63,7 @@ trait ManagesOneOffPayments
      *
      * @param array $paymentOptions
      * @return \Laravel\Cashier\Order\Order|\Laravel\Cashier\SubscriptionBuilder\RedirectToCheckoutResponse
+     * @throws \Laravel\Cashier\Exceptions\InvalidMandateException
      */
     public function invoiceTab(array $paymentOptions = [])
     {
@@ -108,31 +99,6 @@ trait ManagesOneOffPayments
     }
 
     /**
-     * Create a new RedirectToCheckoutResponse for a one off payment.
-     *
-     * @link https://docs.mollie.com/reference/v2/payments-api/create-payment#parameters
-     * @param \Laravel\Cashier\OneOffPayments\TabItemCollection $tabItems
-     * @param array $oneOffPaymentOptions !Overrides the Mollie payment options
-     * @return RedirectToCheckoutResponse
-     */
-    protected function newOneOffPaymentViaCheckout(TabItemCollection $tabItems, array $oneOffPaymentOptions = []): RedirectToCheckoutResponse
-    {
-        // TODO nuke, handle by FirstPaymentBuilder/Handler instead
-
-        // Normalize the payment options. Remove this to prevent 422 from Mollie
-        unset($oneOffPaymentOptions['currency']);
-        $builder = new OneOffPaymentBuilder($this, $oneOffPaymentOptions);
-        dd($tabItems);
-        $builder->addItems($tabItems);
-        $builder->setRedirectUrl(config('cashier.one_off_payment.redirect_url'));
-        $builder->setWebhookUrl(config('cashier.one_off_payment.webhook_url'));
-        $builder->setDescription(config('cashier.one_off_payment.description'));
-        $builder->setPaymentMethods(config('cashier.one_off_payment.method'));
-
-        return RedirectToCheckoutResponse::forPayment($builder->create());
-    }
-
-    /**
      * Get the entity's upcoming invoice in memory. You can inspect it,
      * and if you like what you see you can use the `invoice` method.
      *
@@ -141,7 +107,7 @@ trait ManagesOneOffPayments
      */
     public function upcomingOrderForTab(array $overrides = [])
     {
-        // TODO move to Tab
+        // TODO move to Tab? Not sure yet
 
         $parameters = array_merge(['currency' => Cashier::usesCurrency()], $overrides);
         $parameters['currency'] = Str::upper($parameters['currency']);
