@@ -1,13 +1,13 @@
 <?php
 
 
-namespace Laravel\Cashier\Tests\OneOffPayment;
+namespace Laravel\Cashier\Tests\OneOffPayments;
 
 use Laravel\Cashier\Mollie\Contracts\CreateMolliePayment;
 use Laravel\Cashier\Mollie\Contracts\GetMollieCustomer;
 use Laravel\Cashier\Mollie\Contracts\GetMollieMandate;
 use Laravel\Cashier\Mollie\Contracts\GetMollieMethodMinimumAmount;
-use Laravel\Cashier\OneOffPayment\OneOffPaymentBuilder;
+use Laravel\Cashier\OneOffPayments\OneOffPaymentBuilder;
 use Laravel\Cashier\Order\OrderItem;
 use Laravel\Cashier\Tests\BaseTestCase;
 use Mollie\Api\MollieApiClient;

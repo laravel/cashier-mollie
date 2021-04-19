@@ -15,11 +15,11 @@ class CreateTabsTable extends Migration
     {
         Schema::create('tabs', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->dateTime('process_at')->nullable();
             $table->string('owner_type');
             $table->unsignedBigInteger('owner_id');
             $table->unsignedBigInteger('order_id')->nullable();
             $table->string('currency', 3);
+            $table->decimal('default_tax_percentage', 6, 4)->default(0);
             $table->integer('subtotal');
             $table->integer('tax');
             $table->integer('total');
