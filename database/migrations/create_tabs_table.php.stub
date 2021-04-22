@@ -15,6 +15,7 @@ class CreateTabsTable extends Migration
     {
         Schema::create('tabs', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->dateTime('process_at')->nullable();
             $table->string('owner_type');
             $table->unsignedBigInteger('owner_id');
             $table->unsignedBigInteger('order_id')->nullable();
@@ -23,6 +24,7 @@ class CreateTabsTable extends Migration
             $table->integer('subtotal');
             $table->integer('tax');
             $table->integer('total');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Query\Builder;
 use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\SubscriptionBuilder\RedirectToCheckoutResponse;
@@ -25,6 +26,7 @@ use Money\Money;
 class Tab extends Model
 {
     use HasOwner;
+    use SoftDeletes;
 
     protected $guarded = [];
 
@@ -111,7 +113,6 @@ class Tab extends Model
 
     public function cancel()
     {
-        // TODO use soft deletes
         $this->items()->delete();
         $this->delete();
     }

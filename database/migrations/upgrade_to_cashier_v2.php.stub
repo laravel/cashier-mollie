@@ -72,6 +72,7 @@ class UpgradeToCashierV2 extends Migration
             $table->integer('subtotal');
             $table->integer('tax');
             $table->integer('total');
+            $table->softDeletes();
             $table->timestamps();
         });
 
@@ -86,6 +87,7 @@ class UpgradeToCashierV2 extends Migration
             $table->unsignedInteger('quantity');
             $table->integer('unit_price');
             $table->decimal('tax_percentage', 6, 4);
+            $table->softDeletes();
             $table->timestamps();
         });
     }

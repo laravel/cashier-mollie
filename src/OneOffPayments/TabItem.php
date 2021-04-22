@@ -6,6 +6,7 @@ namespace Laravel\Cashier\OneOffPayments;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Cashier\Order\Contracts\InteractsWithOrderItems;
 use Laravel\Cashier\Order\ConvertsToMoney;
 use Laravel\Cashier\Order\OrderItem;
@@ -32,6 +33,7 @@ class TabItem extends Model implements InteractsWithOrderItems
 {
     use ConvertsToMoney;
     use HasOwner;
+    use SoftDeletes;
 
     /**
      * The attributes that should be cast to native types.
