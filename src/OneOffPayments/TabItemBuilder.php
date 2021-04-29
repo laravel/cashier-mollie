@@ -2,9 +2,6 @@
 
 namespace Laravel\Cashier\OneOffPayments;
 
-use Laravel\Cashier\Order\ConvertsToMoney;
-use Money\Money;
-
 class TabItemBuilder
 {
     /**

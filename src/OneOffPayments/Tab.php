@@ -12,7 +12,6 @@ use Illuminate\Database\Query\Builder;
 use Laravel\Cashier\Order\Order;
 use Laravel\Cashier\SubscriptionBuilder\RedirectToCheckoutResponse;
 use Laravel\Cashier\Traits\HasOwner;
-use Money\Money;
 
 /**
  * @property int id
