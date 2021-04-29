@@ -97,7 +97,7 @@ class Tab extends Model
         return $this->hasOne(Order::class, 'id', 'order_id');
     }
 
-    public function addItem(string $description, Money $unitPrice): TabItemBuilder
+    public function addItem(string $description, int $unitPrice): TabItemBuilder
     {
         return new TabItemBuilder($this, $description, $unitPrice);
     }

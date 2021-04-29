@@ -2,6 +2,7 @@
 
 namespace Laravel\Cashier\OneOffPayments;
 
+use Laravel\Cashier\Order\ConvertsToMoney;
 use Money\Money;
 
 class TabItemBuilder
@@ -13,7 +14,7 @@ class TabItemBuilder
 
     protected string $description;
 
-    protected Money $unitPrice;
+    protected int $unitPrice;
 
     protected int $quantity = 1;
 
@@ -24,7 +25,7 @@ class TabItemBuilder
     public function __construct(
         Tab $tab,
         string $description,
-        Money $unitPrice
+        int $unitPrice
     ) {
         $this->tab = $tab;
         $this->description = $description;
@@ -47,7 +48,7 @@ class TabItemBuilder
 
     public function vatPercentage(float $percentage): self
     {
-        $this->vatPercentage = $percentage;
+        $this->vatPercentage = $percentage ?? $this->tab->default_tax_percentage;
 
         return $this;
     }
@@ -62,7 +63,11 @@ class TabItemBuilder
     public function create()
     {
         return $this->tab->items()->create([
-            // TODO store item
+            'description' => $this->description,
+            'description_extra_lines' => $this->descriptionExtraLines,
+            'quantity' => $this->quantity,
+            'unit_price' => $this->unitPrice,
+            'tax_percentage' => $this->vatPercentage,
         ]);
     }
 }

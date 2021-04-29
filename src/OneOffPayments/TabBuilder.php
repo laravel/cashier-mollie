@@ -37,6 +37,9 @@ class TabBuilder
         return $this->owner->tabs()->create([
             'default_tax_percentage' => $this->defaultTaxPercentage,
             'currency' => $this->currency,
+            'subtotal' => 0,
+            'tax' => 0,
+            'total' => 0,
         ]);
     }
 }
