@@ -8,7 +8,9 @@ use Laravel\Cashier\FirstPayment\FirstPaymentBuilder;
 class FirstPaymentChargeBuilder
 {
     protected Model $owner;
+
     protected ChargeItemCollection $items;
+
     protected FirstPaymentBuilder $firstPaymentBuilder;
 
     public function __construct(Model $owner)

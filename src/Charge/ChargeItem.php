@@ -10,10 +10,15 @@ use Money\Money;
 class ChargeItem
 {
     protected Model $owner;
+
     protected Money $unitPrice;
+
     protected string $description;
+
     protected int $quantity;
+
     protected float $taxPercentage;
+
     protected int $roundingMode;
 
     public function __construct(
