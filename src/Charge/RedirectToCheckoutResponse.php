@@ -8,7 +8,7 @@ use Mollie\Api\Resources\Payment;
 class RedirectToCheckoutResponse extends RedirectResponse
 {
     /** @var \Mollie\Api\Resources\Payment */
-    protected $payment;
+    protected Payment $payment;
 
     /**
      * @param \Mollie\Api\Resources\Payment $payment

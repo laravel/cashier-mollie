@@ -46,6 +46,6 @@ class FirstPaymentChargeBuilder
             ->inOrderTo($this->items->toFirstPaymentActionCollection()->all())
             ->create();
 
-        // TODO return something usable
+        return RedirectToCheckoutResponse::forPayment($molliePayment);
     }
 }
