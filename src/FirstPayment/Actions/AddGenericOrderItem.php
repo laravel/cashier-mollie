@@ -25,6 +25,15 @@ class AddGenericOrderItem extends BaseAction
         $this->roundingMode = $roundingMode;
     }
 
+    public function withQuantity(int $quantity)
+    {
+        throw_if($quantity < 1, new \LogicException('Quantity must be at least 1'));
+
+        $this->quantity = $quantity;
+
+        return $this;
+    }
+
     /**
      * @param array $payload
      * @param \Illuminate\Database\Eloquent\Model $owner
@@ -67,7 +76,7 @@ class AddGenericOrderItem extends BaseAction
             'process_at' => now(),
             'unit_price' => $this->getSubtotal()->getAmount(),
             'tax_percentage' => $this->getTaxPercentage(),
-            'quantity' => 1,
+            'quantity' => $this->quantity,
         ])->toCollection();
     }
 

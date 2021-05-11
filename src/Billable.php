@@ -5,6 +5,7 @@ namespace Laravel\Cashier;
 use Dompdf\Options;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
+use Laravel\Cashier\Charge\ManagesCharges;
 use Laravel\Cashier\Coupon\Contracts\CouponRepository;
 use Laravel\Cashier\Coupon\RedeemedCoupon;
 use Laravel\Cashier\Credit\Credit;
@@ -29,6 +30,7 @@ use Money\Money;
 trait Billable
 {
     use PopulatesMollieCustomerFields;
+    use ManagesCharges;
 
     /**
      * Get all of the subscriptions for the billable model.
