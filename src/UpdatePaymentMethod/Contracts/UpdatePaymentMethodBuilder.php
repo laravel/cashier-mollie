@@ -5,9 +5,9 @@ namespace Laravel\Cashier\UpdatePaymentMethod\Contracts;
 interface UpdatePaymentMethodBuilder
 {
     /**
-     * Update payment method. Returns a redirect to checkout.
+     * Update payment method.
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return \Laravel\Cashier\Http\RedirectToCheckoutResponse
      */
     public function create();
 }

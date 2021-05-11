@@ -26,7 +26,6 @@ class CreateOrderItemsTable extends Migration
             $table->unsignedInteger('quantity')->default(1);
             $table->integer('unit_price');
             $table->decimal('tax_percentage', 6, 4);
-            $table->boolean('is_tab')->default(false);
             $table->unsignedBigInteger('order_id')->nullable();
             $table->timestamps();
         });

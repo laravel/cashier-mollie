@@ -25,6 +25,9 @@ class AddGenericOrderItem extends BaseAction
         $this->roundingMode = $roundingMode;
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function withQuantity(int $quantity)
     {
         throw_if($quantity < 1, new \LogicException('Quantity must be at least 1'));
@@ -41,7 +44,7 @@ class AddGenericOrderItem extends BaseAction
      */
     public static function createFromPayload(array $payload, Model $owner)
     {
-        $taxPercentage = isset($payload['taxPercentage']) ? $payload['taxPercentage'] : 0;
+        $taxPercentage = $payload['taxPercentage'] ?? 0;
 
         return (new static(
             $owner,
