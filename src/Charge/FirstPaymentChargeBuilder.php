@@ -8,15 +8,11 @@ use Laravel\Cashier\FirstPayment\FirstPaymentBuilder;
 class FirstPaymentChargeBuilder
 {
     protected Model $owner;
-
     protected ChargeItemCollection $items;
-
-    protected FirstPaymentBuilder $firstPaymentBuilder;
 
     public function __construct(Model $owner)
     {
         $this->owner = $owner;
-        $this->firstPaymentBuilder = new FirstPaymentBuilder($owner);
         $this->items = new ChargeItemCollection;
     }
 
@@ -34,15 +30,15 @@ class FirstPaymentChargeBuilder
         return $this;
     }
 
-    public function create()
+    public function create(array $molliePaymentOverrides = [])
     {
         if ($this->items->isEmpty()) {
             throw new \LogicException('Charge item list cannot be empty');
         }
 
-        // TODO override webhook / redirectUrl etc?
+        $firstPaymentBuilder = new FirstPaymentBuilder($this->owner, $molliePaymentOverrides);
 
-        $molliePayment = $this->firstPaymentBuilder
+        $molliePayment = $firstPaymentBuilder
             ->inOrderTo($this->items->toFirstPaymentActionCollection()->all())
             ->create();
 
