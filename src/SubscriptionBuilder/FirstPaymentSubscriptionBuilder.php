@@ -12,7 +12,7 @@ use Laravel\Cashier\FirstPayment\FirstPaymentBuilder;
 use Laravel\Cashier\Plan\Contracts\PlanRepository;
 use Laravel\Cashier\Plan\Plan;
 use Laravel\Cashier\SubscriptionBuilder\Contracts\SubscriptionBuilder as Contract;
-use Laravel\Cashier\Traits\MoneyRoundingMode;
+use Laravel\Cashier\Traits\HandlesMoneyRounding;
 
 /**
  * Creates and configures a Mollie first payment to create a new mandate via Mollie's checkout
@@ -21,7 +21,7 @@ use Laravel\Cashier\Traits\MoneyRoundingMode;
  */
 class FirstPaymentSubscriptionBuilder implements Contract
 {
-    use MoneyRoundingMode;
+    use HandlesMoneyRounding;
     /**
      * @var \Laravel\Cashier\FirstPayment\FirstPaymentBuilder
      */

@@ -4,7 +4,7 @@ namespace Laravel\Cashier\Traits;
 
 use Money\Money;
 
-trait MoneyRoundingMode
+trait HandlesMoneyRounding
 {
     /**
      * Format the money as basic decimal

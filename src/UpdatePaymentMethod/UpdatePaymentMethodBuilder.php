@@ -8,13 +8,13 @@ use Laravel\Cashier\FirstPayment\Actions\AddBalance;
 use Laravel\Cashier\FirstPayment\Actions\AddGenericOrderItem;
 use Laravel\Cashier\FirstPayment\FirstPaymentBuilder;
 use Laravel\Cashier\Plan\Contracts\PlanRepository;
-use Laravel\Cashier\Traits\MoneyRoundingMode;
+use Laravel\Cashier\Traits\HandlesMoneyRounding;
 use Laravel\Cashier\UpdatePaymentMethod\Contracts\UpdatePaymentMethodBuilder as Contract;
 use Money\Money;
 
 class UpdatePaymentMethodBuilder implements Contract
 {
-    use MoneyRoundingMode;
+    use HandlesMoneyRounding;
     /**
      * The billable model.
      *
