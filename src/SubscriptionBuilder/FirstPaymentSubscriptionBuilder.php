@@ -90,7 +90,7 @@ class FirstPaymentSubscriptionBuilder implements Contract
         if ($this->isTrial) {
             $taxPercentage = $this->owner->taxPercentage() * 0.01;
             $total = $this->plan->firstPaymentAmount();
-          
+
             if ($total->isZero()) {
                 $vat = $total->subtract($total); // zero VAT
             } else {
@@ -102,6 +102,7 @@ class FirstPaymentSubscriptionBuilder implements Contract
             $actions[] = new AddGenericOrderItem(
                 $this->owner,
                 $subtotal,
+                1,
                 $this->plan->firstPaymentDescription(),
                 $this->roundingMode($total, $taxPercentage)
             );

@@ -75,6 +75,7 @@ class UpdatePaymentMethodWithoutAddingToBalanceTest extends BaseTestCase
                 [
                     'handler' => AddGenericOrderItem::class,
                     'description' => 'Payment method updated',
+                    'quantity' => 1,
                     'subtotal' => [
                         'currency' => 'EUR',
                         'value' => '1.00',

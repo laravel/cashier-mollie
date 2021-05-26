@@ -12,11 +12,12 @@ class AddBalance extends AddGenericOrderItem
      *
      * @param \Illuminate\Database\Eloquent\Model $owner
      * @param \Money\Money $subtotal
+     * @param int $quantity
      * @param string $description
      */
-    public function __construct(Model $owner, Money $subtotal, string $description)
+    public function __construct(Model $owner, Money $subtotal, int $quantity, string $description)
     {
-        parent::__construct($owner, $subtotal, $description);
+        parent::__construct($owner, $subtotal, $quantity, $description);
 
         $this->taxPercentage = 0; // Adding balance is NOT taxed by default
     }

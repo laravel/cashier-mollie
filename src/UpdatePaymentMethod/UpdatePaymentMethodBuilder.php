@@ -98,6 +98,7 @@ class UpdatePaymentMethodBuilder implements Contract
             new AddBalance(
                 $this->owner,
                 mollie_array_to_money(config('cashier.update_payment_method.amount')),
+                1,
                 __("Payment method updated")
             );
     }
@@ -112,7 +113,7 @@ class UpdatePaymentMethodBuilder implements Contract
             $this->owner->taxPercentage() * 0.01
         );
 
-        return new AddGenericOrderItem($this->owner, $subtotal, __("Payment method updated"));
+        return new AddGenericOrderItem($this->owner, $subtotal, 1, __("Payment method updated"));
     }
 
     /**
