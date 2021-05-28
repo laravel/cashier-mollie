@@ -1,47 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit bootstrap="vendor/autoload.php"
-         backupGlobals="false"
-         backupStaticAttributes="false"
-         colors="true"
-         verbose="true"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
-         processIsolation="false"
-         stopOnFailure="false"
->
-    <testsuites>
-        <testsuite name="Test Suite">
-            <directory>tests</directory>
-        </testsuite>
-    </testsuites>
-    <filter>
-        <whitelist>
-            <directory suffix=".php">src/</directory>
-        </whitelist>
-    </filter>
-    <groups>
-        <exclude>
-            <group>generate_new_invoice_template</group>
-            <group>mollie_integration</group>
-            <group>requires_manual_intervention</group>
-        </exclude>
-    </groups>
-    <php>
-        <env name="APP_ENV" value="testing"/>
-        <env name="CACHE_DRIVER" value="array"/>
-        <env name="SESSION_DRIVER" value="array"/>
-        <env name="QUEUE_DRIVER" value="sync"/>
-        <env name="DB_CONNECTION" value="sqlite"/>
-        <env name="DB_DATABASE" value=":memory:"/>
-<!--        <env name="MOLLIE_KEY" value=""/>-->
-<!--        <env name="MANDATED_CUSTOMER_DIRECTDEBIT" value=""/>-->
-<!--        <env name="MANDATED_CUSTOMER_DIRECTDEBIT_MANDATE_ID" value=""/>-->
-<!--        <env name="REFUND_ID" value=""/>-->
-<!--        <env name="REFUND_PAYMENT_ID" value=""/>-->
-<!--        <env name="SUBSCRIPTION_MANDATE_PAYMENT_PAID_ID" value=""/>-->
-<!--        <env name="MANDATE_PAYMENT_PAID_ID" value=""/>-->
-<!--        <env name="PAYMENT_PAID_ID" value=""/>-->
-<!--        <env name="PAYMENT_FAILED_ID" value=""/>-->
-    </php>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" bootstrap="vendor/autoload.php" backupGlobals="false" backupStaticAttributes="false" colors="true" verbose="true" convertErrorsToExceptions="true" convertNoticesToExceptions="true" convertWarningsToExceptions="true" processIsolation="false" stopOnFailure="false" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
+  <coverage>
+    <include>
+      <directory suffix=".php">src/</directory>
+    </include>
+  </coverage>
+  <testsuites>
+    <testsuite name="Test Suite">
+      <directory>tests</directory>
+    </testsuite>
+  </testsuites>
+  <groups>
+    <exclude>
+      <group>generate_new_invoice_template</group>
+      <group>mollie_integration</group>
+      <group>requires_manual_intervention</group>
+    </exclude>
+  </groups>
+  <php>
+    <env name="APP_ENV" value="testing"/>
+    <env name="CACHE_DRIVER" value="array"/>
+    <env name="SESSION_DRIVER" value="array"/>
+    <env name="QUEUE_DRIVER" value="sync"/>
+    <env name="DB_CONNECTION" value="sqlite"/>
+    <env name="DB_DATABASE" value=":memory:"/>
+    <!--        <env name="MOLLIE_KEY" value=""/>-->
+    <!--        <env name="MANDATED_CUSTOMER_DIRECTDEBIT" value=""/>-->
+    <!--        <env name="MANDATED_CUSTOMER_DIRECTDEBIT_MANDATE_ID" value=""/>-->
+    <!--        <env name="REFUND_ID" value=""/>-->
+    <!--        <env name="REFUND_PAYMENT_ID" value=""/>-->
+    <!--        <env name="SUBSCRIPTION_MANDATE_PAYMENT_PAID_ID" value=""/>-->
+    <!--        <env name="MANDATE_PAYMENT_PAID_ID" value=""/>-->
+    <!--        <env name="PAYMENT_PAID_ID" value=""/>-->
+    <!--        <env name="PAYMENT_FAILED_ID" value=""/>-->
+  </php>
 </phpunit>
