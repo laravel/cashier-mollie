@@ -8,11 +8,13 @@ use Laravel\Cashier\FirstPayment\Actions\AddBalance;
 use Laravel\Cashier\FirstPayment\Actions\AddGenericOrderItem;
 use Laravel\Cashier\FirstPayment\FirstPaymentBuilder;
 use Laravel\Cashier\Plan\Contracts\PlanRepository;
+use Laravel\Cashier\Traits\HandlesMoneyRounding;
 use Laravel\Cashier\UpdatePaymentMethod\Contracts\UpdatePaymentMethodBuilder as Contract;
 use Money\Money;
 
 class UpdatePaymentMethodBuilder implements Contract
 {
+    use HandlesMoneyRounding;
     /**
      * The billable model.
      *
@@ -98,7 +100,7 @@ class UpdatePaymentMethodBuilder implements Contract
             new AddBalance(
                 $this->owner,
                 mollie_array_to_money(config('cashier.update_payment_method.amount')),
-                __("Payment method updated")
+                config('cashier.update_payment_method.description')
             );
     }
 
@@ -107,12 +109,18 @@ class UpdatePaymentMethodBuilder implements Contract
      */
     protected function addGenericItemAction()
     {
-        $subtotal = $this->subtotalForTotalIncludingTax(
-            mollie_array_to_money(config('cashier.update_payment_method.amount')),
-            $this->owner->taxPercentage() * 0.01
-        );
+        $total = mollie_array_to_money(config('cashier.update_payment_method.amount'));
+        $taxPercentage = $this->owner->taxPercentage() * 0.01;
 
-        return new AddGenericOrderItem($this->owner, $subtotal, __("Payment method updated"));
+        $subtotal = $this->subtotalForTotalIncludingTax($total, $taxPercentage);
+
+
+        return new AddGenericOrderItem(
+            $this->owner,
+            $subtotal,
+            config('cashier.update_payment_method.description'),
+            $this->roundingMode($total, $taxPercentage)
+        );
     }
 
     /**
@@ -122,8 +130,36 @@ class UpdatePaymentMethodBuilder implements Contract
      */
     protected function subtotalForTotalIncludingTax(Money $total, float $taxPercentage)
     {
-        $vat = $total->divide(1 + $taxPercentage)->multiply($taxPercentage);
+        $vat = $total->divide(1 + $taxPercentage)->multiply($taxPercentage, $this->roundingMode($total, $taxPercentage));
 
         return $total->subtract($vat);
+    }
+
+    /**
+     * Format the money as basic decimal
+     *
+     * @param \Money\Money $total
+     * @param float $taxPercentage
+     *
+     * @return int
+     */
+    public function roundingMode(Money $total, float $taxPercentage)
+    {
+        $vat = $total->divide(1 + $taxPercentage)->multiply($taxPercentage);
+
+        $subtotal = $total->subtract($vat);
+
+        $recalculatedTax = $subtotal->multiply($taxPercentage * 100)->divide(100);
+
+        $finalTotal = $subtotal->add($recalculatedTax);
+
+        if ($finalTotal->equals($total)) {
+            return Money::ROUND_HALF_UP;
+        }
+        if ($finalTotal->greaterThan($total)) {
+            return Money::ROUND_UP;
+        }
+
+        return  Money::ROUND_DOWN;
     }
 }

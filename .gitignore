@@ -7,4 +7,4 @@ phpunit.xml
 .phpunit.result.cache
 .idea
 .phpstorm.meta.php
-.php_cs.cache
+.php-cs-fixer.cache
