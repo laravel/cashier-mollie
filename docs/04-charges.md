@@ -16,17 +16,17 @@ $user = auth()->user();
 $item = new \Laravel\Cashier\Charge\ChargeItemBuilder($user);
 $item->unitPrice(money(100,'EUR')); //1 EUR
 $item->description('Test Item');
-$chargeItem = $item->create();
+$chargeItem = $item->make();
 
 $item2 = new \Laravel\Cashier\Charge\ChargeItemBuilder($user);
 $item2->unitPrice(money(200,'EUR'));
 $item2->description('Test Item 2');
-$chargeItem2 = $item2->create();
+$chargeItem2 = $item2->make();
 
 $user->newCharge()
     ->addItem($chargeItem)
     ->addItem($chargeItem2)
-    ->create();
+    ->make();
 ```
 
 If the user have a valid mandate he is charges and invoiced directly.
