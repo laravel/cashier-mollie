@@ -4,21 +4,13 @@ namespace Laravel\Cashier\Tests\Charge;
 
 use Laravel\Cashier\Charge\FirstPaymentChargeBuilder;
 use Laravel\Cashier\Charge\MandatedChargeBuilder;
-use Laravel\Cashier\FirstPayment\Actions\AddBalance;
-use Laravel\Cashier\FirstPayment\Actions\AddGenericOrderItem;
-use Laravel\Cashier\FirstPayment\FirstPaymentBuilder;
-use Laravel\Cashier\Mollie\Contracts\CreateMollieCustomer;
-use Laravel\Cashier\Mollie\Contracts\CreateMolliePayment;
 use Laravel\Cashier\Mollie\Contracts\GetMollieCustomer;
 use Laravel\Cashier\Mollie\Contracts\GetMollieMandate;
-use Laravel\Cashier\Payment;
 use Laravel\Cashier\Tests\BaseTestCase;
 use Laravel\Cashier\Tests\Fixtures\User;
 use Mollie\Api\MollieApiClient;
 use Mollie\Api\Resources\Customer;
 use Mollie\Api\Resources\Mandate;
-use Mollie\Api\Resources\Payment as MolliePayment;
-use Mollie\Api\Types\SequenceType;
 
 class ManageChargesTest extends BaseTestCase
 {
@@ -26,7 +18,6 @@ class ManageChargesTest extends BaseTestCase
     {
         parent::setUp();
         $this->withPackageMigrations();
-
     }
 
     /** @test */
@@ -71,5 +62,4 @@ class ManageChargesTest extends BaseTestCase
             return $mock->shouldReceive('execute')->with('cst_unique_customer_id')->once()->andReturn($customer);
         });
     }
-
 }

@@ -52,7 +52,6 @@ class FirstPaymentChargeBuilderTest extends BaseTestCase
         $this->assertEquals(0, $owner->orderItems()->count());
         $this->assertEquals(0, $owner->orders()->count());
         $this->assertInstanceOf(RedirectToCheckoutResponse::class, $builder);
-
     }
 
     protected function withMockedCreateMolliePayment(): void
