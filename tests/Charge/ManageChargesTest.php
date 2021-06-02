@@ -30,7 +30,7 @@ class ManageChargesTest extends BaseTestCase
     }
 
     /** @test */
-    public function useFirstPaymentChargeBuilder()
+    public function usingMandatedChargeBuilderWhenValidMandate()
     {
         $owner = factory(User::class)->create();
 
