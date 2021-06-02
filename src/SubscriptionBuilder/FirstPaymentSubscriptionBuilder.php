@@ -12,7 +12,7 @@ use Laravel\Cashier\FirstPayment\FirstPaymentBuilder;
 use Laravel\Cashier\Plan\Contracts\PlanRepository;
 use Laravel\Cashier\Plan\Plan;
 use Laravel\Cashier\SubscriptionBuilder\Contracts\SubscriptionBuilder as Contract;
-use Money\Money;
+use Laravel\Cashier\Traits\HandlesMoneyRounding;
 
 /**
  * Creates and configures a Mollie first payment to create a new mandate via Mollie's checkout
@@ -21,6 +21,7 @@ use Money\Money;
  */
 class FirstPaymentSubscriptionBuilder implements Contract
 {
+    use HandlesMoneyRounding;
     /**
      * @var \Laravel\Cashier\FirstPayment\FirstPaymentBuilder
      */
@@ -243,33 +244,5 @@ class FirstPaymentSubscriptionBuilder implements Contract
         $this->firstPaymentBuilder->setDescription($this->plan->firstPaymentDescription());
 
         return $this->firstPaymentBuilder;
-    }
-
-    /**
-     * Format the money as basic decimal
-     *
-     * @param \Money\Money $total
-     * @param float $taxPercentage
-     *
-     * @return int
-     */
-    public function roundingMode(Money $total, float $taxPercentage)
-    {
-        $vat = $total->divide(1 + $taxPercentage)->multiply($taxPercentage);
-
-        $subtotal = $total->subtract($vat);
-
-        $recalculatedTax = $subtotal->multiply($taxPercentage * 100)->divide(100);
-
-        $finalTotal = $subtotal->add($recalculatedTax);
-
-        if ($finalTotal->equals($total)) {
-            return Money::ROUND_HALF_UP;
-        }
-        if ($finalTotal->greaterThan($total)) {
-            return Money::ROUND_UP;
-        }
-
-        return  Money::ROUND_DOWN;
     }
 }
