@@ -44,7 +44,7 @@ class ChargeItemBuilder
         return $this;
     }
 
-    public function create(): ChargeItem
+    public function make(): ChargeItem
     {
         return new ChargeItem(
             $this->owner,

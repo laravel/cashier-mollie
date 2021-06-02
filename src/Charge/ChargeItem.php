@@ -62,7 +62,7 @@ class ChargeItem
             'description' => $this->description,
             'quantity' => $this->quantity,
             'currency' => $this->unitPrice->getCurrency()->getCode(),
-            'unit_price' => money_to_decimal($this->unitPrice),
+            'unit_price' => $this->unitPrice->getAmount(),
             'tax_percentage' => $this->taxPercentage,
             'process_at' => Carbon::now(),
         ], $overrides));
