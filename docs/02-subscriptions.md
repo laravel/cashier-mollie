@@ -64,7 +64,7 @@ $redirect = $user->newSubscriptionViaMollieCheckout('main', 'premium')->create()
 
 Coupon handling in Cashier Mollie is designed with full flexibility in mind.
 
-Coupons can be defined in `config/cashier_coupons.php`.
+Coupons can be defined in `config/cashier_coupons.php` and coupons it's for subscriptions only
 
 You can provide your own coupon handler by extending
 `\Cashier\Discount\BaseCouponHandler`.
