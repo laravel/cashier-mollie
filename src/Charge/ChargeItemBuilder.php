@@ -44,6 +44,13 @@ class ChargeItemBuilder
         return $this;
     }
 
+    public function quantity(int $quantity): ChargeItemBuilder
+    {
+        $this->quantity = $quantity;
+
+        return $this;
+    }
+
     public function make(): ChargeItem
     {
         return new ChargeItem(
