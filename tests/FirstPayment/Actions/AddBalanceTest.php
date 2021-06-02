@@ -17,6 +17,7 @@ class AddBalanceTest extends BaseTestCase
         $action = new AddBalance(
             $this->getMandatedUser(),
             money(1000, 'EUR'),
+            1,
             'Adding some test balance'
         );
 
@@ -24,12 +25,13 @@ class AddBalanceTest extends BaseTestCase
 
         $this->assertEquals([
             'handler' => AddBalance::class,
-            'subtotal' => [
+            'unit_price' => [
                 'value' => '10.00',
                 'currency' => 'EUR',
             ],
             'taxPercentage' => 0,
             'description' => 'Adding some test balance',
+            'quantity' => 1,
         ], $payload);
     }
 
@@ -63,6 +65,7 @@ class AddBalanceTest extends BaseTestCase
         $action = new AddBalance(
             $user,
             money(1000, 'EUR'),
+            1,
             'Adding some test balance'
         );
 

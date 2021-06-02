@@ -18,6 +18,7 @@ class AddGenericOrderItemTest extends BaseTestCase
         $action = new AddGenericOrderItem(
             $this->getMandatedUser(true, ['tax_percentage' => 20]),
             money(5, 'EUR'),
+            1,
             'Adding a test order item'
         );
 
@@ -25,12 +26,13 @@ class AddGenericOrderItemTest extends BaseTestCase
 
         $this->assertEquals([
             'handler' => AddGenericOrderItem::class,
-            'subtotal' => [
+            'unit_price' => [
                 'value' => '0.05',
                 'currency' => 'EUR',
             ],
             'taxPercentage' => 20,
             'description' => 'Adding a test order item',
+            'quantity' => 1,
         ], $payload);
     }
 
@@ -81,6 +83,7 @@ class AddGenericOrderItemTest extends BaseTestCase
         $action = new AddGenericOrderItem(
             $user,
             money(5, 'EUR'),
+            1,
             'Adding a test order item'
         );
 

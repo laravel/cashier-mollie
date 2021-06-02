@@ -103,6 +103,7 @@ class FirstPaymentSubscriptionBuilder implements Contract
             $actions[] = new AddGenericOrderItem(
                 $this->owner,
                 $subtotal,
+                1,
                 $this->plan->firstPaymentDescription(),
                 $this->roundingMode($total, $taxPercentage)
             );

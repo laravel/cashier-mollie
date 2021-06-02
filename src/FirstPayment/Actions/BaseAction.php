@@ -110,6 +110,14 @@ abstract class BaseAction
     }
 
     /**
+     * @return int
+     */
+    public function getQuantity()
+    {
+        return $this->quantity;
+    }
+
+    /**
      * @return \Money\Money
      */
     public function getSubtotal()

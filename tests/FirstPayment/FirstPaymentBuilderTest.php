@@ -46,11 +46,13 @@ class FirstPaymentBuilderTest extends BaseTestCase
             new AddBalance(
                 $owner,
                 money(500, 'EUR'),
+                1,
                 'Test add balance 1'
             ),
             new AddBalance(
                 $owner,
                 money(500, 'EUR'),
+                1,
                 'Test add balance 2'
             ),
         ]);
@@ -97,11 +99,13 @@ class FirstPaymentBuilderTest extends BaseTestCase
             new AddBalance(
                 $owner,
                 money(500, 'EUR'),
+                1,
                 'Test add balance 1'
             ),
             new AddBalance(
                 $owner,
                 money(500, 'EUR'),
+                1,
                 'Test add balance 2'
             ),
         ]);
@@ -169,7 +173,7 @@ class FirstPaymentBuilderTest extends BaseTestCase
         });
 
         $payment = $builder->inOrderTo([
-            new AddGenericOrderItem($owner, money(100, 'EUR'), 'Parse redirectUrl test'),
+            new AddGenericOrderItem($owner, money(100, 'EUR'), 1, 'Parse redirectUrl test'),
         ])->create();
 
         $this->assertEquals('https://www.example.com/tr_unique_id', $payment->redirectUrl);
@@ -191,11 +195,13 @@ class FirstPaymentBuilderTest extends BaseTestCase
             new AddBalance(
                 $owner,
                 money(500, 'EUR'),
+                1,
                 'Test add balance 1'
             ),
             new AddBalance(
                 $owner,
                 money(500, 'EUR'),
+                1,
                 'Test add balance 2'
             ),
         ]);
