@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Laravel\Cashier\FirstPayment\Actions\AddBalance;
 use Laravel\Cashier\FirstPayment\Actions\AddGenericOrderItem;
 use Laravel\Cashier\FirstPayment\FirstPaymentBuilder;
+use Laravel\Cashier\Http\RedirectToCheckoutResponse;
 use Laravel\Cashier\Plan\Contracts\PlanRepository;
 use Laravel\Cashier\Traits\HandlesMoneyRounding;
 use Laravel\Cashier\UpdatePaymentMethod\Contracts\UpdatePaymentMethodBuilder as Contract;
@@ -50,7 +51,7 @@ class UpdatePaymentMethodBuilder implements Contract
 
         $payment->update();
 
-        return redirect($payment->getCheckoutUrl());
+        return RedirectToCheckoutResponse::forPayment($payment);
     }
 
     /**
