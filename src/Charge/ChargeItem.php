@@ -44,12 +44,12 @@ class ChargeItem
         $item = new AddGenericOrderItem(
             $this->owner,
             $this->unitPrice,
+            $this->quantity,
             $this->description,
             $this->roundingMode
         );
 
-        $item->withQuantity($this->quantity)
-             ->withTaxPercentage($this->taxPercentage);
+        $item->withTaxPercentage($this->taxPercentage);
 
         return $item;
     }

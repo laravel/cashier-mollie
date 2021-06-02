@@ -11,30 +11,20 @@ class AddGenericOrderItem extends BaseAction
      * AddGenericOrderItem constructor.
      *
      * @param \Illuminate\Database\Eloquent\Model $owner
-     * @param \Money\Money $subtotal
+     * @param \Money\Money $unitPrice
+     * @param int $quantity
      * @param string $description
      * @param int $roundingMode
      */
-    public function __construct(Model $owner, Money $subtotal, string $description, int $roundingMode = Money::ROUND_HALF_UP)
+    public function __construct(Model $owner, Money $unitPrice, int $quantity, string $description, int $roundingMode = Money::ROUND_HALF_UP)
     {
         $this->owner = $owner;
         $this->taxPercentage = $this->owner->taxPercentage();
-        $this->unitPrice = $subtotal;
-        $this->currency = $subtotal->getCurrency()->getCode();
+        $this->unitPrice = $unitPrice;
+        $this->quantity = $quantity;
+        $this->currency = $unitPrice->getCurrency()->getCode();
         $this->description = $description;
         $this->roundingMode = $roundingMode;
-    }
-
-    /**
-     * @throws \Throwable
-     */
-    public function withQuantity(int $quantity)
-    {
-        throw_if($quantity < 1, new \LogicException('Quantity must be at least 1'));
-
-        $this->quantity = $quantity;
-
-        return $this;
     }
 
     /**
@@ -45,10 +35,13 @@ class AddGenericOrderItem extends BaseAction
     public static function createFromPayload(array $payload, Model $owner)
     {
         $taxPercentage = $payload['taxPercentage'] ?? 0;
+        $quantity = $payload['quantity'] ?? 1;
+        $unit_price = $payload['subtotal'] ?? $payload['unit_price'];
 
         return (new static(
             $owner,
-            mollie_array_to_money($payload['subtotal']),
+            mollie_array_to_money($unit_price),
+            $quantity,
             $payload['description']
         ))->withTaxPercentage($taxPercentage);
     }
@@ -61,7 +54,8 @@ class AddGenericOrderItem extends BaseAction
         return [
             'handler' => static::class,
             'description' => $this->getDescription(),
-            'subtotal' => money_to_mollie_array($this->getSubtotal()),
+            'unit_price' => money_to_mollie_array($this->getUnitPrice()),
+            'quantity' => $this->getQuantity(),
             'taxPercentage' => $this->getTaxPercentage(),
         ];
     }
@@ -77,9 +71,9 @@ class AddGenericOrderItem extends BaseAction
             'description' => $this->getDescription(),
             'currency' => $this->getCurrency(),
             'process_at' => now(),
-            'unit_price' => $this->getSubtotal()->getAmount(),
+            'unit_price' => $this->getUnitPrice()->getAmount(),
             'tax_percentage' => $this->getTaxPercentage(),
-            'quantity' => $this->quantity,
+            'quantity' => $this->getQuantity(),
         ])->toCollection();
     }
 

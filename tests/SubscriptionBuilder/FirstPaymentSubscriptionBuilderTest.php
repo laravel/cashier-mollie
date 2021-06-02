@@ -100,8 +100,8 @@ class FirstPaymentSubscriptionBuilderTest extends BaseTestCase
 
         $this->assertEquals('Test mandate payment', $localPayment->first_payment_actions[1]->description);
         $this->assertEquals('Laravel\\Cashier\\FirstPayment\\Actions\\AddGenericOrderItem', $localPayment->first_payment_actions[1]->handler);
-        $this->assertEquals('EUR', $localPayment->first_payment_actions[1]->subtotal->currency);
-        $this->assertEquals(0.04, $localPayment->first_payment_actions[1]->subtotal->value);
+        $this->assertEquals('EUR', $localPayment->first_payment_actions[1]->unit_price->currency);
+        $this->assertEquals(0.04, $localPayment->first_payment_actions[1]->unit_price->value);
         $this->assertEquals(20, $localPayment->first_payment_actions[1]->taxPercentage);
     }
 

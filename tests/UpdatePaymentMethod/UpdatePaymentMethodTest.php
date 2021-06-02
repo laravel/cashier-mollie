@@ -91,6 +91,7 @@ class UpdatePaymentMethodTest extends BaseTestCase
                         'value' => '1.00',
                     ],
                     'taxPercentage' => 0,
+                    'quantity' => 1,
                 ],
             ],
         ]));
