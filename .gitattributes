@@ -10,3 +10,4 @@
 /tests              export-ignore
 /.editorconfig      export-ignore
 /.styleci.yml       export-ignore
+/docs               export-ignore
