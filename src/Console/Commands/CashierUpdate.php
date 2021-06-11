@@ -4,9 +4,6 @@ namespace Laravel\Cashier\Console\Commands;
 
 use DB;
 use Illuminate\Console\Command;
-use Laravel\Cashier\Order\Order;
-use Laravel\Cashier\Payment;
-use Mollie\Laravel\Facades\Mollie;
 
 class CashierUpdate extends Command
 {
@@ -55,19 +52,6 @@ class CashierUpdate extends Command
         //Apply new structure to tables
         $this->comment('Migrate database');
         $this->callSilent('migrate');
-
-        //Import Mollie payments, first payment actions and refunds.
-        $paymentsIds = Order::all()->pluck('mollie_payment_id');
-        $mollieApi = Mollie::api();
-
-        $this->comment('Import Mollie payments, first payment actions');
-        $paymentsIds->each(function ($payment) use ($mollieApi) {
-            $molliePaymentData = $mollieApi->payments()->get($payment);
-            $ownerType = $molliePaymentData->metadata->owner->type;
-            $ownerID = $molliePaymentData->metadata->owner->id;
-            $owner = $ownerType::findOrFail($ownerID);
-            Payment::createFromMolliePayment($molliePaymentData, $owner);
-        });
 
         if ($this->option('maintenance')) {
             $this->comment('Disable maintenance mode');
