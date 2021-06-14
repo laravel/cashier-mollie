@@ -39,7 +39,8 @@
         "mollie/laravel-mollie": "^2.9",
         "mollie/mollie-api-php": "^2.27",
         "moneyphp/money": "^3.2",
-        "nesbot/carbon": "^2.31"
+        "nesbot/carbon": "^2.31",
+        "symfony/lock":"5.*"
     },
     "require-dev": {
         "guzzle/http": "^3.9",
