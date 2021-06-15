@@ -47,8 +47,15 @@ $user->findInvoice($orderId);
 > If the invoice is not associated with the user you're searching for, it will throw an `UnauthorizedInvoiceAccessException`.
 ##### findInvoiceOrFail
 If you wish to show a 404 error page whenever the invoice is not found, you may use the `findInvoiceOrFail` method on your user.
-If the invoice can not be found, a ```\Symfony\Component\HttpKernel\Exception\NotFoundHttpException``` will be thrown.
-If the invoice doesn't belong to the user, it will throw a ```\Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException```.
+If the invoice can not be found, a 
+```php
+\Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+```
+will be thrown.
+If the invoice doesn't belong to the user, it will throw a 
+```php
+\Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
+```.
 In a standard Laravel application those exceptions will be turned in a proper 404 or respectively 403 HTTP response.
 
 ```php
