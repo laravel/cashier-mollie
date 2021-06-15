@@ -55,7 +55,7 @@ will be thrown.
 If the invoice doesn't belong to the user, it will throw a 
 ```php
 \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
-```.
+```
 In a standard Laravel application those exceptions will be turned in a proper 404 or respectively 403 HTTP response.
 
 ```php
