@@ -89,7 +89,7 @@ class FirstPaymentHandler
     {
         $payment = LocalPayment::findByPaymentId($this->molliePayment->id);
 
-        if(isset($payment) && !is_null($payment->first_payment_actions)) {
+        if (isset($payment) && ! is_null($payment->first_payment_actions)) {
             $actions = $payment->first_payment_actions;
         } else {
             $actions = $this->molliePayment->metadata->actions;
