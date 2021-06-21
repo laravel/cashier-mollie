@@ -89,7 +89,11 @@ class FirstPaymentHandler
     {
         $payment = LocalPayment::findByPaymentId($this->molliePayment->id);
 
-        $actions = $payment->first_payment_actions ?: $this->molliePayment->metadata->actions;
+        if (isset($payment) && ! is_null($payment->first_payment_actions)) {
+            $actions = $payment->first_payment_actions;
+        } else {
+            $actions = $this->molliePayment->metadata->actions;
+        }
 
         return collect($actions)->map(function ($actionMeta) {
             return $actionMeta->handler::createFromPayload(
