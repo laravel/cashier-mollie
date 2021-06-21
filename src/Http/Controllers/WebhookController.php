@@ -17,7 +17,7 @@ class WebhookController extends BaseWebhookController
      */
     public function handleWebhook(Request $request)
     {
-        $payment = $this->getPaymentById($request->get('id'));
+        $payment = $this->getMolliePaymentById($request->get('id'));
 
         if ($payment) {
             $order = $this->getOrder($payment);
@@ -25,11 +25,13 @@ class WebhookController extends BaseWebhookController
             if ($order && $order->mollie_payment_status !== $payment->status) {
                 switch ($payment->status) {
                     case PaymentStatus::STATUS_PAID:
-                        $order->handlePaymentPaid();
+                        $order->handlePaymentPaid($payment);
+                        $payment->webhookUrl = route('webhooks.mollie.aftercare');
+                        $payment->update();
 
                         break;
                     case PaymentStatus::STATUS_FAILED:
-                        $order->handlePaymentFailed();
+                        $order->handlePaymentFailed($payment);
 
                         break;
                     default:
@@ -47,10 +49,10 @@ class WebhookController extends BaseWebhookController
      */
     protected function getOrder(Payment $payment)
     {
-        $order = Order::findByPaymentId($payment->id);
+        $order = Order::findByMolliePaymentId($payment->id);
 
         if (! $order && isset($payment->metadata, $payment->metadata->temporary_mollie_payment_id)) {
-            $order = Order::findByPaymentId($payment->metadata->temporary_mollie_payment_id);
+            $order = Order::findByMolliePaymentId($payment->metadata->temporary_mollie_payment_id);
 
             if ($order) {
                 // Store the definite payment id.

@@ -7,5 +7,5 @@ use Mollie\Api\Resources\Payment;
 
 interface GetMolliePayment
 {
-    public function execute(string $id): Payment;
+    public function execute(string $id, array $parameters = []): Payment;
 }

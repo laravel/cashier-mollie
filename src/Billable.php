@@ -5,6 +5,7 @@ namespace Laravel\Cashier;
 use Dompdf\Options;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
+use Laravel\Cashier\Charge\ManagesCharges;
 use Laravel\Cashier\Coupon\Contracts\CouponRepository;
 use Laravel\Cashier\Coupon\RedeemedCoupon;
 use Laravel\Cashier\Credit\Credit;
@@ -20,6 +21,7 @@ use Laravel\Cashier\Plan\Contracts\PlanRepository;
 use Laravel\Cashier\SubscriptionBuilder\FirstPaymentSubscriptionBuilder;
 use Laravel\Cashier\SubscriptionBuilder\MandatedSubscriptionBuilder;
 use Laravel\Cashier\Traits\PopulatesMollieCustomerFields;
+use Laravel\Cashier\UpdatePaymentMethod\UpdatePaymentMethodBuilder;
 use Mollie\Api\Exceptions\ApiException;
 use Mollie\Api\Resources\Customer;
 use Mollie\Api\Types\MandateMethod;
@@ -28,6 +30,7 @@ use Money\Money;
 trait Billable
 {
     use PopulatesMollieCustomerFields;
+    use ManagesCharges;
 
     /**
      * Get all of the subscriptions for the billable model.
@@ -72,12 +75,13 @@ trait Billable
         if (! empty($this->mollie_mandate_id)) {
             $mandate = $this->mollieMandate();
             $planModel = app(PlanRepository::class)::findOrFail($plan);
-            $method = MandateMethod::getForFirstPaymentMethod($planModel->firstPaymentMethod());
-
+            $allowedPlanMethods = collect($planModel->firstPaymentMethod())->map(function ($allowedPlanMethod) {
+                return MandateMethod::getForFirstPaymentMethod($allowedPlanMethod);
+            })->filter()->unique();
             if (
                 ! empty($mandate)
                 && $mandate->isValid()
-                && $mandate->method === $method
+                && $allowedPlanMethods->contains($mandate->method)
             ) {
                 return $this->newSubscriptionForMandateId($this->mollie_mandate_id, $subscription, $plan);
             }
@@ -537,5 +541,13 @@ trait Billable
     public function redeemedCoupons()
     {
         return $this->morphMany(RedeemedCoupon::class, 'owner');
+    }
+
+    /**
+     * @return \Laravel\Cashier\UpdatePaymentMethod\UpdatePaymentMethodBuilder
+     */
+    public function updatePaymentMethod()
+    {
+        return new UpdatePaymentMethodBuilder($this);
     }
 }

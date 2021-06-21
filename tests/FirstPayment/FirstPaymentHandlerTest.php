@@ -7,10 +7,12 @@ use Laravel\Cashier\Events\MandateUpdated;
 use Laravel\Cashier\FirstPayment\Actions\AddBalance;
 use Laravel\Cashier\FirstPayment\FirstPaymentHandler;
 use Laravel\Cashier\Order\Order;
+use Laravel\Cashier\Payment as LocalPayment;
 use Laravel\Cashier\Tests\BaseTestCase;
 use Laravel\Cashier\Tests\Fixtures\User;
 use Mollie\Api\MollieApiClient;
-use Mollie\Api\Resources\Payment;
+use Mollie\Api\Resources\Payment as MolliePayment;
+use Mollie\Api\Types\PaymentStatus;
 
 class FirstPaymentHandlerTest extends BaseTestCase
 {
@@ -20,14 +22,15 @@ class FirstPaymentHandlerTest extends BaseTestCase
         $this->withPackageMigrations();
         Event::fake();
 
-        $payment = $this->getMandatePaymentStub();
+        $molliePayment = $this->getMandatePaymentStub();
 
         $owner = factory(User::class)->create([
-            'id' => $payment->metadata->owner->id,
+            'id' => $molliePayment->metadata->owner->id,
             'mollie_customer_id' => 'cst_unique_customer_id',
         ]);
+        LocalPayment::createFromMolliePayment($molliePayment, $owner);
 
-        $handler = new FirstPaymentHandler($payment);
+        $handler = new FirstPaymentHandler($molliePayment);
 
         $this->assertTrue($owner->is($handler->getOwner()));
 
@@ -64,27 +67,34 @@ class FirstPaymentHandlerTest extends BaseTestCase
         $this->assertInstanceOf(Order::class, $order);
         $this->assertTrue($order->isProcessed());
 
+        $this->assertEquals(1, $order->payments()->count());
+        $localPayment = $order->payments()->first();
+        $this->assertInstanceOf(LocalPayment::class, $localPayment);
+        $this->assertEquals('paid', $localPayment->mollie_payment_status);
+        $this->assertMoneyEURCents(1000, $localPayment->getAmount());
+        $this->assertCount(2, $localPayment->first_payment_actions);
         $this->assertEquals(2, $order->items()->count());
 
         $this->assertNotNull($owner->mollie_mandate_id);
-        $this->assertEquals($payment->mandateId, $owner->mollie_mandate_id);
+        $this->assertEquals($molliePayment->mandateId, $owner->mollie_mandate_id);
 
-        Event::assertDispatched(MandateUpdated::class, function (MandateUpdated $e) use ($owner, $payment) {
+        Event::assertDispatched(MandateUpdated::class, function (MandateUpdated $e) use ($owner, $molliePayment) {
             $this->assertTrue($e->owner->is($owner));
-            $this->assertSame($e->payment->id, $payment->id);
+            $this->assertSame($e->payment->id, $molliePayment->id);
 
             return true;
         });
     }
 
-    protected function getMandatePaymentStub(): Payment
+    protected function getMandatePaymentStub(): MolliePayment
     {
-        $payment = new Payment(new MollieApiClient());
+        $payment = new MolliePayment(new MollieApiClient());
         $payment->sequenceType = 'first';
         $payment->id = 'tr_unique_mandate_payment_id';
         $payment->customerId = 'cst_unique_customer_id';
         $payment->mandateId = 'mdt_unique_mandate_id';
         $payment->amount = (object) ['value' => '10.00', 'currency' => 'EUR'];
+        $payment->status = PaymentStatus::STATUS_PAID;
         $payment->metadata = json_decode(json_encode([
             'owner' => [
                 'type' => User::class,

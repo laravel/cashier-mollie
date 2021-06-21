@@ -11,11 +11,13 @@ trait RegistersMollieInteractions
     {
         $interactions = collect([
             Contracts\CreateMollieCustomer::class => CreateMollieCustomer::class,
-            Contracts\CreateMolliePayment::class => CreateMolliePayment::class,
             Contracts\GetMollieCustomer::class => GetMollieCustomer::class,
             Contracts\GetMollieMandate::class => GetMollieMandate::class,
+            Contracts\CreateMolliePayment::class => CreateMolliePayment::class,
             Contracts\GetMolliePayment::class => GetMolliePayment::class,
             Contracts\GetMollieMethodMinimumAmount::class => GetMollieMethodMinimumAmount::class,
+            Contracts\CreateMollieRefund::class => CreateMollieRefund::class,
+            Contracts\GetMollieRefund::class => GetMollieRefund::class,
             Contracts\UpdateMolliePayment::class => UpdateMolliePayment::class,
         ]);
 

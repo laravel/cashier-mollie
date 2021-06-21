@@ -28,10 +28,9 @@ class Plan implements PlanContract
     protected $amount;
 
     /**
-     * The billing frequency.
+     * The billing interval generator
      *
-     * @var string
-     * @example 1 month
+     * @var \Laravel\Cashier\Plan\Contracts\IntervalGeneratorContract
      */
     protected $interval;
 
@@ -158,15 +157,11 @@ class Plan implements PlanContract
     }
 
     /**
-     * @param  array|string  $firstPaymentMethod
+     * @param  array $firstPaymentMethod
      * @return $this
      */
     public function setFirstPaymentMethod($firstPaymentMethod)
     {
-        if (is_string($firstPaymentMethod)) {
-            $firstPaymentMethod = $this->castPaymentMethodString($firstPaymentMethod);
-        }
-
         $this->firstPaymentMethod = $firstPaymentMethod;
 
         return $this;
@@ -215,7 +210,7 @@ class Plan implements PlanContract
     }
 
     /**
-     * @return string
+     * @return \Laravel\Cashier\Plan\Contracts\IntervalGeneratorContract
      */
     public function interval()
     {
@@ -223,12 +218,12 @@ class Plan implements PlanContract
     }
 
     /**
-     * @param string $interval
+     * @param array|string $interval
      * @return $this
      */
-    public function setInterval(string $interval)
+    public function setInterval($interval)
     {
-        $this->interval = $interval;
+        $this->interval = is_array($interval) ? new $interval['generator']($interval) : new DefaultIntervalGenerator($interval);
 
         return $this;
     }

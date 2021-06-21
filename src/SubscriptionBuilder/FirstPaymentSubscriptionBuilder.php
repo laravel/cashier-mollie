@@ -12,6 +12,7 @@ use Laravel\Cashier\FirstPayment\FirstPaymentBuilder;
 use Laravel\Cashier\Plan\Contracts\PlanRepository;
 use Laravel\Cashier\Plan\Plan;
 use Laravel\Cashier\SubscriptionBuilder\Contracts\SubscriptionBuilder as Contract;
+use Laravel\Cashier\Traits\HandlesMoneyRounding;
 
 /**
  * Creates and configures a Mollie first payment to create a new mandate via Mollie's checkout
@@ -20,6 +21,7 @@ use Laravel\Cashier\SubscriptionBuilder\Contracts\SubscriptionBuilder as Contrac
  */
 class FirstPaymentSubscriptionBuilder implements Contract
 {
+    use HandlesMoneyRounding;
     /**
      * @var \Laravel\Cashier\FirstPayment\FirstPaymentBuilder
      */
@@ -93,14 +95,17 @@ class FirstPaymentSubscriptionBuilder implements Contract
             if ($total->isZero()) {
                 $vat = $total->subtract($total); // zero VAT
             } else {
-                $vat = $total->divide(1 + $taxPercentage)->multiply($taxPercentage);
+                $vat = $total->divide(1 + $taxPercentage)
+                             ->multiply($taxPercentage, $this->roundingMode($total, $taxPercentage));
             }
             $subtotal = $total->subtract($vat);
 
             $actions[] = new AddGenericOrderItem(
                 $this->owner,
                 $subtotal,
-                $this->plan->firstPaymentDescription()
+                1,
+                $this->plan->firstPaymentDescription(),
+                $this->roundingMode($total, $taxPercentage)
             );
         } elseif ($coupon) {
             $actions[] = new ApplySubscriptionCouponToPayment($this->owner, $coupon, $actions->processedOrderItems());

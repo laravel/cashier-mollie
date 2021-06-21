@@ -47,6 +47,22 @@ return [
                 'allow_surplus' => false,
             ],
         ],
+
+        /** The coupon code. Must be unique (case insensitive). */
+        'bonus' => [
+
+            /**
+             * The class responsible for validating and applying the coupon discount.
+             * Must extend \Cashier\Discount\BaseCouponHandler
+             */
+            'handler' => \Laravel\Cashier\Coupon\PercentageDiscountHandler::class,
+
+            /** Any context you want to pass to the handler */
+            'context' => [
+                'description' => 'Extra Bonus ' . config('app.name'),
+                'percentage' => '10',
+            ],
+        ],
     ],
 
 ];

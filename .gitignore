@@ -9,3 +9,4 @@ phpunit.xml
 .phpstorm.meta.php
 .php_cs.cache
 docs/.vuepress/dist
+.php-cs-fixer.cache

@@ -8,8 +8,8 @@ use Mollie\Api\Resources\Payment;
 
 class GetMolliePayment extends BaseMollieInteraction implements Contract
 {
-    public function execute(string $id): Payment
+    public function execute(string $id, array $parameters = []): Payment
     {
-        return $this->mollie->payments()->get($id);
+        return $this->mollie->payments()->get($id, $parameters);
     }
 }

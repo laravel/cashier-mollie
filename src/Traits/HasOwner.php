@@ -25,7 +25,7 @@ trait HasOwner
     public function scopeWhereOwner($query, $owner)
     {
         return $query
-            ->where('owner_id', $owner->id)
+            ->where('owner_id', $owner->getKey())
             ->where('owner_type', get_class($owner));
     }
 }

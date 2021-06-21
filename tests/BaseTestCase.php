@@ -8,6 +8,7 @@ use Illuminate\Support\Collection;
 use Laravel\Cashier\Coupon\Contracts\CouponRepository;
 use Laravel\Cashier\Coupon\Coupon;
 use Laravel\Cashier\Coupon\FixedDiscountHandler;
+use Laravel\Cashier\Plan\AdvancedIntervalGenerator;
 use Laravel\Cashier\Tests\Database\Migrations\CreateUsersTable;
 use Laravel\Cashier\Tests\Fixtures\User;
 use Mockery;
@@ -31,6 +32,7 @@ abstract class BaseTestCase extends TestCase
         $this->withFactories(__DIR__.'/database/factories');
 
         config(['cashier.webhook_url' => 'https://www.example.com/webhook']);
+        config(['cashier.aftercare_webhook_url' => 'https://www.example.com/aftercare-webhook']);
         config(['cashier.first_payment.webhook_url' => 'https://www.example.com/mandate-webhook']);
 
         if (! $this->interactWithMollieAPI) {
@@ -86,6 +88,18 @@ abstract class BaseTestCase extends TestCase
                     [
                         'class' => '\CreateAppliedCouponsTable',
                         'file_path' => $migrations_dir . '/create_applied_coupons_table.php.stub',
+                    ],
+                    [
+                        'class' => '\CreatePaymentsTable',
+                        'file_path' => $migrations_dir . '/create_payments_table.php.stub',
+                    ],
+                    [
+                        'class' => '\CreateRefundItemsTable',
+                        'file_path' => $migrations_dir . '/create_refund_items_table.php.stub',
+                    ],
+                    [
+                        'class' => '\CreateRefundsTable',
+                        'file_path' => $migrations_dir . '/create_refunds_table.php.stub',
                     ],
                 ]
             )
@@ -175,7 +189,7 @@ abstract class BaseTestCase extends TestCase
                     'first_payment' => [
                         'redirect_url' => 'https://www.example.com',
                         'webhook_url' => 'https://www.example.com/webhooks/mollie/first-payment',
-                        'method' => 'ideal',
+                        'method' => ['ideal'],
                         'amount' => [
                             'value' => '0.05',
                             'currency' => 'EUR',
@@ -216,6 +230,61 @@ abstract class BaseTestCase extends TestCase
                         ],
                         'interval' => '1 weeks',
                         'description' => 'Twice as expensive monthly subscription',
+                    ],
+                ],
+            ],
+        ]);
+
+        return $this;
+    }
+
+    /**
+     * Configure some test plans.
+     *
+     * @return $this
+     */
+    protected function withConfiguredPlansWithIntervalArray()
+    {
+        config([
+            'cashier_plans' => [
+                'defaults' => [
+                    'first_payment' => [
+                        'redirect_url' => 'https://www.example.com',
+                        'webhook_url' => 'https://www.example.com/webhooks/mollie/first-payment',
+                        'method' => 'ideal',
+                        'amount' => [
+                            'value' => '0.05',
+                            'currency' => 'EUR',
+                        ],
+                        'description' => 'Test mandate payment',
+                    ],
+                ],
+                'plans' => [
+                    'withfixedinterval-10-1' => [
+                        'amount' => [
+                            'currency' => 'EUR',
+                            'value' => '10.00',
+                        ],
+                        'interval' => [
+                            'generator' => AdvancedIntervalGenerator::class,
+                            'value' => 1,
+                            'period' => 'month',
+                            'monthOverflow' => false,
+                        ],
+                        'description' => 'Monthly payment',
+                    ],
+                    'withoutfixedinterval-10-1' => [
+                        'amount' => [
+                            'currency' => 'EUR',
+                            'value' => '10.00',
+                        ],
+                        'interval' => [
+                            'generator' => AdvancedIntervalGenerator::class,
+                            'value' => 1,
+                            'period' => 'month',
+                            'monthOverflow' => true,
+                        ],
+                        'description' => 'Monthly payment',
                     ],
                 ],
             ],

@@ -230,6 +230,199 @@ class SubscriptionTest extends BaseTestCase
     }
 
     /** @test */
+    public function yieldsOrderItemsAtSetIntervalsWithIntervalGenerator()
+    {
+        Carbon::setTestNow(Carbon::parse('2019-01-29'));
+        $this->withConfiguredPlansWithIntervalArray();
+        $this->withMockedGetMollieCustomer();
+        $this->withMockedGetMollieMandate();
+
+        $user = factory(User::class)->create([
+            'mollie_mandate_id' => 'mdt_unique_mandate_id',
+            'mollie_customer_id' => 'cst_unique_customer_id',
+        ]);
+
+        $subscription = $user->newSubscriptionForMandateId('mdt_unique_mandate_id', 'main', 'withfixedinterval-10-1')->create();
+        $this->assertCarbon(Carbon::parse('2019-01-29'), $subscription->cycle_started_at);
+        $this->assertCarbon(Carbon::parse('2019-01-29'), $subscription->cycle_ends_at);
+
+        $item_1 = $subscription->scheduledOrderItem;
+        $this->assertNotNull($item_1);
+        $this->assertSame("2019-01-29 00:00:00", $item_1->process_at->toDateTimeString());
+        $this->assertSame("Laravel\Cashier\Subscription", $item_1->orderable_type);
+        $this->assertSame("Laravel\Cashier\Tests\Fixtures\User", $item_1->owner_type);
+        $this->assertSame("1", $item_1->orderable_id);
+        $this->assertSame("1", $item_1->owner_id);
+        $this->assertSame("Monthly payment", $item_1->description);
+        $this->assertSame(null, $item_1->description_extra_lines);
+        $this->assertSame("EUR", $item_1->currency);
+        $this->assertSame("1", $item_1->quantity);
+        $this->assertSame("1000", $item_1->unit_price);
+        $this->assertSame("0", $item_1->tax_percentage);
+        $this->assertSame(null, $item_1->order_id);
+
+        $item_1->process();
+
+        $subscription = $subscription->fresh('scheduledOrderItem');
+        $this->assertCarbon(Carbon::parse('2019-01-29'), $subscription->cycle_started_at);
+        $this->assertCarbon(Carbon::parse('2019-02-28'), $subscription->cycle_ends_at);
+
+        $this->assertEquals([
+            'From 2019-01-29 to 2019-02-28',
+        ], $item_1->description_extra_lines);
+
+        $item_2 = $subscription->scheduledOrderItem;
+
+        $this->assertSame("2019-02-28 00:00:00", $item_2->process_at->toDateTimeString());
+        $this->assertSame("Laravel\Cashier\Subscription", $item_2->orderable_type);
+        $this->assertSame("Laravel\Cashier\Tests\Fixtures\User", $item_2->owner_type);
+        $this->assertSame("1", $item_2->orderable_id);
+        $this->assertSame("1", $item_2->owner_id);
+        $this->assertSame("Monthly payment", $item_2->description);
+        $this->assertSame(null, $item_2->description_extra_lines);
+        $this->assertSame("EUR", $item_2->currency);
+        $this->assertSame("1", $item_2->quantity);
+        $this->assertSame("1000", $item_2->unit_price);
+        $this->assertSame("0", $item_2->tax_percentage);
+        $this->assertSame(null, $item_2->order_id);
+
+
+        $item_2->process();
+
+        $subscription = $subscription->fresh('scheduledOrderItem');
+        $this->assertCarbon(Carbon::parse('2019-02-28'), $subscription->cycle_started_at);
+        $this->assertCarbon(Carbon::parse('2019-03-29'), $subscription->cycle_ends_at);
+
+        $this->assertEquals([
+            'From 2019-02-28 to 2019-03-29',
+        ], $item_2->description_extra_lines);
+
+        $item_3 = $subscription->scheduledOrderItem;
+
+        $this->assertSame("2019-03-29 00:00:00", $item_3->process_at->toDateTimeString());
+        $this->assertSame("Laravel\Cashier\Subscription", $item_3->orderable_type);
+        $this->assertSame("Laravel\Cashier\Tests\Fixtures\User", $item_3->owner_type);
+        $this->assertSame("1", $item_3->orderable_id);
+        $this->assertSame("1", $item_3->owner_id);
+        $this->assertSame("Monthly payment", $item_3->description);
+        $this->assertSame(null, $item_3->description_extra_lines);
+        $this->assertSame("EUR", $item_3->currency);
+        $this->assertSame("1", $item_3->quantity);
+        $this->assertSame("1000", $item_3->unit_price);
+        $this->assertSame("0", $item_3->tax_percentage);
+        $this->assertSame(null, $item_3->order_id);
+    }
+
+    /** @test */
+    public function yieldsOrderItemsAtSetIntervalsWithIntervalGeneratorLastDayOfTheMonth()
+    {
+        Carbon::setTestNow(Carbon::parse('2019-01-31'));
+        $this->withConfiguredPlansWithIntervalArray();
+        $this->withMockedGetMollieCustomer();
+        $this->withMockedGetMollieMandate();
+
+        $user = factory(User::class)->create([
+            'mollie_mandate_id' => 'mdt_unique_mandate_id',
+            'mollie_customer_id' => 'cst_unique_customer_id',
+        ]);
+
+        $subscription = $user->newSubscriptionForMandateId('mdt_unique_mandate_id', 'main', 'withfixedinterval-10-1')->create();
+        $this->assertCarbon(Carbon::parse('2019-01-31'), $subscription->cycle_started_at);
+        $this->assertCarbon(Carbon::parse('2019-01-31'), $subscription->cycle_ends_at);
+
+        $item_1 = $subscription->scheduledOrderItem;
+        $this->assertNotNull($item_1);
+        $this->assertSame("2019-01-31 00:00:00", $item_1->process_at->toDateTimeString());
+        $this->assertSame("Laravel\Cashier\Subscription", $item_1->orderable_type);
+        $this->assertSame("Laravel\Cashier\Tests\Fixtures\User", $item_1->owner_type);
+        $this->assertSame("1", $item_1->orderable_id);
+        $this->assertSame("1", $item_1->owner_id);
+        $this->assertSame("Monthly payment", $item_1->description);
+        $this->assertSame(null, $item_1->description_extra_lines);
+        $this->assertSame("EUR", $item_1->currency);
+        $this->assertSame("1", $item_1->quantity);
+        $this->assertSame("1000", $item_1->unit_price);
+        $this->assertSame("0", $item_1->tax_percentage);
+        $this->assertSame(null, $item_1->order_id);
+
+        $item_1->process();
+
+        $subscription = $subscription->fresh('scheduledOrderItem');
+        $this->assertCarbon(Carbon::parse('2019-01-31'), $subscription->cycle_started_at);
+        $this->assertCarbon(Carbon::parse('2019-02-28'), $subscription->cycle_ends_at);
+
+        $this->assertEquals([
+            'From 2019-01-31 to 2019-02-28',
+        ], $item_1->description_extra_lines);
+
+        $item_2 = $subscription->scheduledOrderItem;
+
+        $this->assertSame("2019-02-28 00:00:00", $item_2->process_at->toDateTimeString());
+        $this->assertSame("Laravel\Cashier\Subscription", $item_2->orderable_type);
+        $this->assertSame("Laravel\Cashier\Tests\Fixtures\User", $item_2->owner_type);
+        $this->assertSame("1", $item_2->orderable_id);
+        $this->assertSame("1", $item_2->owner_id);
+        $this->assertSame("Monthly payment", $item_2->description);
+        $this->assertSame(null, $item_2->description_extra_lines);
+        $this->assertSame("EUR", $item_2->currency);
+        $this->assertSame("1", $item_2->quantity);
+        $this->assertSame("1000", $item_2->unit_price);
+        $this->assertSame("0", $item_2->tax_percentage);
+        $this->assertSame(null, $item_2->order_id);
+
+
+        $item_2->process();
+
+        $subscription = $subscription->fresh('scheduledOrderItem');
+        $this->assertCarbon(Carbon::parse('2019-02-28'), $subscription->cycle_started_at);
+        $this->assertCarbon(Carbon::parse('2019-03-31'), $subscription->cycle_ends_at);
+
+        $this->assertEquals([
+            'From 2019-02-28 to 2019-03-31',
+        ], $item_2->description_extra_lines);
+
+        $item_3 = $subscription->scheduledOrderItem;
+
+        $this->assertSame("2019-03-31 00:00:00", $item_3->process_at->toDateTimeString());
+        $this->assertSame("Laravel\Cashier\Subscription", $item_3->orderable_type);
+        $this->assertSame("Laravel\Cashier\Tests\Fixtures\User", $item_3->owner_type);
+        $this->assertSame("1", $item_3->orderable_id);
+        $this->assertSame("1", $item_3->owner_id);
+        $this->assertSame("Monthly payment", $item_3->description);
+        $this->assertSame(null, $item_3->description_extra_lines);
+        $this->assertSame("EUR", $item_3->currency);
+        $this->assertSame("1", $item_3->quantity);
+        $this->assertSame("1000", $item_3->unit_price);
+        $this->assertSame("0", $item_3->tax_percentage);
+        $this->assertSame(null, $item_3->order_id);
+
+        $item_3->process();
+
+        $subscription = $subscription->fresh('scheduledOrderItem');
+        $this->assertCarbon(Carbon::parse('2019-03-31'), $subscription->cycle_started_at);
+        $this->assertCarbon(Carbon::parse('2019-04-30'), $subscription->cycle_ends_at);
+
+        $this->assertEquals([
+            'From 2019-03-31 to 2019-04-30',
+        ], $item_3->description_extra_lines);
+
+        $item_4 = $subscription->scheduledOrderItem;
+
+        $this->assertSame("2019-04-30 00:00:00", $item_4->process_at->toDateTimeString());
+        $this->assertSame("Laravel\Cashier\Subscription", $item_4->orderable_type);
+        $this->assertSame("Laravel\Cashier\Tests\Fixtures\User", $item_4->owner_type);
+        $this->assertSame("1", $item_4->orderable_id);
+        $this->assertSame("1", $item_4->owner_id);
+        $this->assertSame("Monthly payment", $item_4->description);
+        $this->assertSame(null, $item_4->description_extra_lines);
+        $this->assertSame("EUR", $item_4->currency);
+        $this->assertSame("1", $item_4->quantity);
+        $this->assertSame("1000", $item_4->unit_price);
+        $this->assertSame("0", $item_4->tax_percentage);
+        $this->assertSame(null, $item_4->order_id);
+    }
+
+    /** @test */
     public function cancelWorks()
     {
         $cycle_ends_at = now()->addWeek();

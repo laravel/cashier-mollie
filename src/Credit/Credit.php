@@ -34,7 +34,7 @@ class Credit extends Model
 
             // if the owner has no credit yet
             return static::create([
-                'owner_id' => $owner->id,
+                'owner_id' => $owner->getKey(),
                 'owner_type' => get_class($owner),
                 'currency' => $amount->getCurrency()->getCode(),
                 'value' => (int) $amount->getAmount(),

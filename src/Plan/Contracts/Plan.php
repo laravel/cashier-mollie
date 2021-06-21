@@ -26,7 +26,7 @@ interface Plan
     public function description();
 
     /**
-     * @return string
+     * @return \Laravel\Cashier\Plan\Contracts\IntervalGeneratorContract
      */
     public function interval();
 
@@ -49,12 +49,12 @@ interface Plan
     public function setFirstPaymentAmount(Money $firstPaymentAmount);
 
     /**
-     * @return string
+     * @return array
      */
     public function firstPaymentMethod();
 
     /**
-     * @param array|string $firstPaymentMethod
+     * @param array $firstPaymentMethod
      * @return Plan
      */
     public function setFirstPaymentMethod($firstPaymentMethod);

@@ -13,6 +13,7 @@ use Laravel\Cashier\Subscription;
 use Mollie\Api\MollieApiClient;
 use Mollie\Api\Resources\Customer;
 use Mollie\Api\Resources\Mandate;
+use Mollie\Api\Resources\Payment;
 
 class SwapSubscriptionPlanTest extends BaseTestCase
 {
@@ -245,7 +246,15 @@ class SwapSubscriptionPlanTest extends BaseTestCase
     protected function withMockedCreateMolliePayment($times = 1): void
     {
         $this->mock(CreateMolliePayment::class, function ($mock) use ($times) {
-            return $mock->shouldReceive('execute')->times($times);
+            $payment = new Payment($this->getMollieClientMock());
+            $payment->id = 'tr_dummy_id';
+            $payment->amount = (object) [
+                'currency' => 'EUR',
+                'value' => '10.00',
+            ];
+            $payment->mandateId = 'mdt_dummy_mandate_id';
+
+            return $mock->shouldReceive('execute')->times($times)->andReturn($payment);
         });
     }
 }
