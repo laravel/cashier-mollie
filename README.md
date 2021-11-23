@@ -1,3 +1,6 @@
+## Version 2
+**The updated v2 of this package has been released under a new namespace.  Please check out [mollie/laravel-cashier-mollie](https://github.com/mollie/laravel-cashier-mollie) to find latest version.**
+
 <p align="center">
   <img src="https://info.mollie.com/hubfs/github/laravel-cashier/logoLaravel.jpg" width="128" height="128"/>
 </p>
