@@ -11,7 +11,7 @@ class CashierInstall extends Command
      *
      * @var string
      */
-    protected $signature = 'cashier:install 
+    protected $signature = 'cashier:install
                             {--T|template : include publishing the invoice template}';
 
     /**
@@ -56,5 +56,19 @@ class CashierInstall extends Command
         }
 
         $this->info('Cashier was installed successfully.');
+        $this->writePackageDeprecatedMessage();
+
+    }
+
+    public function writePackageDeprecatedMessage()
+    {
+
+        $this->line("\n<options=bold>This package is out of date. We released version 2 and we move it to another repo.!</> \n");
+        if ($this->confirm('Do you want to see how you can update to v2?')) {
+            exec('open https://www.cashiermollie.com/13-upgrade.html#preparations');
+            $this->line("Thanks! Enjoy V2");
+        } else {
+            $this->line("I understand, but I'm not going to pretend I'm not sad about it, but you have to switch to v2.");
+        }
     }
 }
