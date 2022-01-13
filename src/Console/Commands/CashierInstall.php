@@ -63,8 +63,8 @@ class CashierInstall extends Command
     public function writePackageDeprecatedMessage()
     {
 
-        $this->line("\n<options=bold>This package is out of date. We released version 2 and we move it to another repo.!</> \n");
-        if ($this->confirm('Do you want to see how you can update to v2?')) {
+        $this->line("\n<fg=red;options=bold>This package is out of date. We released version 2 and we move it to another repo.!</> \n");
+        if ($this->confirm('Do you want to see how you can update to v2?', true)) {
             exec('open https://www.cashiermollie.com/13-upgrade.html#preparations');
             $this->line("Thanks! Enjoy V2");
         } else {
